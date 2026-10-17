@@ -1,929 +1,260 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ExitInsight HR | KYR People Analytics</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --navy:#172554;
-  --blue:#3157d5;
-  --orange:#f97316;
-  --bg:#f1f4f9;
-  --white:#fff;
-  --text:#202b3c;
-  --muted:#8490a2;
-  --border:#e3e8ef;
-  --green:#16a36a;
-  --red:#e65368;
-  --shadow:0 4px 18px rgba(31,45,70,.055);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
-button,input,select,textarea{font:inherit}
-button,a{cursor:pointer}
-button{border:0}
-.app{min-height:100vh;display:flex}
-.sidebar{
-  width:245px;background:#fff;border-right:1px solid var(--border);
-  position:fixed;inset:0 auto 0 0;z-index:30;display:flex;flex-direction:column;
-  transition:transform .25s ease;width:245px
-}
-.brand{height:78px;display:flex;align-items:center;padding:0 23px;gap:11px;border-bottom:1px solid #f1f3f7}
-.brand-mark{width:39px;height:39px;flex-shrink:0}
-.brand-name{font-size:19px;font-weight:800;letter-spacing:-.8px;color:var(--navy)}
-.brand-name span{color:var(--orange)}
-.brand-sub{font-size:10px;color:var(--muted);margin-top:2px}
-.sidebar-scroll{overflow-y:auto;padding:17px 13px;flex:1}
-.nav-label{font-size:10px;letter-spacing:1.1px;color:#a0a9b8;font-weight:800;padding:13px 12px 8px}
-.nav-link{
-  width:100%;display:flex;align-items:center;gap:12px;text-align:left;
-  padding:11px 12px;border-radius:9px;margin:3px 0;color:#5b6575;
-  background:transparent;font-size:13px;font-weight:600;transition:.2s
-}
-.nav-link svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor}
-.nav-link:hover{background:#f7f8fc;color:var(--blue)}
-.nav-link.active{background:#fff1e7;color:#e96a13}
-.nav-link .count{margin-left:auto;background:#ffead8;color:#e76c13;border-radius:20px;padding:2px 7px;font-size:10px}
-.sidebar-bottom{border-top:1px solid var(--border);padding:15px}
-.help-card{background:#f5f7ff;border:1px solid #e7eaff;border-radius:12px;padding:13px}
-.help-card strong{font-size:12px}
-.help-card p{font-size:11px;color:var(--muted);line-height:1.5;margin:6px 0 10px}
-.small-btn{background:var(--blue);color:#fff;border-radius:7px;padding:8px 10px;font-size:11px;font-weight:700}
-.main{margin-left:245px;width:calc(100% - 245px);min-width:0}
-.topbar{
-  height:78px;background:#fff;border-bottom:1px solid var(--border);
-  padding:0 30px;display:flex;align-items:center;justify-content:space-between;gap:15px;
-  position:sticky;top:0;z-index:20
-}
-.top-left,.top-actions{display:flex;align-items:center;gap:15px;min-width:0}
-.icon-btn{width:39px;height:39px;border:1px solid var(--border);background:#fff;border-radius:10px;display:grid;place-items:center;color:#536074;position:relative}
-.icon-btn svg{width:18px;height:18px;stroke:currentColor}
-.icon-btn:hover{background:#f7f8fc}
-.search-box{width:min(290px,32vw);position:relative}
-.search-box input{width:100%;padding:11px 13px 11px 37px;border:1px solid var(--border);border-radius:10px;background:#fafbfc;outline:none}
-.search-box svg{position:absolute;left:12px;top:12px;width:16px;height:16px;stroke:#8791a1}
-.search-box input:focus{border-color:var(--blue)}
-.notification-dot{position:absolute;right:7px;top:6px;width:7px;height:7px;background:var(--orange);border-radius:50%;border:1px solid white}
-.profile-wrap{position:relative}
-.profile-btn{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:6px 10px}
-.avatar{width:35px;height:35px;border-radius:50%;background:#e3e9ff;color:#3157d5;display:grid;place-items:center;font-weight:800}
-.profile-text{text-align:left}
-.profile-text strong{display:block;font-size:12px}
-.profile-text span{font-size:10px;color:var(--muted)}
-.profile-menu{display:none;position:absolute;right:0;top:49px;width:170px;background:#fff;border:1px solid var(--border);box-shadow:var(--shadow);border-radius:11px;padding:6px;z-index:40}
-.profile-menu.open{display:block}
-.profile-menu button{display:block;width:100%;text-align:left;padding:10px;border-radius:7px;background:white;color:#475569;font-size:12px}
-.profile-menu button:hover{background:#f3f5fa}
-.content{padding:27px 30px 38px;max-width:1700px;margin:auto}
-.page{display:none;animation:fade .2s ease}
-.page.active{display:block}
-@keyframes fade{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
-.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap;margin-bottom:23px}
-.eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:6px}
-h1{font-size:25px;letter-spacing:-.8px;font-weight:800}
-.heading-description{font-size:12px;color:var(--muted);margin-top:6px}
-.heading-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-.date-chip,.btn-secondary{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px;font-size:12px}
-.btn-primary{background:var(--orange);color:#fff;padding:11px 15px;border-radius:9px;font-size:12px;font-weight:700}
-.btn-primary:hover{background:#e9650b}
-.btn-secondary:hover{background:#f7f8fb}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:19px}
-.metric{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);min-width:0}
-.metric-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.metric-label{font-size:12px;color:#778294;font-weight:600}
-.metric-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#fff0e3;color:var(--orange)}
-.metric-icon.blue{background:#edf1ff;color:#4d68dc}
-.metric-icon.green{background:#e7f8ef;color:var(--green)}
-.metric-icon.pink{background:#fff0f2;color:var(--red)}
-.metric-icon svg{width:21px;height:21px;stroke:currentColor}
-.metric-number{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:12px}
-.metric-foot{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10px;color:var(--muted)}
-.trend-up{color:var(--green);font-weight:800}
-.trend-down{color:var(--red);font-weight:800}
-.grid-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-bottom:18px}
-.grid-three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
-.panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:19px;box-shadow:var(--shadow);min-width:0}
-.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}
-.panel-title{font-size:14px;font-weight:800}
-.panel-subtitle{font-size:11px;color:var(--muted);margin-top:5px}
-.panel-action{border:1px solid var(--border);background:#fff;color:#667184;padding:7px 9px;border-radius:7px;font-size:10px}
-.chart{width:100%;height:245px;display:block;overflow:visible}
-.chart text{font-family:inherit;fill:#929cab;font-size:10px}
-.chart .gridline{stroke:#edf0f5;stroke-width:1}
-.legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:10px;color:#778294}
-.legend span{display:flex;align-items:center;gap:6px}
-.legend-dot{width:8px;height:8px;border-radius:3px;display:inline-block}
-.line-chart-wrap{position:relative}
-.chart-tooltip{position:absolute;top:24%;left:40%;background:#172033;color:#fff;border-radius:7px;padding:9px 12px;font-size:10px;box-shadow:0 4px 12px #0002;pointer-events:none}
-.chart-tooltip strong{display:block;margin-bottom:5px}
-.chart-tooltip span{display:block;color:#e7ebf3;line-height:1.8}
-.bottom-stat{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:7px}
-.progress{height:6px;border-radius:20px;background:#edf0f4;overflow:hidden;margin-bottom:16px}
-.progress span{display:block;height:100%;border-radius:20px}
-.donut-layout{display:flex;align-items:center;gap:15px;justify-content:space-around;flex-wrap:wrap}
-.donut{width:145px;height:145px;border-radius:50%;position:relative;background:conic-gradient(#f97316 0 39%,#eab308 39% 62%,#64748b 62% 82%,#d946ef 82% 92%,#3157d5 92% 100%);flex-shrink:0}
-.donut::after{content:"";position:absolute;inset:24px;background:white;border-radius:50%}
-.donut-center{position:absolute;z-index:1;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.donut-center strong{font-size:22px}
-.donut-center span{font-size:10px;color:var(--muted)}
-.donut-legend{display:grid;gap:12px}
-.donut-legend div{display:flex;align-items:center;gap:8px;font-size:11px;color:#687487}
-.donut-legend b{margin-left:auto;color:var(--text)}
-.employee-list{display:grid;gap:14px}
-.employee-row{display:flex;align-items:center;gap:9px}
-.person-avatar{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:#e8edff;color:#3f56bd;font-size:11px;font-weight:800;flex-shrink:0}
-.person-info{flex:1;min-width:0}
-.person-info strong{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.person-info span{font-size:10px;color:var(--muted)}
-.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:700;background:#fff1dc;color:#b8750c;white-space:nowrap}
-.status.approved,.status.resolved{background:#e4f8ec;color:#148452}
-.status.review{background:#e8edff;color:#4058c7}
-.status.high{background:#ffe7eb;color:#d63e58}
-.status.open{background:#fff1dc;color:#b8750c}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}
-table{border-collapse:collapse;width:100%;min-width:640px}
-th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #edf0f4;font-size:11px}
-th{background:#f8fafc;color:#7a8595;text-transform:uppercase;font-size:9px;letter-spacing:.6px;font-weight:800}
-tr:last-child td{border-bottom:0}
-td{color:#4b5668}
-td strong{color:var(--text)}
-.table-empty{text-align:center;color:var(--muted);padding:25px}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.field{display:flex;flex-direction:column;gap:7px}
-.field.full{grid-column:1/-1}
-.field label{font-size:11px;font-weight:700;color:#4b5668}
-.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #dfe5ed;border-radius:8px;outline:none;background:#fff;color:var(--text)}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3157d51a}
-.field textarea{min-height:100px;resize:vertical}
-.form-actions{display:flex;gap:9px;margin-top:19px;flex-wrap:wrap}
-.notice{display:none;margin-top:15px;padding:12px;border-radius:8px;background:#e8f9ef;color:#167547;font-size:12px}
-.notice.show{display:block}
-.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:17px}
-.filter-bar input,.filter-bar select{max-width:250px;padding:10px 11px;border:1px solid var(--border);border-radius:8px;background:#fff;outline:none;font-size:12px}
-.simple-stat{padding:15px;border:1px solid var(--border);border-radius:10px;background:#fff}
-.simple-stat span{font-size:11px;color:var(--muted)}
-.simple-stat strong{display:block;font-size:24px;margin-top:6px}
-.settings-row{padding:15px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:15px}
-.settings-row:last-child{border-bottom:0}
-.settings-row strong{font-size:12px}
-.settings-row p{font-size:11px;color:var(--muted);margin-top:4px}
-.toggle{width:38px;height:22px;border-radius:30px;background:#3157d5;position:relative;flex-shrink:0}
-.toggle:after{content:"";position:absolute;width:16px;height:16px;right:3px;top:3px;background:white;border-radius:50%}
-.footer{padding:17px 30px;border-top:1px solid var(--border);background:#fff;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.mobile-overlay{display:none}
-@media(max-width:1200px){
- .sidebar{width:220px}.main{margin-left:220px;width:calc(100% - 220px)}
- .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
- .grid-three{grid-template-columns:1fr 1fr}
- .content{padding:24px 20px}
- .topbar{padding:0 20px}
-}
-@media(max-width:850px){
- .sidebar{transform:translateX(-100%);width:245px;box-shadow:8px 0 30px #17255414}
- .sidebar.open{transform:translateX(0)}
- .main{margin-left:0;width:100%}
- .mobile-overlay.show{display:block;position:fixed;inset:0;background:#0f172a55;z-index:25}
- .grid-two,.grid-three{grid-template-columns:1fr}
- .topbar{height:68px;padding:0 14px}
- .content{padding:21px 14px}
- .search-box{width:min(220px,40vw)}
- .footer{padding:15px}
-}
-@media(max-width:520px){
- .metrics{gap:9px}
- .metric{padding:13px}
- .metric-number{font-size:24px}
- .metric-label{font-size:10px}
- .metric-icon{width:33px;height:33px}
- .top-actions{gap:7px}
- .profile-text{display:none}
- .profile-btn{padding:5px}
- .search-box{width:140px}
- .search-box input{font-size:11px;padding-left:32px}
- .page-heading h1{font-size:22px}
- .panel{padding:14px}
- .form-grid{grid-template-columns:1fr}
- .field.full{grid-column:auto}
-}
+:root{--navy:#172554;--blue:#3157d5;--orange:#f97316;--bg:#f1f4f9;--white:#fff;--text:#202b3c;--muted:#8490a2;--border:#e3e8ef;--green:#16a36a;--red:#e65368;--shadow:0 4px 18px rgba(31,45,70,.055)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#172554,#3157d5)}.auth-card{width:min(100%,460px);background:white;border-radius:18px;padding:30px;box-shadow:0 20px 70px #0003}.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}.brand-mark{width:43px;height:43px;border:3px solid var(--navy);border-radius:50%;display:grid;place-items:center;font-weight:900;color:var(--navy)}.brand-name{font-size:22px;font-weight:800;color:var(--navy)}.brand-name span{color:var(--orange)}.muted{color:var(--muted)}h1{font-size:25px;letter-spacing:-.6px;margin-bottom:8px}.auth-card p{line-height:1.6}.field{display:flex;flex-direction:column;gap:7px;margin-top:15px}.field label{font-size:12px;font-weight:700;color:#4b5668}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #dfe5ed;border-radius:8px;outline:none;background:#fff;color:var(--text)}.field textarea{min-height:100px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3157d51a}.btn-primary{background:var(--orange);color:#fff;padding:12px 15px;border-radius:9px;font-weight:700}.btn-secondary{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px}.full{width:100%;margin-top:18px}.notice{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#e8f9ef;color:#167547;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.notice.show{display:block}.notice.error{background:#fff0f2;color:#b4233b}.auth-help{font-size:11px;margin-top:15px}
+.app{min-height:100vh;display:flex}.sidebar{width:245px;background:#fff;border-right:1px solid var(--border);position:fixed;inset:0 auto 0 0;z-index:30;display:flex;flex-direction:column;transition:transform .25s}.sidebar-brand{height:78px;display:flex;align-items:center;padding:0 20px;gap:10px;border-bottom:1px solid #f1f3f7}.sidebar-brand .brand-mark{width:37px;height:37px}.sidebar-brand .brand-name{font-size:19px}.sidebar-scroll{overflow-y:auto;padding:17px 13px;flex:1}.nav-label{font-size:10px;letter-spacing:1.1px;color:#a0a9b8;font-weight:800;padding:13px 12px 8px}.nav-link{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:11px 12px;border-radius:9px;margin:3px 0;color:#5b6575;background:transparent;font-size:13px;font-weight:600}.nav-link:hover,.nav-link.active{background:#fff1e7;color:#e96a13}.sidebar-bottom{border-top:1px solid var(--border);padding:15px;font-size:11px;color:var(--muted);line-height:1.5}.main{margin-left:245px;width:calc(100% - 245px);min-width:0}.topbar{height:78px;background:#fff;border-bottom:1px solid var(--border);padding:0 30px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:20}.topbar h2{font-size:15px}.top-actions{display:flex;align-items:center;gap:10px}.profile-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:6px 10px}.avatar{width:35px;height:35px;border-radius:50%;background:#e3e9ff;color:#3157d5;display:grid;place-items:center;font-weight:800}.profile-text strong{display:block;font-size:12px}.profile-text span{font-size:10px;color:var(--muted)}.content{padding:27px 30px 38px;max-width:1500px;margin:auto}.page{display:none}.page.active{display:block}.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap;margin-bottom:23px}.eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.3px;margin-bottom:6px}.heading-description{font-size:12px;color:var(--muted);margin-top:6px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:19px}.metric,.panel,.simple-stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);min-width:0}.metric-label{font-size:12px;color:#778294;font-weight:600}.metric-number{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:12px}.metric-foot{font-size:10px;color:var(--muted);margin-top:8px}.grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}.panel{margin-bottom:18px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}.panel-title{font-size:14px;font-weight:800}.panel-subtitle{font-size:11px;color:var(--muted);margin-top:5px}.simple-stat span{font-size:11px;color:var(--muted)}.simple-stat strong{display:block;font-size:24px;margin-top:6px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.field.full{grid-column:1/-1}.form-actions{display:flex;gap:9px;margin-top:19px;flex-wrap:wrap}.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:600px}th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #edf0f4;font-size:11px}th{background:#f8fafc;color:#7a8595;text-transform:uppercase;font-size:9px;letter-spacing:.6px}tr:last-child td{border-bottom:0}td{color:#4b5668}.table-empty{text-align:center;color:var(--muted);padding:25px}.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:700;background:#fff1dc;color:#b8750c}.status.resolved{background:#e4f8ec;color:#148452}.status.review{background:#e8edff;color:#4058c7}.footer{padding:17px 30px;border-top:1px solid var(--border);background:#fff;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.info-box{padding:13px;border-radius:9px;background:#f5f7ff;color:#44517a;font-size:12px;line-height:1.6;margin-bottom:15px}
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:22px 18px}.topbar{padding:0 18px}}@media(max-width:760px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:8px 0 30px #17255414}.main{margin-left:0;width:100%}.grid-two{grid-template-columns:1fr}.topbar{height:68px;padding:0 12px}.content{padding:18px 12px}.profile-text{display:none}}@media(max-width:520px){.metrics{gap:9px}.metric{padding:13px}.metric-number{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.auth-card{padding:22px}}
 </style>
 </head>
-
 <body>
-<div class="app">
+<section id="authScreen" class="auth-wrap">
+  <div class="auth-card">
+    <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:10px">HR MANAGEMENT PORTAL</div></div></div>
+    <h1 id="authTitle">Sign in</h1>
+    <p class="muted" id="authSubtitle">Sign in with your registered account to continue.</p>
+    <form id="loginForm">
+      <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
+      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
+      <button class="btn-primary full" type="submit" id="loginButton">Sign in</button>
+    </form>
+    <div id="authNotice" class="notice" role="status"></div>
+    <p class="auth-help muted">Accounts must be created in Supabase Authentication. Your role is read from the profiles table; you cannot choose or change your own role here.</p>
+  </div>
+</section>
 
+<div id="appScreen" class="app hidden">
   <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <!-- KYR integrated monogram symbol -->
-      <svg class="brand-mark" viewBox="0 0 100 100" aria-label="KYR logo">
-        <circle cx="50" cy="50" r="44" fill="white" stroke="#172554" stroke-width="5"/>
-        <path d="M27 29 V70 M27 50 L46 31 M31 48 L48 70" fill="none" stroke="#172554" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
-        <path d="M47 30 L61 49 L61 70 M48 30 L70 30 Q82 30 82 42 Q82 52 69 52 L61 52 M69 52 L82 70" fill="none" stroke="#172554" stroke-width="7" stroke-linecap="square" stroke-linejoin="round"/>
-      </svg>
-      <div>
-        <div class="brand-name">Exit<span>Insight</span></div>
-        <div class="brand-sub">HR MANAGEMENT PORTAL</div>
-      </div>
-    </div>
-
+    <div class="sidebar-brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:9px">HR MANAGEMENT PORTAL</div></div></div>
     <div class="sidebar-scroll">
       <div class="nav-label">WORKSPACE</div>
-      <button class="nav-link active" data-page="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="11" width="7" height="10" rx="2"/><rect x="3" y="14" width="8" height="7" rx="2"/></svg>
-        Dashboard
-      </button>
-      <button class="nav-link" data-page="employees">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 4a4 4 0 0 1 0 8M19 15a6 6 0 0 1 3 5"/></svg>
-        Employees
-      </button>
-      <button class="nav-link" data-page="analytics">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-5 4 3 5-7"/></svg>
-        Attrition Analytics
-      </button>
-
-      <div class="nav-label">EMPLOYEE EXPERIENCE</div>
-      <button class="nav-link" data-page="interviews">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-        Exit Interviews
-        <span class="count" id="exitNavCount">0</span>
-      </button>
-      <button class="nav-link" data-page="grievances">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
-        Grievance Management
-        <span class="count" id="grievanceNavCount">0</span>
-      </button>
-
-      <div class="nav-label">MANAGEMENT</div>
-      <button class="nav-link" data-page="reports">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
-        Reports
-      </button>
-      <button class="nav-link" data-page="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 3.1-.2-.1a1.7 1.7 0 0 0-1.9.3l-.2.1h-3.5l-.1-.2a1.7 1.7 0 0 0-1.6-1.1 1.7 1.7 0 0 0-1.1.4l-.2.1-3.1-1.8.1-.2a1.7 1.7 0 0 0-.3-1.9l-.1-.2v-3.5l.2-.1a1.7 1.7 0 0 0 1.1-1.6 1.7 1.7 0 0 0-.4-1.1l-.1-.2 1.8-3.1.2.1a1.7 1.7 0 0 0 1.9-.3l.2-.1h3.5l.1.2a1.7 1.7 0 0 0 1.6 1.1 1.7 1.7 0 0 0 1.1-.4l.2-.1 3.1 1.8-.1.2a1.7 1.7 0 0 0 .3 1.9l.1.2v3.5z"/></svg>
-        Settings
-      </button>
+      <button class="nav-link active" data-page="dashboard" data-roles="employer">Analytics Dashboard</button>
+      <button class="nav-link" data-page="employeeHome" data-roles="employee">My Home</button>
+      <button class="nav-link" data-page="myGrievances" data-roles="employee">My Grievances</button>
+      <button class="nav-link" data-page="myExit" data-roles="employee">My Exit Feedback</button>
     </div>
-
-    <div class="sidebar-bottom">
-      <div class="help-card">
-        <strong>Need help with HR insights?</strong>
-        <p>Review your employee data and explore retention opportunities.</p>
-        <button class="small-btn" onclick="showPage('analytics')">Explore Analytics ↗</button>
-      </div>
-    </div>
+    <div class="sidebar-bottom">ExitInsight HR · Prototype<br>Access is controlled by Supabase policies.</div>
   </aside>
-
-  <div class="mobile-overlay" id="overlay"></div>
-
   <div class="main">
-    <header class="topbar">
-      <div class="top-left">
-        <button class="icon-btn" id="menuToggle" aria-label="Toggle sidebar">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>
-          <input type="search" id="globalSearch" placeholder="Search this page...">
-        </div>
-      </div>
-
-      <div class="top-actions">
-        <button class="icon-btn" id="notificationButton" title="Notifications">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
-          <span class="notification-dot"></span>
-        </button>
-
-        <div class="profile-wrap">
-          <button class="profile-btn" id="profileButton">
-            <div class="avatar">A</div>
-            <div class="profile-text"><strong>Admin</strong><span>HR Administrator</span></div>
-            <span>⌄</span>
-          </button>
-          <div class="profile-menu" id="profileMenu">
-            <button onclick="showPage('settings')">♙ &nbsp; Profile</button>
-            <button onclick="showPage('settings')">⚙ &nbsp; Settings</button>
-            <button onclick="showDemoNotice()">↪ &nbsp; Demo logout</button>
-          </div>
-        </div>
-      </div>
-    </header>
-
+    <header class="topbar"><div><h2 id="topTitle">Analytics Dashboard</h2><div class="muted" style="font-size:11px" id="topEmail"></div></div><div class="top-actions"><div class="profile-btn"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileName">User</strong><span id="profileRole">Signed in</span></div></div><button class="btn-secondary" id="logoutButton">Sign out</button></div></header>
     <main class="content">
-
-      <!-- DASHBOARD PAGE -->
       <section class="page active" id="page-dashboard">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">HR INTELLIGENCE OVERVIEW</div>
-            <h1>Dashboard</h1>
-            <p class="heading-description">Welcome back, Admin. Here's your employee overview.</p>
-          </div>
-          <div class="heading-actions">
-            <span class="date-chip" id="currentDate">Today</span>
-            <button class="btn-primary" onclick="showPage('reports')">↧ &nbsp; View Reports</button>
-          </div>
-        </div>
-
+        <div class="page-heading"><div><div class="eyebrow">HR INTELLIGENCE</div><h1>Analytics Dashboard</h1><p class="heading-description">Aggregate workforce insights only. Individual employee records are not displayed here.</p></div></div>
+        <div class="info-box">The dashboard is connected to Supabase authentication. To show live aggregate analytics without exposing individual grievance or exit-feedback records, configure a restricted database view or RPC function first. Until then, live analytics are intentionally not fabricated.</div>
         <div class="metrics">
-          <article class="metric">
-            <div class="metric-head"><span class="metric-label">Total Employees</span><span class="metric-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 4a4 4 0 0 1 0 8"/></svg></span></div>
-            <div class="metric-number" id="totalEmployees">250</div>
-            <div class="metric-foot"><span class="trend-up">↗ 4.8%</span> <span>vs previous period</span></div>
-          </article>
-          <article class="metric">
-            <div class="metric-head"><span class="metric-label">Employees Exited</span><span class="metric-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 5v14M5 12h14"/><path d="m7 7 10 10"/></svg></span></div>
-            <div class="metric-number" id="totalExited">32</div>
-            <div class="metric-foot"><span class="trend-down">12.8%</span> <span>illustrative exit rate</span></div>
-          </article>
-          <article class="metric">
-            <div class="metric-head"><span class="metric-label">Attrition Rate</span><span class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="m3 17 6-6 4 3 8-9"/><path d="M15 5h6v6"/></svg></span></div>
-            <div class="metric-number">12.8%</div>
-            <div class="metric-foot"><span class="trend-down">↘ Monitor</span> <span>retention opportunities</span></div>
-          </article>
-          <article class="metric">
-            <div class="metric-head"><span class="metric-label">Retention Rate</span><span class="metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="m5 12 4 4L19 6"/><circle cx="12" cy="12" r="10"/></svg></span></div>
-            <div class="metric-number">87.2%</div>
-            <div class="metric-foot"><span class="trend-up">Healthy indicator</span></div>
-          </article>
+          <article class="metric"><div class="metric-label">Grievances submitted</div><div class="metric-number" id="metricGrievances">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Grievances resolved</div><div class="metric-number" id="metricResolved">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Exit feedback received</div><div class="metric-number" id="metricExits">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Analytics status</div><div class="metric-number" style="font-size:20px" id="metricStatus">Setup needed</div><div class="metric-foot">No individual records loaded</div></article>
         </div>
-
-        <div class="grid-two">
-          <article class="panel">
-            <div class="panel-head">
-              <div><div class="panel-title">Attrition by Reason</div><div class="panel-subtitle">Illustrative employee exit reasons</div></div>
-              <button class="panel-action" onclick="showPage('analytics')">Details ↗</button>
-            </div>
-            <svg id="reasonChart" class="chart" viewBox="0 0 520 255" role="img" aria-label="Bar chart of attrition reasons"></svg>
-            <div class="legend">
-              <span><i class="legend-dot" style="background:#f97316"></i>Employee exits</span>
-              <span>Sample total: 32</span>
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-head">
-              <div><div class="panel-title">Attrition Trend</div><div class="panel-subtitle">Illustrative quarterly exit trend</div></div>
-              <select id="trendPeriod" class="panel-action" aria-label="Trend period"><option>2026</option><option>2025</option></select>
-            </div>
-            <svg id="trendChart" class="chart" viewBox="0 0 520 255" role="img" aria-label="Line chart of attrition trend"></svg>
-            <div class="legend">
-              <span><i class="legend-dot" style="background:#f97316"></i>Employee exits</span>
-              <span><i class="legend-dot" style="background:#64748b"></i>Retention index</span>
-            </div>
-          </article>
-        </div>
-
-        <div class="grid-three">
-          <article class="panel">
-            <div class="panel-head"><div><div class="panel-title">HR Statistics</div><div class="panel-subtitle">Operational overview</div></div></div>
-            <div class="bottom-stat"><span>Exit interviews completed</span><strong id="exitStat">0/32</strong></div>
-            <div class="progress"><span id="exitProgress" style="width:0%;background:#f97316"></span></div>
-            <div class="bottom-stat"><span>Grievances resolved</span><strong id="resolvedStat">0/0</strong></div>
-            <div class="progress"><span id="grievanceProgress" style="width:0%;background:#eab308"></span></div>
-            <div class="bottom-stat"><span>Retention rate</span><strong>87.2%</strong></div>
-            <div class="progress"><span style="width:87.2%;background:#16a36a"></span></div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-head"><div><div class="panel-title">Exit Reasons Mix</div><div class="panel-subtitle">Distribution of demo exit records</div></div></div>
-            <div class="donut-layout">
-              <div class="donut"><div class="donut-center"><strong>32</strong><span>Total exits</span></div></div>
-              <div class="donut-legend">
-                <div><i class="legend-dot" style="background:#f97316"></i>Career growth <b>12</b></div>
-                <div><i class="legend-dot" style="background:#eab308"></i>Compensation <b>8</b></div>
-                <div><i class="legend-dot" style="background:#64748b"></i>Work environment <b>7</b></div>
-                <div><i class="legend-dot" style="background:#d946ef"></i>Personal <b>5</b></div>
-              </div>
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-head"><div><div class="panel-title">Recent HR Activity</div><div class="panel-subtitle">Latest demo entries</div></div><button class="panel-action" onclick="showPage('grievances')">View all</button></div>
-            <div class="employee-list" id="recentActivity">
-              <div class="employee-row"><div class="person-avatar">HR</div><div class="person-info"><strong>ExitInsight initialized</strong><span>Dashboard sample data loaded</span></div></div>
-              <div class="employee-row"><div class="person-avatar">EX</div><div class="person-info"><strong>Exit analytics available</strong><span>Review sample exit patterns</span></div></div>
-              <div class="employee-row"><div class="person-avatar">GR</div><div class="person-info"><strong>Grievance register ready</strong><span>No submitted demo records</span></div></div>
-            </div>
-          </article>
-        </div>
+        <div class="panel"><div class="panel-title">Analytics connection</div><p class="panel-subtitle" id="analyticsMessage" style="line-height:1.7">After your database administrator creates a secure aggregate-only RPC named get_hr_analytics, this panel can show approved counts. Do not grant HR users direct access to confidential rows merely to make charts work.</p></div>
       </section>
-
-      <!-- EMPLOYEES -->
-      <section class="page" id="page-employees">
-        <div class="page-heading">
-          <div><div class="eyebrow">PEOPLE DIRECTORY</div><h1>Employees</h1><p class="heading-description">Browse the sample employee directory.</p></div>
-          <div class="heading-actions"><button class="btn-primary" onclick="alert('This prototype uses sample employee records. Database integration is not configured.')">+ Add Employee</button></div>
-        </div>
-        <div class="metrics">
-          <div class="simple-stat"><span>Total employees</span><strong>250</strong></div>
-          <div class="simple-stat"><span>Departments</span><strong>5</strong></div>
-          <div class="simple-stat"><span>Active sample records</span><strong>5</strong></div>
-          <div class="simple-stat"><span>Data mode</span><strong style="font-size:17px;color:#d97706">Demo</strong></div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Employee Directory</div><div class="panel-subtitle">Fictional records for interface testing</div></div></div>
-          <div class="filter-bar"><input id="employeeSearch" placeholder="Search name or role..."><select id="employeeDepartment"><option value="">All departments</option><option>HR</option><option>Sales</option><option>Operations</option><option>Finance</option><option>Marketing</option></select></div>
-          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Employee ID</th><th>Department</th><th>Role</th><th>Status</th></tr></thead><tbody id="employeeTable"></tbody></table></div>
-        </div>
+      <section class="page" id="page-employeeHome">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE SELF-SERVICE</div><h1>Welcome</h1><p class="heading-description">Submit a workplace concern or share exit feedback securely.</p></div></div>
+        <div class="grid-two"><div class="panel"><div class="panel-title">Raise a grievance</div><p class="panel-subtitle">Your submission is linked to your signed-in account.</p><button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button></div><div class="panel"><div class="panel-title">Share exit feedback</div><p class="panel-subtitle">Submit feedback associated with your account.</p><button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button></div></div>
       </section>
-
-      <!-- ANALYTICS -->
-      <section class="page" id="page-analytics">
-        <div class="page-heading"><div><div class="eyebrow">PEOPLE INSIGHTS</div><h1>Attrition Analytics</h1><p class="heading-description">Explore exit patterns and identify possible retention actions.</p></div><button class="btn-primary" onclick="window.print()">Print Analytics</button></div>
-        <div class="metrics">
-          <div class="metric"><div class="metric-label">Sample employee exits</div><div class="metric-number">32</div><div class="metric-foot">Illustrative data</div></div>
-          <div class="metric"><div class="metric-label">Attrition rate</div><div class="metric-number">12.8%</div><div class="metric-foot">32 ÷ 250 × 100</div></div>
-          <div class="metric"><div class="metric-label">Leading reason</div><div class="metric-number" style="font-size:22px">Career</div><div class="metric-foot">12 sample exits</div></div>
-          <div class="metric"><div class="metric-label">Departments</div><div class="metric-number">5</div><div class="metric-foot">Sample breakdown</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Department-Level Attrition</div><div class="panel-subtitle">Select a department to review its sample exit reasons.</div></div></div>
-          <div class="filter-bar"><label for="analyticsDepartment">Department:</label><select id="analyticsDepartment"><option value="All">All departments</option><option>Sales</option><option>HR</option><option>Operations</option><option>Finance</option><option>Marketing</option></select></div>
-          <div class="grid-two">
-            <div><div class="panel-title" style="margin-bottom:14px">Exit reasons</div><svg id="analyticsChart" class="chart" viewBox="0 0 520 255"></svg></div>
-            <div><div class="panel-title" style="margin-bottom:14px">Department exits</div><svg id="departmentChart" class="chart" viewBox="0 0 520 255"></svg></div>
-          </div>
-          <div class="notice show" id="analyticsInsight">Sample insight: career growth is the most frequently recorded exit reason overall. Investigate through exit interviews before drawing conclusions.</div>
-        </div>
+      <section class="page" id="page-myGrievances">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>My Grievances</h1><p class="heading-description">Submit a concern and review only your own submitted records.</p></div></div>
+        <div class="panel"><div class="panel-title">Submit a grievance</div><form id="grievanceForm"><div class="form-grid">
+          <div class="field"><label for="gCategory">Category *</label><select id="gCategory" required><option value="">Select category</option><option>Workplace Environment</option><option>Compensation or Benefits</option><option>Managerial Concern</option><option>Workload</option><option>Policy Concern</option><option>Other</option></select></div>
+          <div class="field"><label for="gPriority">Priority *</label><select id="gPriority" required><option value="">Select priority</option><option>Low</option><option>Medium</option><option>High</option></select></div>
+          <div class="field full"><label for="gSubject">Subject *</label><input id="gSubject" maxlength="150" required placeholder="Brief subject"></div>
+          <div class="field full"><label for="gDescription">Description *</label><textarea id="gDescription" maxlength="3000" required placeholder="Explain the workplace concern"></textarea></div>
+        </div><div class="form-actions"><button class="btn-primary" type="submit">Submit grievance</button></div><div class="notice" id="gNotice" role="status"></div></form></div>
+        <div class="panel"><div class="panel-head"><div><div class="panel-title">Your submitted grievances</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshGrievances">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th></tr></thead><tbody id="myGrievanceTable"><tr><td colspan="6" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
       </section>
-
-      <!-- EXIT INTERVIEWS -->
-      <section class="page" id="page-interviews">
-        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>Exit Interviews</h1><p class="heading-description">Record feedback from employees who are leaving.</p></div></div>
-        <div class="panel" style="margin-bottom:18px">
-          <div class="panel-head"><div><div class="panel-title">New Exit Interview</div><div class="panel-subtitle">Use fictional information to test this prototype.</div></div></div>
-          <form id="exitForm">
-            <div class="form-grid">
-              <div class="field"><label for="exitName">Employee name *</label><input id="exitName" required maxlength="100" placeholder="e.g. Alex Morgan"></div>
-              <div class="field"><label for="exitDept">Department *</label><select id="exitDept" required><option value="">Select department</option><option>HR</option><option>Sales</option><option>Operations</option><option>Finance</option><option>Marketing</option></select></div>
-              <div class="field"><label for="exitRole">Job title</label><input id="exitRole" maxlength="100" placeholder="e.g. HR Executive"></div>
-              <div class="field"><label for="exitDate">Last working day *</label><input id="exitDate" type="date" required></div>
-              <div class="field"><label for="exitReason">Primary exit reason *</label><select id="exitReason" required><option value="">Select reason</option><option>Career Growth</option><option>Compensation</option><option>Work Environment</option><option>Personal Reasons</option></select></div>
-              <div class="field"><label for="exitRecommend">Would you recommend the company?</label><select id="exitRecommend"><option value="">Select answer</option><option>Yes</option><option>No</option><option>Not Sure</option></select></div>
-              <div class="field full"><label for="exitFeedback">Feedback and suggestions</label><textarea id="exitFeedback" maxlength="2000" placeholder="Enter fictional feedback for testing"></textarea></div>
-            </div>
-            <div class="form-actions"><button class="btn-primary" type="submit">Submit Interview</button><button class="btn-secondary" type="reset">Clear Form</button></div>
-            <div class="notice" id="exitNotice" role="status"></div>
-          </form>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Interview Register</div><div class="panel-subtitle">Submitted entries in this browser session</div></div><span class="date-chip">Records: <strong id="exitCount">0</strong></span></div>
-          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Job title</th><th>Last working day</th><th>Reason</th></tr></thead><tbody id="exitTable"></tbody></table></div>
-        </div>
-      </section>
-
-      <!-- GRIEVANCES -->
-      <section class="page" id="page-grievances">
-        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>Grievance Management</h1><p class="heading-description">Register and track workplace concerns using demo records.</p></div></div>
-        <div class="metrics">
-          <div class="simple-stat"><span>Total grievances</span><strong id="grievanceTotal">0</strong></div>
-          <div class="simple-stat"><span>Open</span><strong id="grievanceOpen">0</strong></div>
-          <div class="simple-stat"><span>Under review</span><strong id="grievanceReview">0</strong></div>
-          <div class="simple-stat"><span>Resolved</span><strong id="grievanceResolved">0</strong></div>
-        </div>
-        <div class="panel" style="margin-bottom:18px">
-          <div class="panel-head"><div><div class="panel-title">Register a Grievance</div><div class="panel-subtitle">Do not enter real or sensitive employee information.</div></div></div>
-          <form id="grievanceForm">
-            <div class="form-grid">
-              <div class="field"><label for="grievanceName">Employee name *</label><input id="grievanceName" required maxlength="100" placeholder="Demo employee name"></div>
-              <div class="field"><label for="grievanceDept">Department *</label><select id="grievanceDept" required><option value="">Select department</option><option>HR</option><option>Sales</option><option>Operations</option><option>Finance</option><option>Marketing</option></select></div>
-              <div class="field"><label for="grievanceCategory">Category *</label><select id="grievanceCategory" required><option value="">Select category</option><option>Workplace Environment</option><option>Compensation or Benefits</option><option>Managerial Concern</option><option>Workload</option><option>Policy Concern</option><option>Other</option></select></div>
-              <div class="field"><label for="grievancePriority">Priority *</label><select id="grievancePriority" required><option value="">Select priority</option><option>Low</option><option>Medium</option><option>High</option></select></div>
-              <div class="field full"><label for="grievanceDescription">Description *</label><textarea id="grievanceDescription" required maxlength="2000" placeholder="Describe a fictional workplace concern"></textarea></div>
-            </div>
-            <div class="form-actions"><button class="btn-primary" type="submit">Submit Grievance</button><button class="btn-secondary" type="reset">Clear Form</button></div>
-            <div class="notice" id="grievanceNotice" role="status"></div>
-          </form>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Grievance Register</div><div class="panel-subtitle">Change the status using the dropdown.</div></div></div>
-          <div class="table-wrap"><table><thead><tr><th>Reference</th><th>Employee</th><th>Department</th><th>Category</th><th>Priority</th><th>Status</th></tr></thead><tbody id="grievanceTable"></tbody></table></div>
-        </div>
-      </section>
-
-      <!-- REPORTS -->
-      <section class="page" id="page-reports">
-        <div class="page-heading"><div><div class="eyebrow">HR REPORTING</div><h1>Reports</h1><p class="heading-description">Review sample insights or print a report from your browser.</p></div><button class="btn-primary" onclick="window.print()">Print / Save PDF</button></div>
-        <div class="grid-two">
-          <div class="panel"><div class="panel-title">Workforce Summary</div><p class="panel-subtitle" style="margin-bottom:18px">Illustrative figures for the portal prototype.</p><div class="bottom-stat"><span>Total employees</span><strong>250</strong></div><div class="bottom-stat"><span>Employees exited</span><strong>32</strong></div><div class="bottom-stat"><span>Attrition rate</span><strong>12.8%</strong></div><div class="bottom-stat"><span>Retention rate</span><strong>87.2%</strong></div></div>
-          <div class="panel"><div class="panel-title">Suggested HR Actions</div><p class="panel-subtitle" style="margin-bottom:18px">Possible next steps based on the sample figures.</p><div class="employee-list"><div class="employee-row"><div class="person-avatar">01</div><div class="person-info"><strong>Review career growth pathways</strong><span>Discuss internal mobility and development.</span></div></div><div class="employee-row"><div class="person-avatar">02</div><div class="person-info"><strong>Analyze exit interview feedback</strong><span>Identify repeated themes across departments.</span></div></div><div class="employee-row"><div class="person-avatar">03</div><div class="person-info"><strong>Track grievance resolution</strong><span>Monitor response and closure patterns.</span></div></div></div></div>
-        </div>
-        <div class="panel"><div class="panel-title">Data Disclaimer</div><p class="panel-subtitle">All figures in this starter portal are illustrative. Validate the definitions and use actual, authorized data before using the dashboard for HR decisions.</p></div>
-      </section>
-
-      <!-- SETTINGS -->
-      <section class="page" id="page-settings">
-        <div class="page-heading"><div><div class="eyebrow">PORTAL CONFIGURATION</div><h1>Settings</h1><p class="heading-description">Basic portal and profile information.</p></div></div>
-        <div class="grid-two">
-          <div class="panel">
-            <div class="panel-title">Admin Profile</div><p class="panel-subtitle" style="margin-bottom:18px">Demo profile settings</p>
-            <form id="profileForm">
-              <div class="form-grid">
-                <div class="field"><label for="adminName">Display name</label><input id="adminName" value="Admin" maxlength="80"></div>
-                <div class="field"><label for="adminRole">Role</label><input id="adminRole" value="HR Administrator" maxlength="80"></div>
-              </div>
-              <div class="form-actions"><button class="btn-primary" type="submit">Update Demo Profile</button></div>
-              <div class="notice" id="profileNotice"></div>
-            </form>
-          </div>
-          <div class="panel">
-            <div class="panel-title">Portal Preferences</div><p class="panel-subtitle" style="margin-bottom:10px">Current prototype configuration</p>
-            <div class="settings-row"><div><strong>Demo mode</strong><p>Uses sample records and browser memory.</p></div><span class="status">Enabled</span></div>
-            <div class="settings-row"><div><strong>Persistent database</strong><p>No database is connected yet.</p></div><span class="status high">Not connected</span></div>
-            <div class="settings-row"><div><strong>Authentication</strong><p>Real sign-in and access controls are not configured.</p></div><span class="status high">Not configured</span></div>
-          </div>
-        </div>
+      <section class="page" id="page-myExit">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>My Exit Feedback</h1><p class="heading-description">Share feedback for your exit process. Only use this when appropriate for your employment situation.</p></div></div>
+        <div class="panel"><div class="panel-title">Submit exit feedback</div><form id="exitForm"><div class="form-grid">
+          <div class="field"><label for="eReason">Primary reason *</label><select id="eReason" required><option value="">Select reason</option><option>Career Growth</option><option>Compensation</option><option>Work Environment</option><option>Managerial Relationship</option><option>Personal Reasons</option><option>Other</option></select></div>
+          <div class="field full"><label for="eFeedback">Feedback and suggestions *</label><textarea id="eFeedback" required maxlength="4000" placeholder="Share your experience and suggestions"></textarea></div>
+        </div><div class="form-actions"><button class="btn-primary" type="submit">Submit exit feedback</button></div><div class="notice" id="eNotice" role="status"></div></form></div>
+        <div class="panel"><div class="panel-head"><div><div class="panel-title">Your exit feedback submissions</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshExits">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Reason</th><th>Feedback</th></tr></thead><tbody id="myExitTable"><tr><td colspan="3" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
       </section>
     </main>
-
-    <footer class="footer">
-      <span><strong>ExitInsight HR</strong> · KYR People Analytics Portal</span>
-      <span>Prototype v1.0 · Illustrative data only</span>
-    </footer>
+    <footer class="footer"><span><strong>ExitInsight HR</strong> · KYR People Analytics</span><span>Use only after database policies are tested.</span></footer>
   </div>
 </div>
 
 <script>
-/* ---------- SAMPLE DATA ---------- */
-const reasonNames = ["Career Growth","Compensation","Work Environment","Personal Reasons"];
-const departments = {
-  Sales:      {"Career Growth":4,"Compensation":3,"Work Environment":2,"Personal Reasons":1},
-  HR:         {"Career Growth":2,"Compensation":1,"Work Environment":0,"Personal Reasons":1},
-  Operations: {"Career Growth":3,"Compensation":2,"Work Environment":2,"Personal Reasons":2},
-  Finance:    {"Career Growth":1,"Compensation":2,"Work Environment":1,"Personal Reasons":1},
-  Marketing:  {"Career Growth":2,"Compensation":0,"Work Environment":2,"Personal Reasons":0}
-};
-const employeeSamples = [
-  {name:"Alex Morgan",id:"E-1001",department:"HR",role:"HR Executive",status:"Active"},
-  {name:"Jordan Lee",id:"E-1002",department:"Sales",role:"Sales Associate",status:"Active"},
-  {name:"Taylor Reed",id:"E-1003",department:"Operations",role:"Operations Analyst",status:"Active"},
-  {name:"Casey Parker",id:"E-1004",department:"Finance",role:"Finance Associate",status:"Active"},
-  {name:"Morgan Ellis",id:"E-1005",department:"Marketing",role:"Marketing Executive",status:"Active"}
-];
-const exitRecords = [];
-const grievanceRecords = [];
-let nextGrievanceId = 1;
-
+/* ExitInsight HR - single-file Supabase starter.
+   Browser-safe publishable key only. Never put a service_role/secret key here. */
+const SUPABASE_URL = "https://lepdugsrgtucbzqoyxsw.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0965ZDjxG2sJF6SUqny13Q_xUbIUT9z";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const $ = id => document.getElementById(id);
+let currentUser = null;
+let currentProfile = null;
+let currentRole = null;
 
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, ch => ({
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[ch]);
+  })[c]);
 }
-
-/* ---------- PAGE NAVIGATION ---------- */
+function showNotice(id, message, error=false) {
+  const el=$(id); el.textContent=message; el.classList.add("show");
+  el.classList.toggle("error",error);
+}
+function clearNotice(id) {
+  const el=$(id); el.textContent=""; el.classList.remove("show","error");
+}
 function showPage(name) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  const page = $("page-" + name);
-  if (page) page.classList.add("active");
-
-  document.querySelectorAll(".nav-link").forEach(link => {
-    link.classList.toggle("active", link.dataset.page === name);
-  });
-
-  const titles = {
-    dashboard:"Dashboard",employees:"Employees",analytics:"Attrition Analytics",
-    interviews:"Exit Interviews",grievances:"Grievance Management",
-    reports:"Reports",settings:"Settings"
-  };
-  document.title = (titles[name] || "Dashboard") + " | ExitInsight HR";
-  $("profileMenu").classList.remove("open");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const page=$("page-"+name); if(page) page.classList.add("active");
+  document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+  const names={dashboard:"Analytics Dashboard",employeeHome:"My Home",myGrievances:"My Grievances",myExit:"My Exit Feedback"};
+  $("topTitle").textContent=names[name]||"ExitInsight HR";
   $("sidebar").classList.remove("open");
-  $("overlay").classList.remove("show");
-  $("globalSearch").value = "";
-  if (name === "analytics") renderAnalytics();
-  if (name === "employees") renderEmployees();
-  window.scrollTo({top:0,behavior:"smooth"});
+  if(name==="myGrievances") loadMyGrievances();
+  if(name==="myExit") loadMyExits();
 }
-
-document.querySelectorAll(".nav-link").forEach(link => {
-  link.addEventListener("click", () => showPage(link.dataset.page));
-});
-
-$("menuToggle").addEventListener("click", () => {
-  $("sidebar").classList.toggle("open");
-  $("overlay").classList.toggle("show");
-});
-$("overlay").addEventListener("click", () => {
-  $("sidebar").classList.remove("open");
-  $("overlay").classList.remove("show");
-});
-
-$("profileButton").addEventListener("click", () => {
-  $("profileMenu").classList.toggle("open");
-});
-document.addEventListener("click", event => {
-  if (!event.target.closest(".profile-wrap")) $("profileMenu").classList.remove("open");
-});
-function showDemoNotice() {
-  $("profileMenu").classList.remove("open");
-  alert("This is a demo portal. A real authentication and logout system has not been configured.");
-}
-$("notificationButton").addEventListener("click", () => {
-  alert("You are viewing the demo portal. No live notifications are connected.");
-});
-
-/* ---------- CHART HELPERS ---------- */
-function svgEl(tag,attrs={},text="") {
-  const node = document.createElementNS("http://www.w3.org/2000/svg",tag);
-  Object.entries(attrs).forEach(([k,v]) => node.setAttribute(k,v));
-  if (text !== "") node.textContent = text;
-  return node;
-}
-
-function renderBarChart(targetId, data, options={}) {
-  const svg = $(targetId);
-  svg.replaceChildren();
-  const W=520,H=255,left=options.left || 150,right=25,top=12,bottom=35;
-  const plotW=W-left-right,plotH=H-top-bottom;
-  const entries=Object.entries(data);
-  const max=Math.max(1,...entries.map(e=>e[1]));
-  const ticks=4;
-
-  for(let i=0;i<=ticks;i++){
-    const value=max*i/ticks;
-    const y=top+plotH-(i/ticks)*plotH;
-    svg.appendChild(svgEl("line",{x1:left,y1:y,x2:W-right,y2:y,class:"gridline"}));
-    svg.appendChild(svgEl("text",{x:left-10,y:y+4,"text-anchor":"end"},String(Math.round(value))));
+document.querySelectorAll(".nav-link").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+function showAuthenticatedApp(profile,user) {
+  currentUser=user; currentProfile=profile; currentRole=profile.role;
+  $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
+  $("profileName").textContent=profile.full_name || user.email || "User";
+  $("profileRole").textContent=currentRole==="employer"?"HR Analytics":"Employee";
+  $("topEmail").textContent=user.email || "";
+  $("avatar").textContent=(profile.full_name || user.email || "U").charAt(0).toUpperCase();
+  document.querySelectorAll(".nav-link").forEach(b=>{
+    b.classList.toggle("hidden",!b.dataset.roles.split(" ").includes(currentRole));
+  });
+  if(currentRole==="employer") {
+    showPage("dashboard");
+    loadHrAnalytics();
+  } else if(currentRole==="employee") {
+    showPage("employeeHome");
+  } else {
+    $("appScreen").classList.add("hidden");
+    $("authScreen").classList.remove("hidden");
+    showNotice("authNotice","Your profile role is not recognised. Ask the database administrator to set profiles.role to employer or employee.",true);
   }
-
-  const rowH=plotH/entries.length;
-  entries.forEach(([label,value],i)=>{
-    const y=top+i*rowH+rowH*.22;
-    const bh=Math.min(rowH*.55,24);
-    const bw=value/max*plotW;
-    svg.appendChild(svgEl("text",{x:left-12,y:y+bh*.78,"text-anchor":"end"},label));
-    svg.appendChild(svgEl("rect",{x:left,y,width:Math.max(0,bw),height:bh,rx:4,fill:options.color || "#f97316"}));
-    svg.appendChild(svgEl("text",{x:Math.min(W-right-3,left+bw+7),y:y+bh*.78,fill:"#526074","font-weight":"700"},String(value)));
-  });
 }
-
-function renderReasonChart() {
-  const totals={};
-  reasonNames.forEach(r=>{
-    totals[r]=Object.values(departments).reduce((sum,d)=>sum+d[r],0);
-  });
-  renderBarChart("reasonChart",totals,{left:155});
+async function loadProfile(user) {
+  const {data,error}=await db.from("profiles")
+    .select("id,full_name,email,role,employee_id,department,designation")
+    .eq("id",user.id).maybeSingle();
+  if(error) throw new Error("Could not load your profile: "+error.message);
+  if(!data) throw new Error("Your Supabase account exists, but no matching profiles row was found. Ask the administrator to create a profiles row whose id matches your Auth user ID.");
+  return data;
 }
-
-function renderTrendChart() {
-  const svg=$("trendChart");
-  svg.replaceChildren();
-  const W=520,H=255,left=38,right=20,top=18,bottom=34;
-  const pw=W-left-right,ph=H-top-bottom;
-  const exits=[8,11,7,6];
-  const retention=[88,86,89,87];
-  const labels=["Q1","Q2","Q3","Q4"];
-
-  for(let i=0;i<=4;i++){
-    const y=top+i*ph/4;
-    svg.appendChild(svgEl("line",{x1:left,y1:y,x2:W-right,y2:y,class:"gridline"}));
-    svg.appendChild(svgEl("text",{x:left-8,y:y+4,"text-anchor":"end"},String(100-i*25)));
-  }
-
-  function points(values,maxValue){
-    return values.map((v,i)=>({
-      x:left+i*pw/(values.length-1),
-      y:top+ph-(v/maxValue)*ph
-    }));
-  }
-  function drawLine(values,maxValue,color){
-    const pts=points(values,maxValue);
-    const d=pts.map((p,i)=>(i?"L":"M")+p.x+" "+p.y).join(" ");
-    svg.appendChild(svgEl("path",{d,fill:"none",stroke:color,"stroke-width":3,"stroke-linecap":"round","stroke-linejoin":"round"}));
-    pts.forEach(p=>svg.appendChild(svgEl("circle",{cx:p.x,cy:p.y,r:4,fill:color,stroke:"#fff","stroke-width":2})));
-  }
-  drawLine(exits,15,"#f97316");
-  drawLine(retention,100,"#64748b");
-  labels.forEach((label,i)=>{
-    const x=left+i*pw/3;
-    svg.appendChild(svgEl("text",{x,y:H-10,"text-anchor":"middle"},label));
-  });
-}
-$("trendPeriod").addEventListener("change", () => {
-  alert("The chart is illustrative demo data, not a historical company report.");
-});
-
-/* ---------- ANALYTICS ---------- */
-function renderAnalytics() {
-  const selected=$("analyticsDepartment").value;
-  const reasons={};
-
-  reasonNames.forEach(reason=>{
-    reasons[reason] = selected==="All"
-      ? Object.values(departments).reduce((sum,d)=>sum+d[reason],0)
-      : departments[selected][reason];
-  });
-
-  const deptTotals={};
-  Object.entries(departments).forEach(([dept,values])=>{
-    deptTotals[dept]=Object.values(values).reduce((a,b)=>a+b,0);
-  });
-
-  renderBarChart("analyticsChart",reasons,{left:160,color:"#3157d5"});
-  renderBarChart("departmentChart",deptTotals,{left:125,color:"#f97316"});
-
-  const total=Object.values(reasons).reduce((a,b)=>a+b,0);
-  const top=Object.entries(reasons).sort((a,b)=>b[1]-a[1])[0];
-  $("analyticsInsight").textContent = selected==="All"
-    ? "Sample insight: Career Growth is the largest category ("+top[1]+" of "+total+" exits). Explore career pathways and exit interview feedback before making HR decisions."
-    : selected+" has "+total+" sample exits. Its leading category is "+(top && top[1] ? top[0] : "no recorded reason")+". Review employee feedback to understand the context.";
-}
-$("analyticsDepartment").addEventListener("change",renderAnalytics);
-
-/* ---------- EMPLOYEES ---------- */
-function renderEmployees() {
-  const search=$("employeeSearch").value.toLowerCase().trim();
-  const dept=$("employeeDepartment").value;
-  const rows=employeeSamples.filter(e=>
-    (!dept || e.department===dept) &&
-    (e.name.toLowerCase().includes(search) ||
-     e.role.toLowerCase().includes(search) ||
-     e.id.toLowerCase().includes(search))
-  );
-  $("employeeTable").innerHTML=rows.length ? rows.map(e=>`
-    <tr>
-      <td><strong>${escapeHTML(e.name)}</strong></td>
-      <td>${escapeHTML(e.id)}</td>
-      <td>${escapeHTML(e.department)}</td>
-      <td>${escapeHTML(e.role)}</td>
-      <td><span class="status approved">${escapeHTML(e.status)}</span></td>
-    </tr>`).join("") :
-    '<tr><td colspan="5" class="table-empty">No matching sample employees.</td></tr>';
-}
-$("employeeSearch").addEventListener("input",renderEmployees);
-$("employeeDepartment").addEventListener("change",renderEmployees);
-
-/* ---------- EXIT INTERVIEWS ---------- */
-$("exitForm").addEventListener("submit",event=>{
-  event.preventDefault();
-  const record={
-    name:$("exitName").value.trim(),
-    dept:$("exitDept").value,
-    role:$("exitRole").value.trim() || "Not specified",
-    date:$("exitDate").value,
-    reason:$("exitReason").value,
-    recommend:$("exitRecommend").value,
-    feedback:$("exitFeedback").value.trim()
-  };
-  exitRecords.unshift(record);
-  renderExitRecords();
-  $("exitNotice").textContent="Demo interview submitted successfully. It will not persist after a page refresh.";
-  $("exitNotice").classList.add("show");
-  $("exitForm").reset();
-});
-$("exitForm").addEventListener("reset",()=>{
-  $("exitNotice").classList.remove("show");
-});
-function renderExitRecords(){
-  $("exitCount").textContent=exitRecords.length;
-  $("exitNavCount").textContent=exitRecords.length;
-  $("exitStat").textContent=exitRecords.length+"/32";
-  $("exitProgress").style.width=Math.min(100,exitRecords.length/32*100)+"%";
-  $("exitTable").innerHTML=exitRecords.length ? exitRecords.map(r=>`
-    <tr><td><strong>${escapeHTML(r.name)}</strong></td><td>${escapeHTML(r.dept)}</td>
-    <td>${escapeHTML(r.role)}</td><td>${escapeHTML(r.date)}</td><td>${escapeHTML(r.reason)}</td></tr>`
-  ).join("") : '<tr><td colspan="5" class="table-empty">No interviews submitted in this session.</td></tr>';
-  renderRecentActivity();
-}
-
-/* ---------- GRIEVANCE MANAGEMENT ---------- */
-$("grievanceForm").addEventListener("submit",event=>{
-  event.preventDefault();
-  grievanceRecords.unshift({
-    id:nextGrievanceId++,
-    name:$("grievanceName").value.trim(),
-    dept:$("grievanceDept").value,
-    category:$("grievanceCategory").value,
-    priority:$("grievancePriority").value,
-    description:$("grievanceDescription").value.trim(),
-    status:"Open"
-  });
-  renderGrievances();
-  const id=grievanceRecords[0].id;
-  $("grievanceNotice").textContent="Demo grievance submitted. Reference GRV-"+String(id).padStart(3,"0")+". It will not persist after a page refresh.";
-  $("grievanceNotice").classList.add("show");
-  $("grievanceForm").reset();
-});
-$("grievanceForm").addEventListener("reset",()=>{
-  $("grievanceNotice").classList.remove("show");
-});
-
-function renderGrievances(){
-  const counts={"Open":0,"Under Review":0,"Resolved":0};
-  grievanceRecords.forEach(g=>counts[g.status]++);
-  $("grievanceTotal").textContent=grievanceRecords.length;
-  $("grievanceOpen").textContent=counts.Open;
-  $("grievanceReview").textContent=counts["Under Review"];
-  $("grievanceResolved").textContent=counts.Resolved;
-  $("grievanceNavCount").textContent=grievanceRecords.length;
-  $("resolvedStat").textContent=counts.Resolved+"/"+grievanceRecords.length;
-  $("grievanceProgress").style.width=(grievanceRecords.length ? counts.Resolved/grievanceRecords.length*100 : 0)+"%";
-
-  $("grievanceTable").innerHTML=grievanceRecords.length ? grievanceRecords.map(g=>`
-    <tr>
-      <td><strong>GRV-${String(g.id).padStart(3,"0")}</strong></td>
-      <td>${escapeHTML(g.name)}</td><td>${escapeHTML(g.dept)}</td>
-      <td>${escapeHTML(g.category)}</td>
-      <td><span class="status ${g.priority==="High"?"high":""}">${escapeHTML(g.priority)}</span></td>
-      <td><select aria-label="Update grievance status" data-grievance-id="${g.id}" class="grievance-status">
-        ${["Open","Under Review","Resolved"].map(s=>`<option ${g.status===s?"selected":""}>${s}</option>`).join("")}
-      </select></td>
-    </tr>`).join("") : '<tr><td colspan="6" class="table-empty">No grievances submitted in this session.</td></tr>';
-
-  document.querySelectorAll(".grievance-status").forEach(select=>{
-    select.style.border="1px solid #e3e8ef";
-    select.style.borderRadius="7px";
-    select.style.padding="6px";
-    select.style.background="#fff";
-    select.style.fontSize="10px";
-    select.addEventListener("change",()=>{
-      const record=grievanceRecords.find(g=>g.id===Number(select.dataset.grievanceId));
-      if(record){record.status=select.value;renderGrievances();}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); clearNotice("authNotice");
+  const button=$("loginButton"); button.disabled=true; button.textContent="Signing in…";
+  try {
+    const {data,error}=await db.auth.signInWithPassword({
+      email:$("loginEmail").value.trim(),password:$("loginPassword").value
     });
-  });
-  renderRecentActivity();
+    if(error) throw error;
+    const profile=await loadProfile(data.user);
+    showAuthenticatedApp(profile,data.user);
+  } catch(err) {
+    showNotice("authNotice",err.message || "Sign-in failed.",true);
+  } finally {button.disabled=false;button.textContent="Sign in";}
+});
+$("logoutButton").addEventListener("click",async()=>{
+  const {error}=await db.auth.signOut();
+  currentUser=null;currentProfile=null;currentRole=null;
+  $("appScreen").classList.add("hidden");$("authScreen").classList.remove("hidden");
+  if(error) showNotice("authNotice","Signed out locally, but Supabase reported: "+error.message,true);
+  else showNotice("authNotice","You have signed out.");
+});
+async function restoreSession() {
+  try {
+    const {data,error}=await db.auth.getSession();
+    if(error) throw error;
+    if(data.session) {
+      const profile=await loadProfile(data.session.user);
+      showAuthenticatedApp(profile,data.session.user);
+    }
+  } catch(err) {showNotice("authNotice",err.message || "Could not restore session.",true);}
 }
-
-/* ---------- RECENT ACTIVITY ---------- */
-function renderRecentActivity(){
-  const items=[];
-  exitRecords.slice(0,2).forEach(r=>items.push({
-    initials:"EX",title:"Exit interview submitted",subtitle:r.name+" · "+r.dept
-  }));
-  grievanceRecords.slice(0,2).forEach(g=>items.push({
-    initials:"GR",title:"Grievance "+g.status.toLowerCase(),subtitle:"GRV-"+String(g.id).padStart(3,"0")+" · "+g.category
-  }));
-  if(!items.length){
-    $("recentActivity").innerHTML=`
-      <div class="employee-row"><div class="person-avatar">HR</div><div class="person-info"><strong>ExitInsight initialized</strong><span>Dashboard sample data loaded</span></div></div>
-      <div class="employee-row"><div class="person-avatar">EX</div><div class="person-info"><strong>Exit analytics available</strong><span>Review sample exit patterns</span></div></div>
-      <div class="employee-row"><div class="person-avatar">GR</div><div class="person-info"><strong>Grievance register ready</strong><span>No submitted demo records</span></div></div>`;
-    return;
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==="SIGNED_OUT") {
+    $("appScreen").classList.add("hidden");$("authScreen").classList.remove("hidden");
   }
-  $("recentActivity").innerHTML=items.map(i=>`
-    <div class="employee-row"><div class="person-avatar">${i.initials}</div>
-    <div class="person-info"><strong>${escapeHTML(i.title)}</strong><span>${escapeHTML(i.subtitle)}</span></div></div>`).join("");
+});
+async function loadMyGrievances() {
+  if(!currentUser) return;
+  const tbody=$("myGrievanceTable");
+  tbody.innerHTML='<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+  const {data,error}=await db.from("grievances")
+    .select("created_at,subject,category,priority,status,hr_response")
+    .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
+  if(error) {
+    tbody.innerHTML='<tr><td colspan="6" class="table-empty">Could not load grievances: '+esc(error.message)+'</td></tr>'; return;
+  }
+  if(!data?.length) {tbody.innerHTML='<tr><td colspan="6" class="table-empty">You have not submitted any grievances yet.</td></tr>';return;}
+  tbody.innerHTML=data.map(g=>`<tr>
+    <td>${esc(g.created_at?new Date(g.created_at).toLocaleDateString("en-IN"):"—")}</td>
+    <td>${esc(g.subject||"—")}</td><td>${esc(g.category||"—")}</td>
+    <td>${esc(g.priority||"—")}</td><td><span class="status ${g.status==="Resolved"?"resolved":g.status==="Under Review"?"review":""}">${esc(g.status||"Open")}</span></td>
+    <td>${esc(g.hr_response||"No response yet")}</td></tr>`).join("");
 }
-
-/* ---------- GLOBAL SEARCH ---------- */
-$("globalSearch").addEventListener("keydown",event=>{
-  if(event.key!=="Enter") return;
-  const term=event.target.value.trim().toLowerCase();
-  if(!term) return;
-  const pages=[
-    ["dashboard","dashboard","overview"],
-    ["employees","employee","directory"],
-    ["analytics","attrition","analytics"],
-    ["interviews","exit","interview"],
-    ["grievances","grievance","complaint"],
-    ["reports","report"],
-    ["settings","setting","profile"]
-  ];
-  const match=pages.find(p=>p.some(k=>k.includes(term)||term.includes(k)));
-  if(match){showPage(match[0]);}
-  else alert("No matching section. Try Dashboard, Employees, Analytics, Exit Interviews, Grievances, Reports, or Settings.");
+$("grievanceForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("gNotice");
+  if(!currentUser) return showNotice("gNotice","Please sign in again.",true);
+  const button=e.submitter; if(button){button.disabled=true;button.textContent="Submitting…";}
+  try {
+    const row={employee_id:currentUser.id,category:$("gCategory").value,subject:$("gSubject").value.trim(),description:$("gDescription").value.trim(),priority:$("gPriority").value,status:"Open"};
+    const {error}=await db.from("grievances").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("gNotice","Your grievance was submitted. You can track its status below.");
+    await loadMyGrievances();
+  } catch(err) {showNotice("gNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit grievance";}}
 });
-
-/* ---------- PROFILE SETTINGS ---------- */
-$("profileForm").addEventListener("submit",event=>{
-  event.preventDefault();
-  const name=$("adminName").value.trim() || "Admin";
-  const role=$("adminRole").value.trim() || "HR Administrator";
-  document.querySelector(".profile-text strong").textContent=name;
-  document.querySelector(".profile-text span").textContent=role;
-  document.querySelector(".avatar").textContent=name.charAt(0).toUpperCase();
-  $("profileNotice").textContent="Demo profile updated for this page session.";
-  $("profileNotice").classList.add("show");
+$("refreshGrievances").addEventListener("click",loadMyGrievances);
+async function loadMyExits() {
+  if(!currentUser) return;
+  const tbody=$("myExitTable");tbody.innerHTML='<tr><td colspan="3" class="table-empty">Loading…</td></tr>';
+  const {data,error}=await db.from("exit_interviews")
+    .select("created_at,reason,feedback")
+    .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
+  if(error) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">Could not load feedback: '+esc(error.message)+'</td></tr>';return;}
+  if(!data?.length) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">You have not submitted exit feedback yet.</td></tr>';return;}
+  tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.reason||"—")}</td><td>${esc(r.feedback||"—")}</td></tr>`).join("");
+}
+$("exitForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("eNotice");
+  if(!currentUser) return showNotice("eNotice","Please sign in again.",true);
+  const button=e.submitter;if(button){button.disabled=true;button.textContent="Submitting…";}
+  try {
+    const row={employee_id:currentUser.id,reason:$("eReason").value,feedback:$("eFeedback").value.trim()};
+    const {error}=await db.from("exit_interviews").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("eNotice","Your exit feedback was submitted successfully.");
+    await loadMyExits();
+  } catch(err) {showNotice("eNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit exit feedback";}}
 });
-
-/* ---------- INITIALIZE ---------- */
-$("currentDate").textContent="📅 "+new Date().toLocaleDateString("en-IN",{
-  day:"numeric",month:"short",year:"numeric"
-});
-renderReasonChart();
-renderTrendChart();
-renderAnalytics();
-renderEmployees();
-renderExitRecords();
-renderGrievances();
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-  const SUPABASE_URL = 'https://lepdugsrgtucbzqoyxsw.supabase.co';
-
-  const SUPABASE_PUBLISHABLE_KEY =
-    'sb_publishable_0965ZDjxG2sJF6SUqny13Q_xUbIUT9z';
-
-  const exitInsightSupabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-  console.log('ExitInsight HR: Supabase client initialized.');
+$("refreshExits").addEventListener("click",loadMyExits);
+async function loadHrAnalytics() {
+  $("metricStatus").textContent="Connecting";
+  $("analyticsMessage").textContent="Requesting aggregate-only analytics from the secure get_hr_analytics database function. Individual grievance and exit records are never queried by this page.";
+  try {
+    const {data,error}=await db.rpc("get_hr_analytics");
+    if(error) throw error;
+    const result=Array.isArray(data)?data[0]:data;
+    if(!result) throw new Error("The analytics function returned no aggregate data.");
+    $("metricGrievances").textContent=result.total_grievances ?? "—";
+    $("metricResolved").textContent=result.resolved_grievances ?? "—";
+    $("metricExits").textContent=result.total_exit_feedback ?? "—";
+    $("metricStatus").textContent="Connected";
+    $("analyticsMessage").textContent="Live aggregate analytics loaded successfully. No individual grievance or exit-feedback records were displayed.";
+  } catch(err) {
+    $("metricStatus").textContent="Setup needed";
+    $("analyticsMessage").textContent="Live analytics are not configured yet. The database administrator must create a secure get_hr_analytics() RPC that returns only aggregate counts (total_grievances, resolved_grievances, total_exit_feedback) and grants execution only to the employer role. Details: "+err.message;
+  }
+}
+restoreSession();
 </script>
 </body>
 </html>
