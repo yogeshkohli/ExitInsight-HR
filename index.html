@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExitInsight HR | People Analytics</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #17243b;
+    }
+    header {
+      background: #17243b;
+      color: white;
+      padding: 24px 6%;
+    }
+    header h1 { margin: 0 0 8px; }
+    header p { margin: 0; color: #cbd5e1; }
+    main { padding: 30px 6%; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px;
+    }
+    .card, .panel {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 3px 14px #17243b0d;
+    }
+    .card p { color: #64748b; margin-bottom: 8px; }
+    .number { font-size: 30px; font-weight: bold; }
+    .panel { margin-top: 24px; }
+    button {
+      background: #2563eb;
+      color: white;
+      border: 0;
+      border-radius: 7px;
+      padding: 12px 18px;
+      cursor: pointer;
+    }
+    button:hover { background: #1d4ed8; }
+    footer { padding: 20px 6%; color: #64748b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ExitInsight HR</h1>
+    <p>Understand employee experiences. Improve retention.</p>
+  </header>
+
+  <main>
+    <h2>HR Analytics Dashboard</h2>
+    <p>Welcome to your employee attrition and retention platform.</p>
+
+    <section class="cards">
+      <div class="card">
+        <p>Total Employees</p>
+        <div class="number">250</div>
+      </div>
+      <div class="card">
+        <p>Employees Exited</p>
+        <div class="number">32</div>
+      </div>
+      <div class="card">
+        <p>Attrition Rate</p>
+        <div class="number">12.8%</div>
+      </div>
+      <div class="card">
+        <p>Retention Rate</p>
+        <div class="number">87.2%</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Employee Experience</h2>
+      <p>Explore employee exit feedback and identify opportunities
+         to improve workplace satisfaction.</p>
+      <button onclick="showMessage()">Explore HR Insights</button>
+      <p id="message"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Project Modules</h2>
+      <p>Employee Exit Interviews</p>
+      <p>Employee Grievance Management</p>
+      <p>Attrition and Retention Analytics</p>
+    </section>
+  </main>
+
+  <footer>
+    ExitInsight HR · Demonstration dashboard using sample data
+  </footer>
+
+  <script>
+    function showMessage() {
+      document.getElementById("message").textContent =
+        "HR insights module is ready for the next development stage!";
+    }
+  </script>
+</body>
+</html>
