@@ -102,5 +102,78 @@
         "HR insights module is ready for the next development stage!";
     }
   </script>
+
+<section class="panel" id="attrition-analytics">
+  <h2>Attrition Analytics</h2>
+  <p>Explore sample employee exit reasons.</p>
+
+  <label for="department">Select department:</label>
+  <select id="department" onchange="updateAnalytics()">
+    <option value="all">All Departments</option>
+    <option value="sales">Sales</option>
+    <option value="hr">Human Resources</option>
+    <option value="operations">Operations</option>
+    <option value="finance">Finance</option>
+  </select>
+
+  <div id="analytics-results" style="margin-top:20px"></div>
+  <p style="font-size:12px;color:#64748b">
+    Demonstration data only. Not actual company employee records.
+  </p>
+</section>
+
+<script>
+  const attritionData = {
+    all: [
+      { reason: "Career Growth", count: 12 },
+      { reason: "Compensation", count: 8 },
+      { reason: "Work Environment", count: 7 },
+      { reason: "Personal Reasons", count: 5 }
+    ],
+    sales: [
+      { reason: "Career Growth", count: 5 },
+      { reason: "Compensation", count: 4 },
+      { reason: "Work Environment", count: 2 }
+    ],
+    hr: [
+      { reason: "Career Growth", count: 2 },
+      { reason: "Compensation", count: 1 },
+      { reason: "Personal Reasons", count: 1 }
+    ],
+    operations: [
+      { reason: "Career Growth", count: 4 },
+      { reason: "Work Environment", count: 4 },
+      { reason: "Personal Reasons", count: 3 }
+    ],
+    finance: [
+      { reason: "Compensation", count: 2 },
+      { reason: "Career Growth", count: 1 }
+    ]
+  };
+
+  function updateAnalytics() {
+    const department = document.getElementById("department").value;
+    const results = attritionData[department];
+    const maxCount = Math.max(...results.map(item => item.count));
+
+    document.getElementById("analytics-results").innerHTML =
+      results.map(item => `
+        <div style="margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;
+            gap:12px;margin-bottom:6px">
+            <span>${item.reason}</span>
+            <strong>${item.count}</strong>
+          </div>
+          <div style="background:#e2e8f0;height:12px;border-radius:8px">
+            <div style="background:#2563eb;height:12px;
+              width:${item.count / maxCount * 100}%;
+              border-radius:8px"></div>
+          </div>
+        </div>
+      `).join("");
+  }
+
+  updateAnalytics();
+</script>
 </body>
 </html>
