@@ -912,5 +912,23 @@ renderExitRecords();
 renderGrievances();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = 'https://lepdugsrgtucbzqoyxsw.supabase.co';
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    'sb_publishable_0965ZDjxG2sJF6SUqny13Q_xUbIUT9z';
+
+  const exitInsightSupabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  console.log('ExitInsight HR: Supabase client initialized.');
+</script>
+</body>
+</html>
 </body>
 </html>
