@@ -266,31 +266,26 @@ async function loadHrGrievances() {
     const { data, error } = await db.from("grievances")
       .select("id,employee_id,created_at,subject,description,category,priority,status,hr_response")
       .order("created_at", { ascending: false });
-
     if (error) throw error;
-
-    const { data: profiles, error: profileError } = await db
-      .from("profiles")
-      .select("id,employee_code");
-
-    if (profileError) throw profileError;
-
-    const employeeCodes = Object.fromEntries(
-      (profiles || []).map(profile => [
-        profile.id,
-        profile.employee_code
-      ])
-    );
 
     if (!data?.length) {
       tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No grievance records found.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = data.map(g => {
-      const employeeCode =
-        employeeCodes[g.employee_id] || "Employee code unavailable";
+    // Use a restricted database RPC to map only these record owners to employee codes.
+    const employeeIds = [...new Set(data.map(g => g.employee_id).filter(Boolean))];
+    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
+      employee_ids: employeeIds
+    });
+    if (profileError) throw profileError;
 
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [profile.id, profile.employee_code])
+    );
+
+    tbody.innerHTML = data.map(g => {
+      const employeeCode = employeeCodes[g.employee_id] || "Employee code unavailable";
       return `<tr>
         <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
         <td>${esc(employeeCode)}</td>
@@ -305,26 +300,13 @@ async function loadHrGrievances() {
             <option value="closed" ${g.status === "closed" ? "selected" : ""}>Closed</option>
           </select>
         </td>
-        <td>
-          <textarea id="response-${esc(g.id)}"
-            maxlength="2000"
-            aria-label="HR response"
-            style="min-width:180px;min-height:65px">${esc(g.hr_response || "")}</textarea>
-        </td>
-        <td>
-          <button class="btn-primary" type="button"
-            onclick="saveGrievance('${esc(g.id)}')">Save</button>
-        </td>
+        <td><textarea id="response-${esc(g.id)}" maxlength="2000" aria-label="HR response" style="min-width:180px;min-height:65px">${esc(g.hr_response || "")}</textarea></td>
+        <td><button class="btn-primary" type="button" onclick="saveGrievance('${esc(g.id)}')">Save</button></td>
       </tr>`;
     }).join("");
-
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR SELECT permissions and RLS policies.</td></tr>';
-    showNotice(
-      "hrGNotice",
-      err.message || "Could not load grievances.",
-      true
-    );
+    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    showNotice("hrGNotice", err.message || "Could not load grievances.", true);
   }
 }
 async function saveGrievance(id) {
@@ -341,18 +323,43 @@ async function saveGrievance(id) {
   } catch(err) {showNotice("hrGNotice","Update failed. Check HR UPDATE permissions and RLS policies: "+(err.message||"Unknown error"),true);}
 }
 async function loadHrExits() {
-  if(currentRole!=="employer") return;
-  const tbody=$("hrExitTable");
-  tbody.innerHTML='<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
+  if (currentRole !== "employer") return;
+  const tbody = $("hrExitTable");
+  tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
   clearNotice("hrENotice");
   try {
-    const {data,error}=await db.from("exit_interviews")
+    const { data, error } = await db.from("exit_interviews")
       .select("employee_id,created_at,reason,feedback")
-      .order("created_at",{ascending:false});
-    if(error) throw error;
-    if(!data?.length){tbody.innerHTML='<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';return;}
-    tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.employee_id||"—")}</td><td>${esc(r.reason||"—")}</td><td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback||"—")}</td></tr>`).join("");
-  } catch(err) {tbody.innerHTML='<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR SELECT permissions and RLS policies.</td></tr>';showNotice("hrENotice",err.message||"Could not load exit feedback.",true);}
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    if (!data?.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';
+      return;
+    }
+
+    // Resolve only the employee IDs attached to the exit records HR is viewing.
+    const employeeIds = [...new Set(data.map(r => r.employee_id).filter(Boolean))];
+    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
+      employee_ids: employeeIds
+    });
+    if (profileError) throw profileError;
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [profile.id, profile.employee_code])
+    );
+
+    tbody.innerHTML = data.map(r => {
+      const employeeCode = employeeCodes[r.employee_id] || "Employee code unavailable";
+      return `<tr>
+        <td>${esc(r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "—")}</td>
+        <td>${esc(employeeCode)}</td>
+        <td>${esc(r.reason || "—")}</td>
+        <td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback || "—")}</td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    showNotice("hrENotice", err.message || "Could not load exit feedback.", true);
+  }
 }
 $("refreshHrGrievances").addEventListener("click",loadHrGrievances);
 $("refreshHrExits").addEventListener("click",loadHrExits);
