@@ -495,7 +495,7 @@ function showAuthenticatedApp(profile, user) {
 
 async function loadProfile(user) {
   const { data, error } = await db.from("profiles")
-    .select("id,full_name,email,role,employee_id,department,designation")
+ .select("id,full_name,email,role,employee_code,department,designation")
     .eq("id", user.id)
     .maybeSingle();
 
