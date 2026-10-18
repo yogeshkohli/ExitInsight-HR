@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,110 +7,21 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--navy:#172554;--blue:#3157d5;--orange:#f97316;--bg:#f1f4f9;--white:#fff;--text:#202b3c;--muted:#8490a2;--border:#e3e8ef;--green:#16a36a;--red:#e65368;--shadow:0 4px 18px rgba(31,45,70,.055)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer;border:0}
-.hidden{display:none!important}
-.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#172554,#3157d5)}
-.auth-card{width:min(100%,460px);background:white;border-radius:18px;padding:30px;box-shadow:0 20px 70px #0003}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.brand-mark{width:43px;height:43px;border:3px solid var(--navy);border-radius:50%;display:grid;place-items:center;font-weight:900;color:var(--navy)}
-.brand-name{font-size:22px;font-weight:800;color:var(--navy)}
-.brand-name span{color:var(--orange)}
-.muted{color:var(--muted)}
-h1{font-size:25px;letter-spacing:-.6px;margin-bottom:8px}
-.auth-card p{line-height:1.6}
-.field{display:flex;flex-direction:column;gap:7px;margin-top:15px}
-.field label{font-size:12px;font-weight:700;color:#4b5668}
-.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #dfe5ed;border-radius:8px;outline:none;background:#fff;color:var(--text)}
-.field textarea{min-height:100px;resize:vertical}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3157d51a}
-.btn-primary{background:var(--orange);color:#fff;padding:12px 15px;border-radius:9px;font-weight:700}
-.btn-secondary{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px}
-.full{width:100%;margin-top:18px}
-.notice{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#e8f9ef;color:#167547;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
-.notice.show{display:block}
-.notice.error{background:#fff0f2;color:#b4233b}
-.auth-help{font-size:11px;margin-top:15px}
-.app{min-height:100vh;display:flex}
-.sidebar{width:245px;background:#fff;border-right:1px solid var(--border);position:fixed;inset:0 auto 0 0;z-index:30;display:flex;flex-direction:column;transition:transform .25s}
-.sidebar-brand{height:78px;display:flex;align-items:center;padding:0 20px;gap:10px;border-bottom:1px solid #f1f3f7}
-.sidebar-brand .brand-mark{width:37px;height:37px}
-.sidebar-brand .brand-name{font-size:19px}
-.sidebar-scroll{overflow-y:auto;padding:17px 13px;flex:1}
-.nav-label{font-size:10px;letter-spacing:1.1px;color:#a0a9b8;font-weight:800;padding:13px 12px 8px}
-.nav-link{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:11px 12px;border-radius:9px;margin:3px 0;color:#5b6575;background:transparent;font-size:13px;font-weight:600}
-.nav-link:hover,.nav-link.active{background:#fff1e7;color:#e96a13}
-.sidebar-bottom{border-top:1px solid var(--border);padding:15px;font-size:11px;color:var(--muted);line-height:1.5}
-.main{margin-left:245px;width:calc(100% - 245px);min-width:0}
-.topbar{height:78px;background:#fff;border-bottom:1px solid var(--border);padding:0 30px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:20}
-.topbar h2{font-size:15px}
-.top-actions{display:flex;align-items:center;gap:10px}
-.profile-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:6px 10px}
-.avatar{width:35px;height:35px;border-radius:50%;background:#e3e9ff;color:#3157d5;display:grid;place-items:center;font-weight:800}
-.profile-text strong{display:block;font-size:12px}
-.profile-text span{font-size:10px;color:var(--muted)}
-.content{padding:27px 30px 38px;max-width:1500px;margin:auto}
-.page{display:none}
-.page.active{display:block}
-.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap;margin-bottom:23px}
-.eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.3px;margin-bottom:6px}
-.heading-description{font-size:12px;color:var(--muted);margin-top:6px}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:19px}
-.metric,.panel,.simple-stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);min-width:0}
-.metric-label{font-size:12px;color:#778294;font-weight:600}
-.metric-number{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:12px}
-.metric-foot{font-size:10px;color:var(--muted);margin-top:8px}
-.grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}
-.panel{margin-bottom:18px}
-.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}
-.panel-title{font-size:14px;font-weight:800}
-.panel-subtitle{font-size:11px;color:var(--muted);margin-top:5px}
-.simple-stat span{font-size:11px;color:var(--muted)}
-.simple-stat strong{display:block;font-size:24px;margin-top:6px}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
-.field.full{grid-column:1/-1}
-.form-actions{display:flex;gap:9px;margin-top:19px;flex-wrap:wrap}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}
-table{border-collapse:collapse;width:100%;min-width:600px}
-th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #edf0f4;font-size:11px}
-th{background:#f8fafc;color:#7a8595;text-transform:uppercase;font-size:9px;letter-spacing:.6px}
-tr:last-child td{border-bottom:0}
-td{color:#4b5668}
-.table-empty{text-align:center;color:var(--muted);padding:25px}
-.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:700;background:#fff1dc;color:#b8750c}
-.status.resolved{background:#e4f8ec;color:#148452}
-.status.review{background:#e8edff;color:#4058c7}
-.footer{padding:17px 30px;border-top:1px solid var(--border);background:#fff;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.info-box{padding:13px;border-radius:9px;background:#f5f7ff;color:#44517a;font-size:12px;line-height:1.6;margin-bottom:15px}
-@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:22px 18px}.topbar{padding:0 18px}}
-@media(max-width:760px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:8px 0 30px #17255414}.main{margin-left:0;width:100%}.grid-two{grid-template-columns:1fr}.topbar{height:68px;padding:0 12px}.content{padding:18px 12px}.profile-text{display:none}}
-@media(max-width:520px){.metrics{gap:9px}.metric{padding:13px}.metric-number{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.auth-card{padding:22px}}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#172554,#3157d5)}.auth-card{width:min(100%,460px);background:white;border-radius:18px;padding:30px;box-shadow:0 20px 70px #0003}.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}.brand-mark{width:43px;height:43px;border:3px solid var(--navy);border-radius:50%;display:grid;place-items:center;font-weight:900;color:var(--navy)}.brand-name{font-size:22px;font-weight:800;color:var(--navy)}.brand-name span{color:var(--orange)}.muted{color:var(--muted)}h1{font-size:25px;letter-spacing:-.6px;margin-bottom:8px}.auth-card p{line-height:1.6}.field{display:flex;flex-direction:column;gap:7px;margin-top:15px}.field label{font-size:12px;font-weight:700;color:#4b5668}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #dfe5ed;border-radius:8px;outline:none;background:#fff;color:var(--text)}.field textarea{min-height:100px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3157d51a}.btn-primary{background:var(--orange);color:#fff;padding:12px 15px;border-radius:9px;font-weight:700}.btn-secondary{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px}.full{width:100%;margin-top:18px}.notice{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#e8f9ef;color:#167547;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.notice.show{display:block}.notice.error{background:#fff0f2;color:#b4233b}.auth-help{font-size:11px;margin-top:15px}
+.app{min-height:100vh;display:flex}.sidebar{width:245px;background:#fff;border-right:1px solid var(--border);position:fixed;inset:0 auto 0 0;z-index:30;display:flex;flex-direction:column;transition:transform .25s}.sidebar-brand{height:78px;display:flex;align-items:center;padding:0 20px;gap:10px;border-bottom:1px solid #f1f3f7}.sidebar-brand .brand-mark{width:37px;height:37px}.sidebar-brand .brand-name{font-size:19px}.sidebar-scroll{overflow-y:auto;padding:17px 13px;flex:1}.nav-label{font-size:10px;letter-spacing:1.1px;color:#a0a9b8;font-weight:800;padding:13px 12px 8px}.nav-link{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:11px 12px;border-radius:9px;margin:3px 0;color:#5b6575;background:transparent;font-size:13px;font-weight:600}.nav-link:hover,.nav-link.active{background:#fff1e7;color:#e96a13}.sidebar-bottom{border-top:1px solid var(--border);padding:15px;font-size:11px;color:var(--muted);line-height:1.5}.main{margin-left:245px;width:calc(100% - 245px);min-width:0}.topbar{height:78px;background:#fff;border-bottom:1px solid var(--border);padding:0 30px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:20}.topbar h2{font-size:15px}.top-actions{display:flex;align-items:center;gap:10px}.profile-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:6px 10px}.avatar{width:35px;height:35px;border-radius:50%;background:#e3e9ff;color:#3157d5;display:grid;place-items:center;font-weight:800}.profile-text strong{display:block;font-size:12px}.profile-text span{font-size:10px;color:var(--muted)}.content{padding:27px 30px 38px;max-width:1500px;margin:auto}.page{display:none}.page.active{display:block}.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap;margin-bottom:23px}.eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.3px;margin-bottom:6px}.heading-description{font-size:12px;color:var(--muted);margin-top:6px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:19px}.metric,.panel,.simple-stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);min-width:0}.metric-label{font-size:12px;color:#778294;font-weight:600}.metric-number{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:12px}.metric-foot{font-size:10px;color:var(--muted);margin-top:8px}.grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}.panel{margin-bottom:18px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}.panel-title{font-size:14px;font-weight:800}.panel-subtitle{font-size:11px;color:var(--muted);margin-top:5px}.simple-stat span{font-size:11px;color:var(--muted)}.simple-stat strong{display:block;font-size:24px;margin-top:6px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.field.full{grid-column:1/-1}.form-actions{display:flex;gap:9px;margin-top:19px;flex-wrap:wrap}.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:600px}th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #edf0f4;font-size:11px}th{background:#f8fafc;color:#7a8595;text-transform:uppercase;font-size:9px;letter-spacing:.6px}tr:last-child td{border-bottom:0}td{color:#4b5668}.table-empty{text-align:center;color:var(--muted);padding:25px}.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:700;background:#fff1dc;color:#b8750c}.status.resolved{background:#e4f8ec;color:#148452}.status.review{background:#e8edff;color:#4058c7}.footer{padding:17px 30px;border-top:1px solid var(--border);background:#fff;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.info-box{padding:13px;border-radius:9px;background:#f5f7ff;color:#44517a;font-size:12px;line-height:1.6;margin-bottom:15px}
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:22px 18px}.topbar{padding:0 18px}}@media(max-width:760px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:8px 0 30px #17255414}.main{margin-left:0;width:100%}.grid-two{grid-template-columns:1fr}.topbar{height:68px;padding:0 12px}.content{padding:18px 12px}.profile-text{display:none}}@media(max-width:520px){.metrics{gap:9px}.metric{padding:13px}.metric-number{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.auth-card{padding:22px}}
 </style>
 </head>
 <body>
-
 <section id="authScreen" class="auth-wrap">
   <div class="auth-card">
-    <div class="brand">
-      <div class="brand-mark">KYR</div>
-      <div>
-        <div class="brand-name">Exit<span>Insight</span></div>
-        <div class="muted" style="font-size:10px">HR MANAGEMENT PORTAL</div>
-      </div>
-    </div>
+    <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:10px">HR MANAGEMENT PORTAL</div></div></div>
     <h1 id="authTitle">Sign in</h1>
     <p class="muted" id="authSubtitle">Sign in with your registered account to continue.</p>
     <form id="loginForm">
-      <div class="field">
-        <label for="loginEmail">Email address</label>
-        <input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com">
-      </div>
-      <div class="field">
-        <label for="loginPassword">Password</label>
-        <input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password">
-      </div>
+      <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
+      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
       <button class="btn-primary full" type="submit" id="loginButton">Sign in</button>
     </form>
     <div id="authNotice" class="notice" role="status"></div>
@@ -121,13 +31,7 @@ td{color:#4b5668}
 
 <div id="appScreen" class="app hidden">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-mark">KYR</div>
-      <div>
-        <div class="brand-name">Exit<span>Insight</span></div>
-        <div class="muted" style="font-size:9px">HR MANAGEMENT PORTAL</div>
-      </div>
-    </div>
+    <div class="sidebar-brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:9px">HR MANAGEMENT PORTAL</div></div></div>
     <div class="sidebar-scroll">
       <div class="nav-label">WORKSPACE</div>
       <button class="nav-link active" data-page="dashboard" data-roles="employer">Analytics Dashboard</button>
@@ -139,247 +43,54 @@ td{color:#4b5668}
     </div>
     <div class="sidebar-bottom">ExitInsight HR · Prototype<br>Access is controlled by Supabase policies.</div>
   </aside>
-
   <div class="main">
-    <header class="topbar">
-      <div>
-        <h2 id="topTitle">Analytics Dashboard</h2>
-        <div class="muted" style="font-size:11px" id="topEmail"></div>
-      </div>
-      <div class="top-actions">
-        <div class="profile-btn">
-          <div class="avatar" id="avatar">U</div>
-          <div class="profile-text">
-            <strong id="profileName">User</strong>
-            <span id="profileRole">Signed in</span>
-          </div>
-        </div>
-        <button class="btn-secondary" id="logoutButton">Sign out</button>
-      </div>
-    </header>
-
+    <header class="topbar"><div><h2 id="topTitle">Analytics Dashboard</h2><div class="muted" style="font-size:11px" id="topEmail"></div></div><div class="top-actions"><div class="profile-btn"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileName">User</strong><span id="profileRole">Signed in</span></div></div><button class="btn-secondary" id="logoutButton">Sign out</button></div></header>
     <main class="content">
       <section class="page active" id="page-dashboard">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">HR INTELLIGENCE</div>
-            <h1>Analytics Dashboard</h1>
-            <p class="heading-description">Aggregate workforce insights only. Individual employee records are not displayed here.</p>
-          </div>
-        </div>
+        <div class="page-heading"><div><div class="eyebrow">HR INTELLIGENCE</div><h1>Analytics Dashboard</h1><p class="heading-description">Aggregate workforce insights only. Individual employee records are not displayed here.</p></div></div>
         <div class="info-box">The dashboard is connected to Supabase authentication. To show live aggregate analytics without exposing individual grievance or exit-feedback records, configure a restricted database view or RPC function first. Until then, live analytics are intentionally not fabricated.</div>
         <div class="metrics">
-          <article class="metric">
-            <div class="metric-label">Grievances submitted</div>
-            <div class="metric-number" id="metricGrievances">—</div>
-            <div class="metric-foot">Aggregate count only</div>
-          </article>
-          <article class="metric">
-            <div class="metric-label">Grievances resolved</div>
-            <div class="metric-number" id="metricResolved">—</div>
-            <div class="metric-foot">Aggregate count only</div>
-          </article>
-          <article class="metric">
-            <div class="metric-label">Exit feedback received</div>
-            <div class="metric-number" id="metricExits">—</div>
-            <div class="metric-foot">Aggregate count only</div>
-          </article>
-          <article class="metric">
-            <div class="metric-label">Analytics status</div>
-            <div class="metric-number" style="font-size:20px" id="metricStatus">Setup needed</div>
-            <div class="metric-foot">No individual records loaded</div>
-          </article>
+          <article class="metric"><div class="metric-label">Grievances submitted</div><div class="metric-number" id="metricGrievances">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Grievances resolved</div><div class="metric-number" id="metricResolved">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Exit feedback received</div><div class="metric-number" id="metricExits">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Analytics status</div><div class="metric-number" style="font-size:20px" id="metricStatus">Setup needed</div><div class="metric-foot">No individual records loaded</div></article>
         </div>
-        <div class="panel">
-          <div class="panel-title">Analytics connection</div>
-          <p class="panel-subtitle" id="analyticsMessage" style="line-height:1.7">After your database administrator creates a secure aggregate-only RPC named get_hr_analytics, this panel can show approved counts. Do not grant HR users direct access to confidential rows merely to make charts work.</p>
-        </div>
+        <div class="panel"><div class="panel-title">Analytics connection</div><p class="panel-subtitle" id="analyticsMessage" style="line-height:1.7">After your database administrator creates a secure aggregate-only RPC named get_hr_analytics, this panel can show approved counts. Do not grant HR users direct access to confidential rows merely to make charts work.</p></div>
       </section>
-
       <section class="page" id="page-hrGrievances">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">EMPLOYEE RELATIONS</div>
-            <h1>Grievance Management</h1>
-            <p class="heading-description">Review employee concerns and update case status or HR response.</p>
-          </div>
-          <button class="btn-secondary" id="refreshHrGrievances">Refresh</button>
-        </div>
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>Grievance Management</h1><p class="heading-description">Review employee concerns and update case status or HR response.</p></div><button class="btn-secondary" id="refreshHrGrievances">Refresh</button></div>
         <div class="info-box">Access to individual grievance records must be restricted to authorised HR accounts by Supabase Row Level Security (RLS).</div>
-        <div class="panel">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Submitted</th><th>Employee ID</th><th>Subject / Description</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th><th>Action</th></tr>
-              </thead>
-              <tbody id="hrGrievanceTable"><tr><td colspan="8" class="table-empty">Select this page to load records.</td></tr></tbody>
-            </table>
-          </div>
-          <div id="hrGNotice" class="notice" role="status"></div>
-        </div>
+        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Subject / Description</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th><th>Action</th></tr></thead><tbody id="hrGrievanceTable"><tr><td colspan="8" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrGNotice" class="notice" role="status"></div></div>
       </section>
-
       <section class="page" id="page-hrExits">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">EMPLOYEE LIFECYCLE</div>
-            <h1>Exit Interview Feedback</h1>
-            <p class="heading-description">Review exit reasons and feedback submitted by employees.</p>
-          </div>
-          <button class="btn-secondary" id="refreshHrExits">Refresh</button>
-        </div>
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>Exit Interview Feedback</h1><p class="heading-description">Review exit reasons and feedback submitted by employees.</p></div><button class="btn-secondary" id="refreshHrExits">Refresh</button></div>
         <div class="info-box">Exit feedback may contain sensitive information. Restrict access to authorised HR users and handle feedback confidentially.</div>
-        <div class="panel">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Submitted</th><th>Employee ID</th><th>Primary reason</th><th>Feedback and suggestions</th></tr></thead>
-              <tbody id="hrExitTable"><tr><td colspan="4" class="table-empty">Select this page to load records.</td></tr></tbody>
-            </table>
-          </div>
-          <div id="hrENotice" class="notice" role="status"></div>
-        </div>
+        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Primary reason</th><th>Feedback and suggestions</th></tr></thead><tbody id="hrExitTable"><tr><td colspan="4" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrENotice" class="notice" role="status"></div></div>
       </section>
-
       <section class="page" id="page-employeeHome">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">EMPLOYEE SELF-SERVICE</div>
-            <h1>Welcome</h1>
-            <p class="heading-description">Submit a workplace concern or share exit feedback securely.</p>
-          </div>
-        </div>
-        <div class="grid-two">
-          <div class="panel">
-            <div class="panel-title">Raise a grievance</div>
-            <p class="panel-subtitle">Your submission is linked to your signed-in account.</p>
-            <button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button>
-          </div>
-          <div class="panel">
-            <div class="panel-title">Share exit feedback</div>
-            <p class="panel-subtitle">Submit feedback associated with your account.</p>
-            <button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button>
-          </div>
-        </div>
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE SELF-SERVICE</div><h1>Welcome</h1><p class="heading-description">Submit a workplace concern or share exit feedback securely.</p></div></div>
+        <div class="grid-two"><div class="panel"><div class="panel-title">Raise a grievance</div><p class="panel-subtitle">Your submission is linked to your signed-in account.</p><button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button></div><div class="panel"><div class="panel-title">Share exit feedback</div><p class="panel-subtitle">Submit feedback associated with your account.</p><button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button></div></div>
       </section>
-
       <section class="page" id="page-myGrievances">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">EMPLOYEE RELATIONS</div>
-            <h1>My Grievances</h1>
-            <p class="heading-description">Submit a concern and review only your own submitted records.</p>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">Submit a grievance</div>
-          <form id="grievanceForm">
-            <div class="form-grid">
-              <div class="field">
-                <label for="gCategory">Category *</label>
-                <select id="gCategory" required>
-                  <option value="">Select category</option>
-                  <option>Workplace Environment</option>
-                  <option>Compensation or Benefits</option>
-                  <option>Managerial Concern</option>
-                  <option>Workload</option>
-                  <option>Policy Concern</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="gPriority">Priority *</label>
-                <select id="gPriority" required>
-                  <option value="">Select priority</option>
-                  <option value="low">Low</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              <div class="field full">
-                <label for="gSubject">Subject *</label>
-                <input id="gSubject" maxlength="150" required placeholder="Brief subject">
-              </div>
-              <div class="field full">
-                <label for="gDescription">Description *</label>
-                <textarea id="gDescription" maxlength="3000" required placeholder="Explain the workplace concern"></textarea>
-              </div>
-            </div>
-            <div class="form-actions"><button class="btn-primary" type="submit">Submit grievance</button></div>
-            <div class="notice" id="gNotice" role="status"></div>
-          </form>
-        </div>
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title">Your submitted grievances</div>
-              <div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div>
-            </div>
-            <button class="btn-secondary" id="refreshGrievances">Refresh</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Submitted</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th></tr></thead>
-              <tbody id="myGrievanceTable"><tr><td colspan="6" class="table-empty">Loading your records…</td></tr></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>My Grievances</h1><p class="heading-description">Submit a concern and review only your own submitted records.</p></div></div>
+        <div class="panel"><div class="panel-title">Submit a grievance</div><form id="grievanceForm"><div class="form-grid">
+          <div class="field"><label for="gCategory">Category *</label><select id="gCategory" required><option value="">Select category</option><option>Workplace Environment</option><option>Compensation or Benefits</option><option>Managerial Concern</option><option>Workload</option><option>Policy Concern</option><option>Other</option></select></div>
+          <div class="field"><label for="gPriority">Priority *</label><select id="gPriority" required><option value="">Select priority</option><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></select></div>
+          <div class="field full"><label for="gSubject">Subject *</label><input id="gSubject" maxlength="150" required placeholder="Brief subject"></div>
+          <div class="field full"><label for="gDescription">Description *</label><textarea id="gDescription" maxlength="3000" required placeholder="Explain the workplace concern"></textarea></div>
+        </div><div class="form-actions"><button class="btn-primary" type="submit">Submit grievance</button></div><div class="notice" id="gNotice" role="status"></div></form></div>
+        <div class="panel"><div class="panel-head"><div><div class="panel-title">Your submitted grievances</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshGrievances">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th></tr></thead><tbody id="myGrievanceTable"><tr><td colspan="6" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
       </section>
-
       <section class="page" id="page-myExit">
-        <div class="page-heading">
-          <div>
-            <div class="eyebrow">EMPLOYEE LIFECYCLE</div>
-            <h1>My Exit Feedback</h1>
-            <p class="heading-description">Share feedback for your exit process. Only use this when appropriate for your employment situation.</p>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">Submit exit feedback</div>
-          <form id="exitForm">
-            <div class="form-grid">
-              <div class="field">
-                <label for="eReason">Primary reason *</label>
-                <select id="eReason" required>
-                  <option value="">Select reason</option>
-                  <option>Career Growth</option>
-                  <option>Compensation</option>
-                  <option>Work Environment</option>
-                  <option>Managerial Relationship</option>
-                  <option>Personal Reasons</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="field full">
-                <label for="eFeedback">Feedback and suggestions *</label>
-                <textarea id="eFeedback" required maxlength="4000" placeholder="Share your experience and suggestions"></textarea>
-              </div>
-            </div>
-            <div class="form-actions"><button class="btn-primary" type="submit">Submit exit feedback</button></div>
-            <div class="notice" id="eNotice" role="status"></div>
-          </form>
-        </div>
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title">Your exit feedback submissions</div>
-              <div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div>
-            </div>
-            <button class="btn-secondary" id="refreshExits">Refresh</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Submitted</th><th>Reason</th><th>Feedback</th></tr></thead>
-              <tbody id="myExitTable"><tr><td colspan="3" class="table-empty">Loading your records…</td></tr></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>My Exit Feedback</h1><p class="heading-description">Share feedback for your exit process. Only use this when appropriate for your employment situation.</p></div></div>
+        <div class="panel"><div class="panel-title">Submit exit feedback</div><form id="exitForm"><div class="form-grid">
+          <div class="field"><label for="eReason">Primary reason *</label><select id="eReason" required><option value="">Select reason</option><option>Career Growth</option><option>Compensation</option><option>Work Environment</option><option>Managerial Relationship</option><option>Personal Reasons</option><option>Other</option></select></div>
+          <div class="field full"><label for="eFeedback">Feedback and suggestions *</label><textarea id="eFeedback" required maxlength="4000" placeholder="Share your experience and suggestions"></textarea></div>
+        </div><div class="form-actions"><button class="btn-primary" type="submit">Submit exit feedback</button></div><div class="notice" id="eNotice" role="status"></div></form></div>
+        <div class="panel"><div class="panel-head"><div><div class="panel-title">Your exit feedback submissions</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshExits">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Reason</th><th>Feedback</th></tr></thead><tbody id="myExitTable"><tr><td colspan="3" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
       </section>
     </main>
-
-    <footer class="footer">
-      <span><strong>ExitInsight HR</strong> · KYR People Analytics</span>
-      <span>HR review pages require verified Supabase RLS policies.</span>
-    </footer>
+    <footer class="footer"><span><strong>ExitInsight HR</strong> · KYR People Analytics</span><span>HR review pages require verified Supabase RLS policies.</span></footer>
   </div>
 </div>
 
@@ -389,7 +100,6 @@ td{color:#4b5668}
 const SUPABASE_URL = "https://lepdugsrgtucbzqoyxsw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0965ZDjxG2sJF6SUqny13Q_xUbIUT9z";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
 const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentProfile = null;
@@ -397,317 +107,154 @@ let currentRole = null;
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   })[c]);
 }
-
 function showNotice(id, message, error=false) {
-  const el = $(id);
-  el.textContent = message;
-  el.classList.add("show");
-  el.classList.toggle("error", error);
+  const el=$(id); el.textContent=message; el.classList.add("show");
+  el.classList.toggle("error",error);
 }
-
 function clearNotice(id) {
-  const el = $(id);
-  el.textContent = "";
-  el.classList.remove("show", "error");
+  const el=$(id); el.textContent=""; el.classList.remove("show","error");
 }
-
 function showPage(name) {
-  const employerPages = ["dashboard", "hrGrievances", "hrExits"];
-  const employeePages = ["employeeHome", "myGrievances", "myExit"];
-
-  if (currentRole && (
-    (employerPages.includes(name) && currentRole !== "employer") ||
-    (employeePages.includes(name) && currentRole !== "employee")
-  )) {
-    console.warn("Blocked navigation to a page outside the current role.");
-    return;
+  const employerPages=["dashboard","hrGrievances","hrExits"];
+  const employeePages=["employeeHome","myGrievances","myExit"];
+  if(currentRole && ((employerPages.includes(name)&&currentRole!=="employer") || (employeePages.includes(name)&&currentRole!=="employee"))) {
+    console.warn("Blocked navigation to a page outside the current role."); return;
   }
-
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  const page = $("page-" + name);
-  if (page) page.classList.add("active");
-
-  document.querySelectorAll(".nav-link").forEach(b => {
-    b.classList.toggle("active", b.dataset.page === name);
-  });
-
-  const names = {
-    dashboard: "Analytics Dashboard",
-    hrGrievances: "Grievance Management",
-    hrExits: "Exit Interview Feedback",
-    employeeHome: "My Home",
-    myGrievances: "My Grievances",
-    myExit: "My Exit Feedback"
-  };
-
-  $("topTitle").textContent = names[name] || "ExitInsight HR";
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const page=$("page-"+name); if(page) page.classList.add("active");
+  document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+  const names={dashboard:"Analytics Dashboard",hrGrievances:"Grievance Management",hrExits:"Exit Interview Feedback",employeeHome:"My Home",myGrievances:"My Grievances",myExit:"My Exit Feedback"};
+  $("topTitle").textContent=names[name]||"ExitInsight HR";
   $("sidebar").classList.remove("open");
-
-  if (name === "myGrievances") loadMyGrievances();
-  if (name === "myExit") loadMyExits();
-  if (name === "hrGrievances") loadHrGrievances();
-  if (name === "hrExits") loadHrExits();
+  if(name==="myGrievances") loadMyGrievances();
+  if(name==="myExit") loadMyExits();
+  if(name==="hrGrievances") loadHrGrievances();
+  if(name==="hrExits") loadHrExits();
 }
-
-document.querySelectorAll(".nav-link").forEach(b => {
-  b.addEventListener("click", () => showPage(b.dataset.page));
-});
-
-function showAuthenticatedApp(profile, user) {
-  currentUser = user;
-  currentProfile = profile;
-  currentRole = profile.role;
-
-  $("authScreen").classList.add("hidden");
-  $("appScreen").classList.remove("hidden");
-
-  $("profileName").textContent = profile.full_name || user.email || "User";
-  $("profileRole").textContent = currentRole === "employer" ? "HR Analytics" : "Employee";
-  $("topEmail").textContent = user.email || "";
-  $("avatar").textContent = (profile.full_name || user.email || "U").charAt(0).toUpperCase();
-
-  document.querySelectorAll(".nav-link").forEach(b => {
-    b.classList.toggle("hidden", !b.dataset.roles.split(" ").includes(currentRole));
+document.querySelectorAll(".nav-link").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+function showAuthenticatedApp(profile,user) {
+  currentUser=user; currentProfile=profile; currentRole=profile.role;
+  $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
+  $("profileName").textContent=profile.full_name || user.email || "User";
+  $("profileRole").textContent=currentRole==="employer"?"HR Analytics":"Employee";
+  $("topEmail").textContent=user.email || "";
+  $("avatar").textContent=(profile.full_name || user.email || "U").charAt(0).toUpperCase();
+  document.querySelectorAll(".nav-link").forEach(b=>{
+    b.classList.toggle("hidden",!b.dataset.roles.split(" ").includes(currentRole));
   });
-
-  if (currentRole === "employer") {
+  if(currentRole==="employer") {
     showPage("dashboard");
     loadHrAnalytics();
-  } else if (currentRole === "employee") {
+  } else if(currentRole==="employee") {
     showPage("employeeHome");
   } else {
     $("appScreen").classList.add("hidden");
     $("authScreen").classList.remove("hidden");
-    showNotice(
-      "authNotice",
-      "Your profile role is not recognised. Ask the database administrator to set profiles.role to employer or employee.",
-      true
-    );
+    showNotice("authNotice","Your profile role is not recognised. Ask the database administrator to set profiles.role to employer or employee.",true);
   }
 }
-
 async function loadProfile(user) {
-  const { data, error } = await db.from("profiles")
- .select("id,full_name,email,role,employee_code,department,designation")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (error) throw new Error("Could not load your profile: " + error.message);
-
-  if (!data) {
-    throw new Error("Your Supabase account exists, but no matching profiles row was found. Ask the administrator to create a profiles row whose id matches your Auth user ID.");
-  }
-
+  const {data,error}=await db.from("profiles")
+    .select("id,full_name,email,role,employee_id,employee_code,department,designation")
+    .eq("id",user.id).maybeSingle();
+  if(error) throw new Error("Could not load your profile: "+error.message);
+  if(!data) throw new Error("Your Supabase account exists, but no matching profiles row was found. Ask the administrator to create a profiles row whose id matches your Auth user ID.");
   return data;
 }
-
-$("loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  clearNotice("authNotice");
-
-  const button = $("loginButton");
-  button.disabled = true;
-  button.textContent = "Signing in…";
-
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); clearNotice("authNotice");
+  const button=$("loginButton"); button.disabled=true; button.textContent="Signing in…";
   try {
-    const { data, error } = await db.auth.signInWithPassword({
-      email: $("loginEmail").value.trim(),
-      password: $("loginPassword").value
+    const {data,error}=await db.auth.signInWithPassword({
+      email:$("loginEmail").value.trim(),password:$("loginPassword").value
     });
-
-    if (error) throw error;
-
-    const profile = await loadProfile(data.user);
-    showAuthenticatedApp(profile, data.user);
-  } catch (err) {
-    showNotice("authNotice", err.message || "Sign-in failed.", true);
-  } finally {
-    button.disabled = false;
-    button.textContent = "Sign in";
-  }
+    if(error) throw error;
+    const profile=await loadProfile(data.user);
+    showAuthenticatedApp(profile,data.user);
+  } catch(err) {
+    showNotice("authNotice",err.message || "Sign-in failed.",true);
+  } finally {button.disabled=false;button.textContent="Sign in";}
 });
-
-$("logoutButton").addEventListener("click", async () => {
-  const { error } = await db.auth.signOut();
-
-  currentUser = null;
-  currentProfile = null;
-  currentRole = null;
-
-  $("appScreen").classList.add("hidden");
-  $("authScreen").classList.remove("hidden");
-
-  if (error) {
-    showNotice("authNotice", "Signed out locally, but Supabase reported: " + error.message, true);
-  } else {
-    showNotice("authNotice", "You have signed out.");
-  }
+$("logoutButton").addEventListener("click",async()=>{
+  const {error}=await db.auth.signOut();
+  currentUser=null;currentProfile=null;currentRole=null;
+  $("appScreen").classList.add("hidden");$("authScreen").classList.remove("hidden");
+  if(error) showNotice("authNotice","Signed out locally, but Supabase reported: "+error.message,true);
+  else showNotice("authNotice","You have signed out.");
 });
-
 async function restoreSession() {
   try {
-    const { data, error } = await db.auth.getSession();
-    if (error) throw error;
-
-    if (data.session) {
-      const profile = await loadProfile(data.session.user);
-      showAuthenticatedApp(profile, data.session.user);
+    const {data,error}=await db.auth.getSession();
+    if(error) throw error;
+    if(data.session) {
+      const profile=await loadProfile(data.session.user);
+      showAuthenticatedApp(profile,data.session.user);
     }
-  } catch (err) {
-    showNotice("authNotice", err.message || "Could not restore session.", true);
-  }
+  } catch(err) {showNotice("authNotice",err.message || "Could not restore session.",true);}
 }
-
-db.auth.onAuthStateChange(async (event, session) => {
-  if (event === "SIGNED_OUT") {
-    $("appScreen").classList.add("hidden");
-    $("authScreen").classList.remove("hidden");
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==="SIGNED_OUT") {
+    $("appScreen").classList.add("hidden");$("authScreen").classList.remove("hidden");
   }
 });
-
 async function loadMyGrievances() {
-  if (!currentUser) return;
-
-  const tbody = $("myGrievanceTable");
-  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
-
-  const { data, error } = await db.from("grievances")
+  if(!currentUser) return;
+  const tbody=$("myGrievanceTable");
+  tbody.innerHTML='<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+  const {data,error}=await db.from("grievances")
     .select("created_at,subject,category,priority,status,hr_response")
-    .eq("employee_id", currentUser.id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Could not load grievances: ' + esc(error.message) + '</td></tr>';
-    return;
+    .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
+  if(error) {
+    tbody.innerHTML='<tr><td colspan="6" class="table-empty">Could not load grievances: '+esc(error.message)+'</td></tr>'; return;
   }
-
-  if (!data?.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">You have not submitted any grievances yet.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = data.map(g => `<tr>
-    <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
-    <td>${esc(g.subject || "—")}</td>
-    <td>${esc(g.category || "—")}</td>
-    <td>${esc(g.priority || "—")}</td>
-    <td><span class="status ${g.status === "resolved" || g.status === "closed" ? "resolved" : g.status === "in_review" ? "review" : ""}">${esc(({submitted:"Submitted",in_review:"In Review",resolved:"Resolved",closed:"Closed"})[g.status] || g.status || "Submitted")}</span></td>
-    <td>${esc(g.hr_response || "No response yet")}</td>
-  </tr>`).join("");
+  if(!data?.length) {tbody.innerHTML='<tr><td colspan="6" class="table-empty">You have not submitted any grievances yet.</td></tr>';return;}
+  tbody.innerHTML=data.map(g=>`<tr>
+    <td>${esc(g.created_at?new Date(g.created_at).toLocaleDateString("en-IN"):"—")}</td>
+    <td>${esc(g.subject||"—")}</td><td>${esc(g.category||"—")}</td>
+    <td>${esc(g.priority||"—")}</td><td><span class="status ${g.status==="Resolved"?"resolved":g.status==="Under Review"?"review":""}">${esc(g.status||"Open")}</span></td>
+    <td>${esc(g.hr_response||"No response yet")}</td></tr>`).join("");
 }
-
-$("grievanceForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  clearNotice("gNotice");
-
-  if (!currentUser) return showNotice("gNotice", "Please sign in again.", true);
-
-  const button = e.submitter;
-  if (button) {
-    button.disabled = true;
-    button.textContent = "Submitting…";
-  }
-
+$("grievanceForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("gNotice");
+  if(!currentUser) return showNotice("gNotice","Please sign in again.",true);
+  const button=e.submitter; if(button){button.disabled=true;button.textContent="Submitting…";}
   try {
-    const row = {
-      employee_id: currentUser.id,
-      category: $("gCategory").value,
-      subject: $("gSubject").value.trim(),
-      description: $("gDescription").value.trim(),
-      priority: $("gPriority").value,
-      status: "submitted"
-    };
-
-    const { error } = await db.from("grievances").insert(row);
-    if (error) throw error;
-
-    e.target.reset();
-    showNotice("gNotice", "Your grievance was submitted. You can track its status below.");
+    const row={employee_id:currentUser.id,category:$("gCategory").value,subject:$("gSubject").value.trim(),description:$("gDescription").value.trim(),priority:$("gPriority").value,status:"Open"};
+    const {error}=await db.from("grievances").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("gNotice","Your grievance was submitted. You can track its status below.");
     await loadMyGrievances();
-  } catch (err) {
-    showNotice("gNotice", "Submission failed: " + err.message, true);
-  } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = "Submit grievance";
-    }
-  }
+  } catch(err) {showNotice("gNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit grievance";}}
 });
-
-$("refreshGrievances").addEventListener("click", loadMyGrievances);
-
+$("refreshGrievances").addEventListener("click",loadMyGrievances);
 async function loadMyExits() {
-  if (!currentUser) return;
-
-  const tbody = $("myExitTable");
-  tbody.innerHTML = '<tr><td colspan="3" class="table-empty">Loading…</td></tr>';
-
-  const { data, error } = await db.from("exit_interviews")
+  if(!currentUser) return;
+  const tbody=$("myExitTable");tbody.innerHTML='<tr><td colspan="3" class="table-empty">Loading…</td></tr>';
+  const {data,error}=await db.from("exit_interviews")
     .select("created_at,reason,feedback")
-    .eq("employee_id", currentUser.id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    tbody.innerHTML = '<tr><td colspan="3" class="table-empty">Could not load feedback: ' + esc(error.message) + '</td></tr>';
-    return;
-  }
-
-  if (!data?.length) {
-    tbody.innerHTML = '<tr><td colspan="3" class="table-empty">You have not submitted exit feedback yet.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = data.map(r => `<tr>
-    <td>${esc(r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "—")}</td>
-    <td>${esc(r.reason || "—")}</td>
-    <td>${esc(r.feedback || "—")}</td>
-  </tr>`).join("");
+    .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
+  if(error) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">Could not load feedback: '+esc(error.message)+'</td></tr>';return;}
+  if(!data?.length) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">You have not submitted exit feedback yet.</td></tr>';return;}
+  tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.reason||"—")}</td><td>${esc(r.feedback||"—")}</td></tr>`).join("");
 }
-
-$("exitForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  clearNotice("eNotice");
-
-  if (!currentUser) return showNotice("eNotice", "Please sign in again.", true);
-
-  const button = e.submitter;
-  if (button) {
-    button.disabled = true;
-    button.textContent = "Submitting…";
-  }
-
+$("exitForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("eNotice");
+  if(!currentUser) return showNotice("eNotice","Please sign in again.",true);
+  const button=e.submitter;if(button){button.disabled=true;button.textContent="Submitting…";}
   try {
-    const row = {
-      employee_id: currentUser.id,
-      reason: $("eReason").value,
-      feedback: $("eFeedback").value.trim()
-    };
-
-    const { error } = await db.from("exit_interviews").insert(row);
-    if (error) throw error;
-
-    e.target.reset();
-    showNotice("eNotice", "Your exit feedback was submitted successfully.");
+    const row={employee_id:currentUser.id,reason:$("eReason").value,feedback:$("eFeedback").value.trim()};
+    const {error}=await db.from("exit_interviews").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("eNotice","Your exit feedback was submitted successfully.");
     await loadMyExits();
-  } catch (err) {
-    showNotice("eNotice", "Submission failed: " + err.message, true);
-  } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = "Submit exit feedback";
-    }
-  }
+  } catch(err) {showNotice("eNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit exit feedback";}}
 });
-
-$("refreshExits").addEventListener("click", loadMyExits);
-
+$("refreshExits").addEventListener("click",loadMyExits);
 async function loadHrGrievances() {
   if (currentRole !== "employer") return;
 
@@ -722,131 +269,112 @@ async function loadHrGrievances() {
 
     if (error) throw error;
 
+    const { data: profiles, error: profileError } = await db
+      .from("profiles")
+      .select("id,employee_code");
+
+    if (profileError) throw profileError;
+
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [
+        profile.id,
+        profile.employee_code
+      ])
+    );
+
     if (!data?.length) {
       tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No grievance records found.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = data.map(g => `<tr>
-      <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
-      <td>${esc(g.employee_id || "—")}</td>
-      <td><strong>${esc(g.subject || "—")}</strong><br>${esc(g.description || "")}</td>
-      <td>${esc(g.category || "—")}</td>
-      <td>${esc(g.priority || "—")}</td>
-      <td>
-        <select id="status-${esc(g.id)}" aria-label="Grievance status">
-          <option value="submitted" ${g.status === "submitted" ? "selected" : ""}>Submitted</option>
-          <option value="in_review" ${g.status === "in_review" ? "selected" : ""}>In Review</option>
-          <option value="resolved" ${g.status === "resolved" ? "selected" : ""}>Resolved</option>
-          <option value="closed" ${g.status === "closed" ? "selected" : ""}>Closed</option>
-        </select>
-      </td>
-      <td><textarea id="response-${esc(g.id)}" maxlength="2000" aria-label="HR response" style="min-width:180px;min-height:65px">${esc(g.hr_response || "")}</textarea></td>
-      <td><button class="btn-primary" type="button" onclick="saveGrievance('${esc(g.id)}')">Save</button></td>
-    </tr>`).join("");
+    tbody.innerHTML = data.map(g => {
+      const employeeCode =
+        employeeCodes[g.employee_id] || "Employee code unavailable";
+
+      return `<tr>
+        <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
+        <td>${esc(employeeCode)}</td>
+        <td><strong>${esc(g.subject || "—")}</strong><br>${esc(g.description || "")}</td>
+        <td>${esc(g.category || "—")}</td>
+        <td>${esc(g.priority || "—")}</td>
+        <td>
+          <select id="status-${esc(g.id)}" aria-label="Grievance status">
+            <option value="submitted" ${g.status === "submitted" ? "selected" : ""}>Submitted</option>
+            <option value="in_review" ${g.status === "in_review" ? "selected" : ""}>In Review</option>
+            <option value="resolved" ${g.status === "resolved" ? "selected" : ""}>Resolved</option>
+            <option value="closed" ${g.status === "closed" ? "selected" : ""}>Closed</option>
+          </select>
+        </td>
+        <td>
+          <textarea id="response-${esc(g.id)}"
+            maxlength="2000"
+            aria-label="HR response"
+            style="min-width:180px;min-height:65px">${esc(g.hr_response || "")}</textarea>
+        </td>
+        <td>
+          <button class="btn-primary" type="button"
+            onclick="saveGrievance('${esc(g.id)}')">Save</button>
+        </td>
+      </tr>`;
+    }).join("");
+
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR SELECT permissions and RLS policies.</td></tr>';
-    showNotice("hrGNotice", err.message || "Could not load grievances.", true);
+    showNotice(
+      "hrGNotice",
+      err.message || "Could not load grievances.",
+      true
+    );
   }
 }
-
 async function saveGrievance(id) {
-  if (currentRole !== "employer") return;
-
+  if(currentRole!=="employer") return;
   clearNotice("hrGNotice");
-
-  const status = $("status-" + id)?.value;
-  const hr_response = $("response-" + id)?.value.trim() || null;
-
+  const status=$("status-"+id)?.value;
+  const hr_response=$("response-"+id)?.value.trim()||null;
   try {
-    const { error } = await db.from("grievances")
-      .update({ status, hr_response })
-      .eq("id", id);
-
-    if (error) throw error;
-
+    const {error}=await db.from("grievances").update({status,hr_response}).eq("id",id);
+    if(error) throw error;
+    showNotice("hrGNotice","Grievance updated successfully.");
     await loadHrGrievances();
-    showNotice("hrGNotice", "Grievance updated successfully.");
-  } catch (err) {
-    showNotice("hrGNotice", "Update failed. Check HR UPDATE permissions and RLS policies: " + (err.message || "Unknown error"), true);
-  }
+    showNotice("hrGNotice","Grievance updated successfully.");
+  } catch(err) {showNotice("hrGNotice","Update failed. Check HR UPDATE permissions and RLS policies: "+(err.message||"Unknown error"),true);}
 }
-
 async function loadHrExits() {
-  if (currentRole !== "employer") return;
-
-  const tbody = $("hrExitTable");
-  tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
+  if(currentRole!=="employer") return;
+  const tbody=$("hrExitTable");
+  tbody.innerHTML='<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
   clearNotice("hrENotice");
-
   try {
-    const { data, error } = await db.from("exit_interviews")
+    const {data,error}=await db.from("exit_interviews")
       .select("employee_id,created_at,reason,feedback")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    if (!data?.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = data.map(r => `<tr>
-      <td>${esc(r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "—")}</td>
-      <td>${esc(r.employee_id || "—")}</td>
-      <td>${esc(r.reason || "—")}</td>
-      <td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback || "—")}</td>
-    </tr>`).join("");
-  } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR SELECT permissions and RLS policies.</td></tr>';
-    showNotice("hrENotice", err.message || "Could not load exit feedback.", true);
-  }
+      .order("created_at",{ascending:false});
+    if(error) throw error;
+    if(!data?.length){tbody.innerHTML='<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';return;}
+    tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.employee_id||"—")}</td><td>${esc(r.reason||"—")}</td><td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback||"—")}</td></tr>`).join("");
+  } catch(err) {tbody.innerHTML='<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR SELECT permissions and RLS policies.</td></tr>';showNotice("hrENotice",err.message||"Could not load exit feedback.",true);}
 }
+$("refreshHrGrievances").addEventListener("click",loadHrGrievances);
+$("refreshHrExits").addEventListener("click",loadHrExits);
 
-$("refreshHrGrievances").addEventListener("click", loadHrGrievances);
-$("refreshHrExits").addEventListener("click", loadHrExits);
-
-/* Corrected aggregate analytics function */
 async function loadHrAnalytics() {
-  $("metricStatus").textContent = "Connecting";
-  $("analyticsMessage").textContent =
-    "Requesting aggregate-only analytics from the secure get_hr_analytics database function. Individual grievance and exit records are never queried by this page.";
-
+  $("metricStatus").textContent="Connecting";
+  $("analyticsMessage").textContent="Requesting aggregate-only analytics from the secure get_hr_analytics database function. Individual grievance and exit records are never queried by this page.";
   try {
-    const { data, error } = await db.rpc("get_hr_analytics");
-
-    if (error) throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-
-    if (!result) {
-      throw new Error("The analytics function returned no aggregate data.");
-    }
-
-    // These names must match the columns returned by the Supabase RPC.
-    $("metricGrievances").textContent =
-      result.grievances_submitted ?? "—";
-
-    $("metricResolved").textContent =
-      result.grievances_resolved ?? "—";
-
-    $("metricExits").textContent =
-      result.exit_feedback_received ?? "—";
-
-    $("metricStatus").textContent = "Connected";
-
-    $("analyticsMessage").textContent =
-      "Live aggregate analytics loaded successfully. No individual grievance or exit-feedback records were displayed.";
-
-  } catch (err) {
-    $("metricStatus").textContent = "Setup needed";
-
-    $("analyticsMessage").textContent =
-      "Live analytics could not be loaded. Check the get_hr_analytics() function, its returned column names, and employer permissions. Details: " +
-      (err.message || "Unknown error");
+    const {data,error}=await db.rpc("get_hr_analytics");
+    if(error) throw error;
+    const result=Array.isArray(data)?data[0]:data;
+    if(!result) throw new Error("The analytics function returned no aggregate data.");
+    $("metricGrievances").textContent=result.total_grievances ?? "—";
+    $("metricResolved").textContent=result.resolved_grievances ?? "—";
+    $("metricExits").textContent=result.total_exit_feedback ?? "—";
+    $("metricStatus").textContent="Connected";
+    $("analyticsMessage").textContent="Live aggregate analytics loaded successfully. No individual grievance or exit-feedback records were displayed.";
+  } catch(err) {
+    $("metricStatus").textContent="Setup needed";
+    $("analyticsMessage").textContent="Live analytics are not configured yet. The database administrator must create a secure get_hr_analytics() RPC that returns only aggregate counts (total_grievances, resolved_grievances, total_exit_feedback) and grants execution only to the employer role. Details: "+err.message;
   }
 }
-
 restoreSession();
 </script>
 </body>
