@@ -379,7 +379,7 @@ async function loadHrAnalytics() {
     $("analyticsMessage").textContent="Live aggregate analytics loaded successfully. No individual grievance or exit-feedback records were displayed.";
   } catch(err) {
     $("metricStatus").textContent="Setup needed";
-    $("analyticsMessage").textContent="Live analytics are not configured yet. The secure get_hr_analytics() request failed. Check that the logged-in account has the employer role and that the function is executable by authenticated users. Details: "+err.message;
+    $("analyticsMessage").textContent="Live analytics are not configured yet. The database administrator must create a secure get_hr_analytics() RPC that returns only aggregate counts (grievances_submitted, grievances_resolved, exit_feedback_received) and grants execution only to the employer role. Details: "+err.message;
   }
 }
 restoreSession();
