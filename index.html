@@ -315,7 +315,11 @@ async function loadHrAnalytics() {
     if(error) throw error;
     const result=Array.isArray(data)?data[0]:data;
     if(!result) throw new Error("The analytics function returned no aggregate data.");
-    $("metricGrievances").textContent=result.total_grievances ?? "—";
+    
+$("metricGrievances").textContent = result.grievances_submitted ?? "—";
+$("metricResolved").textContent = result.grievances_resolved ?? "—";
+$("metricExits").textContent = result.exit_feedback_received ?? "—";
+
     $("metricResolved").textContent=result.resolved_grievances ?? "—";
     $("metricExits").textContent=result.total_exit_feedback ?? "—";
     $("metricStatus").textContent="Connected";
