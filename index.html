@@ -214,7 +214,7 @@ async function loadMyGrievances() {
   tbody.innerHTML=data.map(g=>`<tr>
     <td>${esc(g.created_at?new Date(g.created_at).toLocaleDateString("en-IN"):"—")}</td>
     <td>${esc(g.subject||"—")}</td><td>${esc(g.category||"—")}</td>
-    <td>${esc(g.priority||"—")}</td><td><span class="status ${g.status==="Resolved"?"resolved":g.status==="Under Review"?"review":""}">${esc(g.status||"Open")}</span></td>
+    <td>${esc(g.priority||"—")}</td><td><span class="status ${g.status==="resolved"||g.status==="closed"?"resolved":g.status==="in_review"?"review":""}">${esc(({submitted:"Submitted",in_review:"In Review",resolved:"Resolved",closed:"Closed"})[g.status]||g.status||"Submitted")}</span></td>
     <td>${esc(g.hr_response||"No response yet")}</td></tr>`).join("");
 }
 $("grievanceForm").addEventListener("submit",async e=>{
@@ -222,7 +222,7 @@ $("grievanceForm").addEventListener("submit",async e=>{
   if(!currentUser) return showNotice("gNotice","Please sign in again.",true);
   const button=e.submitter; if(button){button.disabled=true;button.textContent="Submitting…";}
   try {
-    const row={employee_id:currentUser.id,category:$("gCategory").value,subject:$("gSubject").value.trim(),description:$("gDescription").value.trim(),priority:$("gPriority").value,status:"Open"};
+    const row={employee_id:currentUser.id,category:$("gCategory").value,subject:$("gSubject").value.trim(),description:$("gDescription").value.trim(),priority:$("gPriority").value,status:"submitted"};
     const {error}=await db.from("grievances").insert(row);
     if(error) throw error;
     e.target.reset();showNotice("gNotice","Your grievance was submitted. You can track its status below.");
@@ -271,7 +271,7 @@ async function loadHrGrievances() {
       <td>${esc(g.employee_id||"—")}</td>
       <td><strong>${esc(g.subject||"—")}</strong><br>${esc(g.description||"")}</td>
       <td>${esc(g.category||"—")}</td><td>${esc(g.priority||"—")}</td>
-      <td><select id="status-${esc(g.id)}" aria-label="Grievance status"><option ${g.status==="Open"?"selected":""}>Open</option><option ${g.status==="Under Review"?"selected":""}>Under Review</option><option ${g.status==="Resolved"?"selected":""}>Resolved</option><option ${g.status==="Closed"?"selected":""}>Closed</option></select></td>
+      <td><select id="status-${esc(g.id)}" aria-label="Grievance status"><option value="submitted" ${g.status==="submitted"?"selected":""}>Submitted</option><option value="in_review" ${g.status==="in_review"?"selected":""}>In Review</option><option value="resolved" ${g.status==="resolved"?"selected":""}>Resolved</option><option value="closed" ${g.status==="closed"?"selected":""}>Closed</option></select></td>
       <td><textarea id="response-${esc(g.id)}" maxlength="2000" aria-label="HR response" style="min-width:180px;min-height:65px">${esc(g.hr_response||"")}</textarea></td>
       <td><button class="btn-primary" type="button" onclick="saveGrievance('${esc(g.id)}')">Save</button></td>
     </tr>`).join("");
