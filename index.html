@@ -309,7 +309,17 @@ $("exitForm").addEventListener("submit",async e=>{
   if(!currentUser) return showNotice("eNotice","Please sign in again.",true);
   const button=e.submitter;if(button){button.disabled=true;button.textContent="Submitting…";}
   try {
-    const row={employee_id:currentUser.id,reason:$("eReason").value,feedback:$("eFeedback").value.trim()};
+    const { data: { user }, error: authError } = await db.auth.getUser();
+
+if (authError || !user) {
+  throw new Error("Your login session is invalid. Please sign in again.");
+}
+
+const row = {
+  employee_id: user.id,
+  reason: $("eReason").value,
+  feedback: $("eFeedback").value.trim()
+};
     const {error}=await db.from("exit_interviews").insert(row);
     if(error) throw error;
     e.target.reset();showNotice("eNotice","Your exit feedback was submitted successfully.");
