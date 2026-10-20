@@ -841,6 +841,105 @@ $("hrRequestForm").addEventListener("submit", async function(event) {
 
 $("refreshHRRequests").addEventListener("click", loadMyHRRequests);
 
+
+async function loadHRHelpRequests() {
+  const table = $("hrHelpRequestsTable");
+
+  if (!currentUser || currentRole !== "employer") {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">Please log in using your employer account.</td></tr>';
+    return;
+  }
+
+  table.innerHTML =
+    '<tr><td colspan="6" class="table-empty">Loading requests...</td></tr>';
+
+  const { data, error } = await db
+    .from("hr_requests")
+    .select("id, employee_id, created_at, category, subject, description, status, hr_reply")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">Could not load requests.</td></tr>';
+    console.error("HR Help Centre load error:", error.message);
+    showNotice("hrHelpCentreNotice", "Unable to load requests. Check the employer access policy.", true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">No employee HR requests found.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = data.map(request => `
+    <tr>
+      <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>${esc(request.category)}</td>
+      <td>
+        <strong>${esc(request.subject)}</strong>
+        <p>${esc(request.description)}</p>
+      </td>
+      <td>
+        <select id="hrRequestStatus-${esc(request.id)}">
+          <option value="Open" ${request.status === "Open" ? "selected" : ""}>Open</option>
+          <option value="In Progress" ${request.status === "In Progress" ? "selected" : ""}>In Progress</option>
+          <option value="Resolved" ${request.status === "Resolved" ? "selected" : ""}>Resolved</option>
+        </select>
+      </td>
+      <td>
+        <textarea id="hrRequestReply-${esc(request.id)}"
+          maxlength="3000"
+          placeholder="Write your reply">${esc(request.hr_reply || "")}</textarea>
+      </td>
+      <td>
+        <button class="btn-primary"
+          type="button"
+          data-save-hr-request="${esc(request.id)}">
+          Save
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  table.querySelectorAll("[data-save-hr-request]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const id = button.dataset.saveHrRequest;
+      const status = $("hrRequestStatus-" + id).value;
+      const hr_reply = $("hrRequestReply-" + id).value.trim();
+
+      button.disabled = true;
+      button.textContent = "Saving...";
+
+      const { error: saveError } = await db
+        .from("hr_requests")
+        .update({
+          status,
+          hr_reply: hr_reply || null,
+          replied_by: currentUser.id,
+          replied_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
+
+      button.disabled = false;
+      button.textContent = "Save";
+
+      if (saveError) {
+        console.error("Save HR reply error:", saveError.message);
+        showNotice("hrHelpCentreNotice", "Could not save the reply. Please try again.", true);
+        return;
+      }
+
+      showNotice("hrHelpCentreNotice", "HR response and status saved successfully.");
+      await loadHRHelpRequests();
+    });
+  });
+}
+
+$("refreshHRHelpCentre").addEventListener("click", loadHRHelpRequests);
+
   restoreSession();
 </script>
 </body>
