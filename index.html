@@ -126,6 +126,85 @@
         </div><div class="form-actions"><button class="btn-primary" type="submit">Submit grievance</button></div><div class="notice" id="gNotice" role="status"></div></form></div>
         <div class="panel"><div class="panel-head"><div><div class="panel-title">Your submitted grievances</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshGrievances">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th></tr></thead><tbody id="myGrievanceTable"><tr><td colspan="6" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
       </section>
+     
+<section class="page" id="page-myHRRequests">
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">EMPLOYEE SELF-SERVICE</div>
+      <h1>My HR Requests</h1>
+      <p class="heading-description">Ask HR a question and track the reply.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Raise an HR request</div>
+    <p class="panel-subtitle">Submit a question for the HR team.</p>
+
+    <form id="hrRequestForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="hrRequestCategory">Category *</label>
+          <select id="hrRequestCategory" required>
+            <option value="">Select category</option>
+            <option>Payroll and Salary</option>
+            <option>Leave and Attendance</option>
+            <option>Employment Documents</option>
+            <option>Benefits and Policies</option>
+            <option>Workplace Concern</option>
+            <option>Other HR Query</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="hrRequestSubject">Subject *</label>
+          <input id="hrRequestSubject" maxlength="150"
+                 required placeholder="Briefly describe your question">
+        </div>
+
+        <div class="field full">
+          <label for="hrRequestDescription">Description *</label>
+          <textarea id="hrRequestDescription" maxlength="3000"
+                    required placeholder="Explain how HR can help you"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" type="submit">Submit HR Request</button>
+      </div>
+      <div class="notice" id="hrRequestNotice" role="status"></div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Your HR Requests</div>
+        <div class="panel-subtitle">Check your request status and HR replies.</div>
+      </div>
+      <button class="btn-secondary" id="refreshHRRequests" type="button">Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Subject</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>HR Reply</th>
+          </tr>
+        </thead>
+        <tbody id="myHRRequestsTable">
+          <tr>
+            <td colspan="5" class="table-empty">Your requests will appear here.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
       <section class="page" id="page-myExit">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>My Exit Feedback</h1><p class="heading-description">Share feedback for your exit process. Only use this when appropriate for your employment situation.</p></div></div>
         <div class="panel"><div class="panel-title">Submit exit feedback</div><form id="exitForm"><div class="form-grid">
