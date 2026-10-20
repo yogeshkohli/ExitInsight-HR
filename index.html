@@ -373,27 +373,68 @@ function showNotice(id, message, error=false) {
   const el=$(id); el.textContent=message; el.classList.add("show");
   el.classList.toggle("error",error);
 }
-function clearNotice(id) {
-  const el=$(id); el.textContent=""; el.classList.remove("show","error");
-}
+
 function showPage(name) {
-  const employerPages=["dashboard","hrGrievances","hrExits"];
-  const employeePages=["employeeHome","myGrievances","myExit","hrPolicies"];
-  if(currentRole && ((employerPages.includes(name)&&currentRole!=="employer") || (employeePages.includes(name)&&currentRole!=="employee"))) {
-    console.warn("Blocked navigation to a page outside the current role."); return;
+  const employerPages = [
+    "dashboard",
+    "hrGrievances",
+    "hrHelpCentre",
+    "hrExits"
+  ];
+
+  const employeePages = [
+    "employeeHome",
+    "myGrievances",
+    "myHRRequests",
+    "myExit",
+    "hrPolicies"
+  ];
+
+  if (
+    currentRole &&
+    (
+      (employerPages.includes(name) && currentRole !== "employer") ||
+      (employeePages.includes(name) && currentRole !== "employee")
+    )
+  ) {
+    console.warn("Blocked navigation to a page outside the current role.");
+    return;
   }
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  const page=$("page-"+name); if(page) page.classList.add("active");
-  document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
-  const names={
-  dashboard:"Analytics Dashboard",
-  hrGrievances:"Grievance Management",
-  hrExits:"Exit Interview Feedback",
-  employeeHome:"My Home",
-  myGrievances:"My Grievances",
-  myExit:"My Exit Feedback",
-  hrPolicies:"HR Policies"
-};
+
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  const page = $("page-" + name);
+  if (page) page.classList.add("active");
+
+  document.querySelectorAll(".nav-link").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === name);
+  });
+
+  const names = {
+    dashboard: "Analytics Dashboard",
+    hrGrievances: "Grievance Management",
+    hrHelpCentre: "HR Help Centre",
+    hrExits: "Exit Interview Feedback",
+    employeeHome: "My Home",
+    myGrievances: "My Grievances",
+    myHRRequests: "My HR Requests",
+    myExit: "My Exit Feedback",
+    hrPolicies: "HR Policies"
+  };
+
+  $("topTitle").textContent = names[name] || "ExitInsight HR";
+  $("sidebar").classList.remove("open");
+
+  if (name === "myGrievances") loadMyGrievances();
+  if (name === "myHRRequests") loadMyHRRequests();
+  if (name === "myExit") loadMyExits();
+  if (name === "hrGrievances") loadHrGrievances();
+  if (name === "hrHelpCentre") loadHRHelpRequests();
+  if (name === "hrExits") loadHrExits();
+}
+
 $("topTitle").textContent=names[name]||"ExitInsight HR";
 $("sidebar").classList.remove("open");
   $("topTitle").textContent=names[name]||"ExitInsight HR";
