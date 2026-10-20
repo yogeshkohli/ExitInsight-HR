@@ -243,7 +243,7 @@ function clearNotice(id) {
 }
 function showPage(name) {
   const employerPages=["dashboard","hrGrievances","hrExits"];
-  const employeePages=["employeeHome","myGrievances","myExit"];
+  const employeePages=["employeeHome","myGrievances","myExit","hrPolicies"];
   if(currentRole && ((employerPages.includes(name)&&currentRole!=="employer") || (employeePages.includes(name)&&currentRole!=="employee"))) {
     console.warn("Blocked navigation to a page outside the current role."); return;
   }
