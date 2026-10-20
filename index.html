@@ -980,4 +980,986 @@ $("refreshHRHelpCentre").addEventListener("click", loadHRHelpRequests);
   restoreSession();
 </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ExitInsight HR | KYR People Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#172554;--blue:#3157d5;--orange:#f97316;--bg:#f1f4f9;--white:#fff;--text:#202b3c;--muted:#8490a2;--border:#e3e8ef;--green:#16a36a;--red:#e65368;--shadow:0 4px 18px rgba(31,45,70,.055)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#172554,#3157d5)}.auth-card{width:min(100%,460px);background:white;border-radius:18px;padding:30px;box-shadow:0 20px 70px #0003}.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}.brand-mark{width:43px;height:43px;border:3px solid var(--navy);border-radius:50%;display:grid;place-items:center;font-weight:900;color:var(--navy)}.brand-name{font-size:22px;font-weight:800;color:var(--navy)}.brand-name span{color:var(--orange)}.muted{color:var(--muted)}h1{font-size:25px;letter-spacing:-.6px;margin-bottom:8px}.auth-card p{line-height:1.6}.field{display:flex;flex-direction:column;gap:7px;margin-top:15px}.field label{font-size:12px;font-weight:700;color:#4b5668}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #dfe5ed;border-radius:8px;outline:none;background:#fff;color:var(--text)}.field textarea{min-height:100px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3157d51a}.btn-primary{background:var(--orange);color:#fff;padding:12px 15px;border-radius:9px;font-weight:700}.btn-secondary{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px}.full{width:100%;margin-top:18px}.notice{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#e8f9ef;color:#167547;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.notice.show{display:block}.notice.error{background:#fff0f2;color:#b4233b}.auth-help{font-size:11px;margin-top:15px}
+.portal-card{width:min(100%,760px);background:#fff;border-radius:20px;padding:34px;box-shadow:0 20px 70px #0003}
+.portal-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:25px}
+.portal-option{border:1px solid #e3e8ef;border-radius:15px;padding:24px;text-align:left;background:#fff;display:flex;flex-direction:column;align-items:flex-start;min-height:210px;transition:transform .18s,box-shadow .18s,border-color .18s}
+.portal-option:hover{transform:translateY(-3px);border-color:#f97316;box-shadow:0 12px 28px #17255412}
+.portal-icon{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;background:#fff1e7;color:#e96a13;font-size:23px;font-weight:800;margin-bottom:18px}
+.portal-option h2{font-size:17px;color:#172554;margin-bottom:8px}
+.portal-option p{font-size:12px;line-height:1.7;color:#8490a2}
+.portal-action{margin-top:auto;padding-top:18px;color:#e96a13;font-size:12px;font-weight:800}
+@media(max-width:600px){.portal-card{padding:23px}.portal-options{grid-template-columns:1fr}.portal-option{min-height:170px}}
+.app{min-height:100vh;display:flex}.sidebar{width:245px;background:#fff;border-right:1px solid var(--border);position:fixed;inset:0 auto 0 0;z-index:30;display:flex;flex-direction:column;transition:transform .25s}.sidebar-brand{height:78px;display:flex;align-items:center;padding:0 20px;gap:10px;border-bottom:1px solid #f1f3f7}.sidebar-brand .brand-mark{width:37px;height:37px}.sidebar-brand .brand-name{font-size:19px}.sidebar-scroll{overflow-y:auto;padding:17px 13px;flex:1}.nav-label{font-size:10px;letter-spacing:1.1px;color:#a0a9b8;font-weight:800;padding:13px 12px 8px}.nav-link{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:11px 12px;border-radius:9px;margin:3px 0;color:#5b6575;background:transparent;font-size:13px;font-weight:600}.nav-link:hover,.nav-link.active{background:#fff1e7;color:#e96a13}.sidebar-bottom{border-top:1px solid var(--border);padding:15px;font-size:11px;color:var(--muted);line-height:1.5}.main{margin-left:245px;width:calc(100% - 245px);min-width:0}.topbar{height:78px;background:#fff;border-bottom:1px solid var(--border);padding:0 30px;display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:20}.topbar h2{font-size:15px}.top-actions{display:flex;align-items:center;gap:10px}.profile-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:6px 10px}.avatar{width:35px;height:35px;border-radius:50%;background:#e3e9ff;color:#3157d5;display:grid;place-items:center;font-weight:800}.profile-text strong{display:block;font-size:12px}.profile-text span{font-size:10px;color:var(--muted)}.content{padding:27px 30px 38px;max-width:1500px;margin:auto}.page{display:none}.page.active{display:block}.page-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap;margin-bottom:23px}.eyebrow{color:var(--orange);font-size:10px;font-weight:800;letter-spacing:1.3px;margin-bottom:6px}.heading-description{font-size:12px;color:var(--muted);margin-top:6px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:19px}.metric,.panel,.simple-stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);min-width:0}.metric-label{font-size:12px;color:#778294;font-weight:600}.metric-number{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:12px}.metric-foot{font-size:10px;color:var(--muted);margin-top:8px}.grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}.panel{margin-bottom:18px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}.panel-title{font-size:14px;font-weight:800}.panel-subtitle{font-size:11px;color:var(--muted);margin-top:5px}.simple-stat span{font-size:11px;color:var(--muted)}.simple-stat strong{display:block;font-size:24px;margin-top:6px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.field.full{grid-column:1/-1}.form-actions{display:flex;gap:9px;margin-top:19px;flex-wrap:wrap}.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:600px}th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #edf0f4;font-size:11px}th{background:#f8fafc;color:#7a8595;text-transform:uppercase;font-size:9px;letter-spacing:.6px}tr:last-child td{border-bottom:0}td{color:#4b5668}.table-empty{text-align:center;color:var(--muted);padding:25px}.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:10px;font-weight:700;background:#fff1dc;color:#b8750c}.status.resolved{background:#e4f8ec;color:#148452}.status.review{background:#e8edff;color:#4058c7}.footer{padding:17px 30px;border-top:1px solid var(--border);background:#fff;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.info-box{padding:13px;border-radius:9px;background:#f5f7ff;color:#44517a;font-size:12px;line-height:1.6;margin-bottom:15px}
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:22px 18px}.topbar{padding:0 18px}}@media(max-width:760px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:8px 0 30px #17255414}.main{margin-left:0;width:100%}.grid-two{grid-template-columns:1fr}.topbar{height:68px;padding:0 12px}.content{padding:18px 12px}.profile-text{display:none}}@media(max-width:520px){.metrics{gap:9px}.metric{padding:13px}.metric-number{font-size:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.auth-card{padding:22px}}
+
+#policyDetails h2{margin:18px 0 14px;color:var(--navy)}
+#policyContent{line-height:1.7;color:var(--text);margin:16px 0}
+#policyContent h3{font-size:14px;margin:18px 0 7px;color:var(--navy)}
+#policyContent p{font-size:13px;margin:0 0 10px}
+#policyContent ul{padding-left:22px;margin:0 0 12px}
+#policyContent li{font-size:13px;margin:5px 0}
+.policy-back{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px}
+
+</style>
+</head>
+<body>
+<section id="portalScreen" class="auth-wrap">
+  <div class="portal-card">
+    <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:10px;letter-spacing:1px">HR MANAGEMENT PORTAL</div></div></div>
+    <h1>Welcome back!</h1>
+    <p class="muted">Choose your portal to continue.</p>
+    <div class="portal-options">
+      <button type="button" class="portal-option" onclick="selectPortal('employee')">
+        <span class="portal-icon" aria-hidden="true">♙</span>
+        <h2>Employee Login</h2>
+        <p>Submit grievances, share exit feedback, and follow up on your submissions.</p>
+        <span class="portal-action">Continue as Employee →</span>
+      </button>
+      <button type="button" class="portal-option" onclick="selectPortal('employer')">
+        <span class="portal-icon" aria-hidden="true">▦</span>
+        <h2>Employer / HR Login</h2>
+        <p>Manage grievances, review exit feedback, and access HR analytics.</p>
+        <span class="portal-action">Continue as HR →</span>
+      </button>
+    </div>
+    <div id="portalNotice" class="notice" role="status"></div>
+    <p class="auth-help muted">Secure access powered by Supabase. Your account role is verified before the dashboard opens.</p>
+  </div>
+</section>
+
+<section id="authScreen" class="auth-wrap hidden">
+  <div class="auth-card">
+    <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:10px">HR MANAGEMENT PORTAL</div></div></div>
+    <h1 id="authTitle">Sign in</h1>
+    <p class="muted" id="authSubtitle">Sign in with your registered account to continue.</p>
+    <form id="loginForm">
+      <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
+      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
+      <button class="btn-primary full" type="submit" id="loginButton">Sign in</button>
+    </form>
+    <div id="authNotice" class="notice" role="status"></div>
+    <p class="auth-help muted">Accounts must be created in Supabase Authentication. Your role is read from the profiles table; you cannot choose or change your own role here.</p>
+  </div>
+</section>
+
+<div id="appScreen" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:9px">HR MANAGEMENT PORTAL</div></div></div>
+    <div class="sidebar-scroll">
+      <div class="nav-label">WORKSPACE</div>
+      <button class="nav-link active" data-page="dashboard" data-roles="employer">Analytics Dashboard</button>
+      <button class="nav-link" data-page="hrGrievances" data-roles="employer">Grievance Management</button>
+      <button class="nav-link" data-page="hrHelpCentre" data-roles="employer">HR Help Centre</button>
+      <button class="nav-link" data-page="hrExits" data-roles="employer">Exit Interview Feedback</button>
+      <button class="nav-link" data-page="employeeHome" data-roles="employee">My Home</button>
+      <button class="nav-link" data-page="myGrievances" data-roles="employee">My Grievances</button>
+      <button class="nav-link" data-page="myHRRequests" data-roles="employee">My HR Requests</button>
+      <button class="nav-link" data-page="myExit" data-roles="employee">My Exit Feedback</button>
+      <button class="nav-link" data-page="hrPolicies" data-roles="employee">HR Policies</button>
+    </div>
+    <div class="sidebar-bottom">ExitInsight HR · Prototype<br>Access is controlled by Supabase policies.</div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div><h2 id="topTitle">Analytics Dashboard</h2><div class="muted" style="font-size:11px" id="topEmail"></div></div><div class="top-actions"><div class="profile-btn"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileName">User</strong><span id="profileRole">Signed in</span></div></div><button class="btn-secondary" id="logoutButton">Sign out</button></div></header>
+    <main class="content">
+      <section class="page active" id="page-dashboard">
+        <div class="page-heading"><div><div class="eyebrow">HR INTELLIGENCE</div><h1>Analytics Dashboard</h1><p class="heading-description">Aggregate workforce insights only. Individual employee records are not displayed here.</p></div></div>
+        <div class="info-box">The dashboard is connected to Supabase authentication. To show live aggregate analytics without exposing individual grievance or exit-feedback records, configure a restricted database view or RPC function first. Until then, live analytics are intentionally not fabricated.</div>
+        <div class="metrics">
+          <article class="metric"><div class="metric-label">Grievances submitted</div><div class="metric-number" id="metricGrievances">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Grievances resolved</div><div class="metric-number" id="metricResolved">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Exit feedback received</div><div class="metric-number" id="metricExits">—</div><div class="metric-foot">Aggregate count only</div></article>
+          <article class="metric"><div class="metric-label">Analytics status</div><div class="metric-number" style="font-size:20px" id="metricStatus">Setup needed</div><div class="metric-foot">No individual records loaded</div></article>
+        </div>
+        <div class="panel"><div class="panel-title">Analytics connection</div><p class="panel-subtitle" id="analyticsMessage" style="line-height:1.7">After your database administrator creates a secure aggregate-only RPC named get_hr_analytics, this panel can show approved counts. Do not grant HR users direct access to confidential rows merely to make charts work.</p></div>
+      </section>
+      <section class="page" id="page-hrGrievances">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>Grievance Management</h1><p class="heading-description">Review employee concerns and update case status or HR response.</p></div><button class="btn-secondary" id="refreshHrGrievances">Refresh</button></div>
+        <div class="info-box">Access to individual grievance records must be restricted to authorised HR accounts by Supabase Row Level Security (RLS).</div>
+        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Subject / Description</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th><th>Action</th></tr></thead><tbody id="hrGrievanceTable"><tr><td colspan="8" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrGNotice" class="notice" role="status"></div></div>
+      </section>
+     
+<section class="page" id="page-hrHelpCentre">
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">EMPLOYEE SUPPORT</div>
+      <h1>HR Help Centre</h1>
+      <p class="heading-description">
+        Review employee HR requests, respond to questions, and update request status.
+      </p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Employee HR Requests</div>
+        <div class="panel-subtitle">
+          Requests submitted through the employee portal.
+        </div>
+      </div>
+      <button class="btn-secondary" id="refreshHRHelpCentre" type="button">
+        Refresh
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Category</th>
+            <th>Subject and Description</th>
+            <th>Status</th>
+            <th>HR Reply</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="hrHelpRequestsTable">
+          <tr>
+            <td colspan="6" class="table-empty">
+              Click Refresh to load employee requests.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" id="hrHelpCentreNotice" role="status"></div>
+  </div>
+</section>
+
+      <section class="page" id="page-hrExits">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>Exit Interview Feedback</h1><p class="heading-description">Review exit reasons and feedback submitted by employees.</p></div><button class="btn-secondary" id="refreshHrExits">Refresh</button></div>
+        <div class="info-box">Exit feedback may contain sensitive information. Restrict access to authorised HR users and handle feedback confidentially.</div>
+        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Primary reason</th><th>Feedback and suggestions</th></tr></thead><tbody id="hrExitTable"><tr><td colspan="4" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrENotice" class="notice" role="status"></div></div>
+      </section>
+      <section class="page" id="page-employeeHome">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE SELF-SERVICE</div><h1>Welcome</h1><p class="heading-description">Submit a workplace concern or share exit feedback securely.</p></div></div>
+        <div class="grid-two"><div class="panel"><div class="panel-title">Raise a grievance</div><p class="panel-subtitle">Your submission is linked to your signed-in account.</p><button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button></div><div class="panel"><div class="panel-title">Share exit feedback</div><p class="panel-subtitle">Submit feedback associated with your account.</p><button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button></div></div>
+      </section>
+      <section class="page" id="page-myGrievances">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>My Grievances</h1><p class="heading-description">Submit a concern and review only your own submitted records.</p></div></div>
+        <div class="panel"><div class="panel-title">Submit a grievance</div><form id="grievanceForm"><div class="form-grid">
+          <div class="field"><label for="gCategory">Category *</label><select id="gCategory" required><option value="">Select category</option><option>Workplace Environment</option><option>Compensation or Benefits</option><option>Managerial Concern</option><option>Workload</option><option>Policy Concern</option><option>Other</option></select></div>
+          <div class="field"><label for="gPriority">Priority *</label><select id="gPriority" required><option value="">Select priority</option><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></select></div>
+          <div class="field full"><label for="gSubject">Subject *</label><input id="gSubject" maxlength="150" required placeholder="Brief subject"></div>
+          <div class="field full"><label for="gDescription">Description *</label><textarea id="gDescription" maxlength="3000" required placeholder="Explain the workplace concern"></textarea></div>
+        </div><div class="form-actions"><button class="btn-primary" type="submit">Submit grievance</button></div><div class="notice" id="gNotice" role="status"></div></form></div>
+        <div class="panel"><div class="panel-head"><div><div class="panel-title">Your submitted grievances</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshGrievances">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th></tr></thead><tbody id="myGrievanceTable"><tr><td colspan="6" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
+      </section>
+     
+<section class="page" id="page-myHRRequests">
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">EMPLOYEE SELF-SERVICE</div>
+      <h1>My HR Requests</h1>
+      <p class="heading-description">Ask HR a question and track the reply.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Raise an HR request</div>
+    <p class="panel-subtitle">Submit a question for the HR team.</p>
+
+    <form id="hrRequestForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="hrRequestCategory">Category *</label>
+          <select id="hrRequestCategory" required>
+            <option value="">Select category</option>
+            <option>Payroll and Salary</option>
+            <option>Leave and Attendance</option>
+            <option>Employment Documents</option>
+            <option>Benefits and Policies</option>
+            <option>Workplace Concern</option>
+            <option>Other HR Query</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="hrRequestSubject">Subject *</label>
+          <input id="hrRequestSubject" maxlength="150"
+                 required placeholder="Briefly describe your question">
+        </div>
+
+        <div class="field full">
+          <label for="hrRequestDescription">Description *</label>
+          <textarea id="hrRequestDescription" maxlength="3000"
+                    required placeholder="Explain how HR can help you"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" type="submit">Submit HR Request</button>
+      </div>
+      <div class="notice" id="hrRequestNotice" role="status"></div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Your HR Requests</div>
+        <div class="panel-subtitle">Check your request status and HR replies.</div>
+      </div>
+      <button class="btn-secondary" id="refreshHRRequests" type="button">Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Subject</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>HR Reply</th>
+          </tr>
+        </thead>
+        <tbody id="myHRRequestsTable">
+          <tr>
+            <td colspan="5" class="table-empty">Your requests will appear here.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+      <section class="page" id="page-myExit">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>My Exit Feedback</h1><p class="heading-description">Share feedback for your exit process. Only use this when appropriate for your employment situation.</p></div></div>
+        <div class="panel"><div class="panel-title">Submit exit feedback</div><form id="exitForm"><div class="form-grid">
+          <div class="field"><label for="eReason">Primary reason *</label><select id="eReason" required><option value="">Select reason</option><option>Career Growth</option><option>Compensation</option><option>Work Environment</option><option>Managerial Relationship</option><option>Personal Reasons</option><option>Other</option></select></div>
+          <div class="field full"><label for="eFeedback">Feedback and suggestions *</label><textarea id="eFeedback" required maxlength="4000" placeholder="Share your experience and suggestions"></textarea></div>
+        </div><div class="form-actions"><button class="btn-primary" type="submit">Submit exit feedback</button></div><div class="notice" id="eNotice" role="status"></div></form></div>
+        <div class="panel"><div class="panel-head"><div><div class="panel-title">Your exit feedback submissions</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshExits">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Reason</th><th>Feedback</th></tr></thead><tbody id="myExitTable"><tr><td colspan="3" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
+      </section>
+   
+
+<section class="page" id="page-hrPolicies">
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">EMPLOYEE RESOURCES</div>
+      <h1>HR Policies</h1>
+      <p class="heading-description">
+        Select a policy to read its details.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid-two" id="policyList">
+    <div class="panel" onclick="openPolicy('attendance')" style="cursor:pointer">
+      <div class="panel-title">Attendance & Leave Policy</div>
+      <p class="panel-subtitle">Attendance, leave types and holidays.</p>
+      <p>Click to read policy →</p>
+    </div>
+
+    <div class="panel" onclick="openPolicy('salary')" style="cursor:pointer">
+      <div class="panel-title">Salary & Benefits Policy</div>
+      <p class="panel-subtitle">Salary, payslips and applicable benefits.</p>
+      <p>Click to read policy →</p>
+    </div>
+
+    <div class="panel" onclick="openPolicy('conduct')" style="cursor:pointer">
+      <div class="panel-title">Workplace Conduct Policy</div>
+      <p class="panel-subtitle">Professional behaviour and workplace ethics.</p>
+      <p>Click to read policy →</p>
+    </div>
+
+    <div class="panel" onclick="openPolicy('posh')" style="cursor:pointer">
+      <div class="panel-title">POSH Policy</div>
+      <p class="panel-subtitle">Preventing and reporting sexual harassment.</p>
+      <p>Click to read policy →</p>
+    </div>
+
+    <div class="panel" onclick="openPolicy('grievance')" style="cursor:pointer">
+      <div class="panel-title">Grievance Policy</div>
+      <p class="panel-subtitle">Raise, track and escalate workplace concerns.</p>
+      <p>Click to read policy →</p>
+    </div>
+
+    <div class="panel" onclick="openPolicy('exit')" style="cursor:pointer">
+      <div class="panel-title">Resignation & Exit Policy</div>
+      <p class="panel-subtitle">Resignation, handover and final settlement.</p>
+      <p>Click to read policy →</p>
+    </div>
+  </div>
+
+  <div class="panel" id="policyDetails" style="display:none; margin-top:20px">
+    <button type="button" class="policy-back" onclick="closePolicy()">← Back to HR Policies</button>
+    <h2 id="policyTitle"></h2>
+    <div id="policyContent"></div>
+    <p class="info-box">
+      Sample policy for this project only. Actual company rules,
+      entitlements and procedures must be confirmed with HR.
+    </p>
+  </div>
+</section>
+
+
+    </main>
+    <footer class="footer"><span><strong>ExitInsight HR</strong> · KYR People Analytics</span><span>HR review pages require verified Supabase RLS policies.</span></footer>
+  </div>
+</div>
+
+<script>
+/* ExitInsight HR - single-file Supabase starter.
+   Browser-safe publishable key only. Never put a service_role/secret key here. */
+const SUPABASE_URL = "https://lepdugsrgtucbzqoyxsw.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0965ZDjxG2sJF6SUqny13Q_xUbIUT9z";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const $ = id => document.getElementById(id);
+let currentUser = null;
+let currentProfile = null;
+let currentRole = null;
+let selectedPortal = null;
+
+function selectPortal(role) {
+  if (role !== "employee" && role !== "employer") return;
+  selectedPortal = role;
+  clearNotice("portalNotice");
+  clearNotice("authNotice");
+  $("portalScreen").classList.add("hidden");
+  $("authScreen").classList.remove("hidden");
+  $("authTitle").textContent = role === "employee" ? "Employee Sign in" : "Employer / HR Sign in";
+  $("authSubtitle").textContent = role === "employee"
+    ? "Sign in with your employee account to continue."
+    : "Sign in with your employer or HR account to continue.";
+  $("loginButton").textContent = "Sign in";
+}
+function returnToPortal(message, isError=true) {
+  selectedPortal = null;
+  $("appScreen").classList.add("hidden");
+  $("authScreen").classList.add("hidden");
+  $("portalScreen").classList.remove("hidden");
+  if (message) showNotice("portalNotice", message, isError);
+}
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function showNotice(id, message, error=false) {
+  const el=$(id); el.textContent=message; el.classList.add("show");
+  el.classList.toggle("error",error);
+}
+function clearNotice(id) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = "";
+  el.classList.remove("show", "error");
+}
+
+function showPage(name) {
+  const employerPages = [
+    "dashboard",
+    "hrGrievances",
+    "hrHelpCentre",
+    "hrExits"
+  ];
+
+  const employeePages = [
+    "employeeHome",
+    "myGrievances",
+    "myHRRequests",
+    "myExit",
+    "hrPolicies"
+  ];
+
+  if (
+    currentRole &&
+    (
+      (employerPages.includes(name) && currentRole !== "employer") ||
+      (employeePages.includes(name) && currentRole !== "employee")
+    )
+  ) {
+    console.warn("Blocked navigation to a page outside the current role.");
+    return;
+  }
+
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  const page = $("page-" + name);
+  if (page) page.classList.add("active");
+
+  document.querySelectorAll(".nav-link").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === name);
+  });
+
+  const names = {
+    dashboard: "Analytics Dashboard",
+    hrGrievances: "Grievance Management",
+    hrHelpCentre: "HR Help Centre",
+    hrExits: "Exit Interview Feedback",
+    employeeHome: "My Home",
+    myGrievances: "My Grievances",
+    myHRRequests: "My HR Requests",
+    myExit: "My Exit Feedback",
+    hrPolicies: "HR Policies"
+  };
+
+  $("topTitle").textContent = names[name] || "ExitInsight HR";
+  $("sidebar").classList.remove("open");
+
+  if (name === "myGrievances") loadMyGrievances();
+  if (name === "myHRRequests") loadMyHRRequests();
+  if (name === "myExit") loadMyExits();
+  if (name === "hrGrievances") loadHrGrievances();
+  if (name === "hrHelpCentre") loadHRHelpRequests();
+  if (name === "hrExits") loadHrExits();
+}
+
+
+const policyData = {
+  attendance: {
+    title: "Attendance & Leave Policy",
+    content: `
+      <h3>1. Purpose</h3>
+      <p>This sample policy explains expected attendance, punctuality and the process for requesting leave.</p>
+      <h3>2. Attendance and punctuality</h3>
+      <ul><li>Employees should follow their organisation's approved working hours and attendance-recording process.</li><li>If delayed or absent, employees should notify their manager as early as reasonably possible.</li><li>Attendance records should be accurate. Any correction should be requested through the approved process.</li></ul>
+      <h3>3. Leave requests</h3>
+      <ul><li>Submit leave requests through the organisation's designated process and obtain approval where required.</li><li>For unexpected illness or emergencies, notify the manager as soon as possible and follow the applicable reporting process.</li><li>Leave types, eligibility, holidays, carry-forward and approval rules must follow the employer's approved policy and applicable law.</li></ul>
+      <h3>4. Questions</h3><p>Contact HR or the designated manager for clarification about leave balances or attendance records.</p>`
+  },
+  salary: {
+    title: "Salary & Benefits Policy",
+    content: `
+      <h3>1. Purpose</h3><p>This sample policy describes general expectations for salary administration and employee benefit queries.</p>
+      <h3>2. Salary and payslips</h3><ul><li>Salary should be processed according to the employment terms and applicable legal requirements.</li><li>Employees should review their payslips and report discrepancies to HR or payroll through the approved channel.</li><li>Any deduction should have an appropriate basis under applicable law and the employer's approved process.</li></ul>
+      <h3>3. Benefits</h3><p>Benefit eligibility, contributions and coverage depend on applicable law, employment terms and the employer's approved benefit documents.</p>
+      <h3>4. Confidentiality</h3><p>Employees should handle their own payroll information carefully and avoid accessing another person's confidential payroll data without authorisation.</p>
+      <h3>5. Questions</h3><p>Contact HR or payroll for clarification. This sample does not promise a particular salary date, benefit amount or entitlement.</p>`
+  },
+  conduct: {
+    title: "Workplace Conduct Policy",
+    content: `
+      <h3>1. Expected behaviour</h3><ul><li>Treat colleagues, customers and visitors with respect and professionalism.</li><li>Communicate respectfully and avoid bullying, harassment, discrimination, threats or retaliation.</li><li>Follow reasonable workplace safety, security and information-handling procedures.</li></ul>
+      <h3>2. Confidentiality</h3><p>Use employee, customer and business information only for authorised work purposes. Do not share confidential information with unauthorised people.</p>
+      <h3>3. Conflicts of interest</h3><p>Disclose potential conflicts through the organisation's approved process.</p>
+      <h3>4. Reporting concerns</h3><p>Raise conduct concerns with HR, a manager or the appropriate reporting channel. Serious safety or legal concerns should be handled promptly under applicable procedures.</p>
+      <h3>5. Fair handling</h3><p>Concerns should be reviewed fairly and confidentially as far as practicable, consistent with applicable law and the employer's procedures.</p>`
+  },
+  posh: {
+    title: "POSH Policy",
+    content: `
+      <h3>1. Purpose</h3><p>This sample summary concerns prevention and reporting of sexual harassment at the workplace in India. It is not a substitute for the employer's full POSH policy or legal advice.</p>
+      <h3>2. Prevention</h3><p>Everyone should be treated with dignity. Sexual harassment is not acceptable. The organisation should communicate its policy, provide awareness and maintain an appropriate complaint process.</p>
+      <h3>3. Reporting</h3><p>A person may use the applicable reporting channel or contact the organisation's Internal Committee (IC), where constituted. The organisation should make the relevant contact details and process available.</p>
+      <h3>4. Confidentiality and protection</h3><p>Complaints should be handled according to the applicable law, including confidentiality requirements. Retaliation against a person for raising a concern or participating in a process is not acceptable.</p>
+      <h3>5. Legal note</h3><p>The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013 and applicable rules may apply. Employees should consult the employer's approved POSH policy and the designated IC for the formal procedure.</p>`
+  },
+  grievance: {
+    title: "Grievance Policy",
+    content: `
+      <h3>1. Purpose</h3><p>This sample policy explains how employees can raise workplace concerns and follow their progress.</p>
+      <h3>2. Submitting a grievance</h3><ul><li>Describe the concern clearly, including relevant dates and facts.</li><li>Choose the closest category and submit using the approved HR channel.</li><li>Share only information relevant to the concern and avoid unnecessary personal data.</li></ul>
+      <h3>3. Review and status tracking</h3><p>HR or the assigned reviewer should acknowledge and review the concern, update its status where the system supports tracking, and communicate appropriate next steps.</p>
+      <h3>4. Escalation</h3><p>If the concern is not addressed, the employee may request review by the designated HR contact or next-level authority. Urgent safety, harassment or legal concerns should use the relevant specialised reporting route.</p>
+      <h3>5. Privacy and fairness</h3><p>Access should be limited to authorised people. Anonymous reporting may limit follow-up if contact details or sufficient facts are unavailable.</p>`
+  },
+  exit: {
+    title: "Resignation & Exit Policy",
+    content: `
+      <h3>1. Resignation</h3><p>Employees should submit resignation through the employer's approved channel and retain a copy for their records.</p>
+      <h3>2. Notice period</h3><p>The applicable notice period and any notice-related arrangements depend on the employment terms, approved policy and applicable law. This sample does not set a specific number of days.</p>
+      <h3>3. Handover and company property</h3><ul><li>Coordinate a reasonable handover of work, documents and responsibilities.</li><li>Return company property and follow approved information-security procedures.</li><li>Complete required exit formalities with the designated teams.</li></ul>
+      <h3>4. Exit feedback</h3><p>Employees may be invited to share feedback about their experience. Feedback should be handled respectfully and with appropriate confidentiality.</p>
+      <h3>5. Final settlement</h3><p>Payroll or HR should explain the final settlement process and any applicable payments or deductions in accordance with employment terms and applicable law. Timing and components should be confirmed with HR.</p>`
+  }
+};
+
+function openPolicy(key) {
+  const policy = policyData[key];
+  if (!policy) return;
+  $("policyTitle").textContent = policy.title;
+  $("policyContent").innerHTML = policy.content;
+  $("policyList").style.display = "none";
+  $("policyDetails").style.display = "block";
+  $("policyDetails").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function closePolicy() {
+  $("policyDetails").style.display = "none";
+  $("policyList").style.display = "grid";
+  $("policyTitle").textContent = "";
+  $("policyContent").innerHTML = "";
+  $("policyList").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Backup click handling for policy cards
+ document.querySelectorAll("#policyList .panel[onclick]").forEach(card => {
+   card.setAttribute("role", "button");
+   card.setAttribute("tabindex", "0");
+   card.addEventListener("keydown", event => {
+     if (event.key === "Enter" || event.key === " ") { event.preventDefault(); card.click(); }
+   });
+ });
+
+
+document.querySelectorAll(".nav-link").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+function showAuthenticatedApp(profile,user) {
+  currentUser=user; currentProfile=profile; currentRole=profile.role;
+  $("portalScreen").classList.add("hidden"); $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
+  $("profileName").textContent=profile.full_name || user.email || "User";
+  $("profileRole").textContent=currentRole==="employer"?"HR Analytics":"Employee";
+  $("topEmail").textContent=user.email || "";
+  $("avatar").textContent=(profile.full_name || user.email || "U").charAt(0).toUpperCase();
+  document.querySelectorAll(".nav-link").forEach(b=>{
+    b.classList.toggle("hidden",!b.dataset.roles.split(" ").includes(currentRole));
+  });
+  if(currentRole==="employer") {
+    showPage("dashboard");
+    loadHrAnalytics();
+  } else if(currentRole==="employee") {
+    showPage("employeeHome");
+  } else {
+    returnToPortal("Your profile role is not recognised. Ask the administrator to set profiles.role to employer or employee.",true);
+  }
+}
+async function loadProfile(user) {
+  const {data,error}=await db.from("profiles")
+    .select("id,full_name,email,role,employee_id,employee_code,department,designation")
+    .eq("id",user.id).maybeSingle();
+  if(error) throw new Error("Could not load your profile: "+error.message);
+  if(!data) throw new Error("Your Supabase account exists, but no matching profiles row was found. Ask the administrator to create a profiles row whose id matches your Auth user ID.");
+  return data;
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); clearNotice("authNotice");
+  const button=$("loginButton"); button.disabled=true; button.textContent="Signing in…";
+  try {
+    const {data,error}=await db.auth.signInWithPassword({
+      email:$("loginEmail").value.trim(),password:$("loginPassword").value
+    });
+    if(error) throw error;
+    const profile=await loadProfile(data.user);
+    if (!selectedPortal || profile.role !== selectedPortal) {
+      await db.auth.signOut();
+      returnToPortal(
+        profile.role === "employee"
+          ? "This account is registered as an Employee. Please choose Employee Login."
+          : profile.role === "employer"
+            ? "This account is registered as Employer / HR. Please choose Employer / HR Login."
+            : "Your account role is not recognised. Please contact the administrator.",
+        true
+      );
+      return;
+    }
+    showAuthenticatedApp(profile,data.user);
+  } catch(err) {
+    showNotice("authNotice",err.message || "Sign-in failed.",true);
+  } finally {button.disabled=false;button.textContent="Sign in";}
+});
+$("logoutButton").addEventListener("click",async()=>{
+  const {error}=await db.auth.signOut();
+  currentUser=null;currentProfile=null;currentRole=null;
+  returnToPortal(error ? "Signed out locally, but Supabase reported: "+error.message : "You have signed out.", !!error);
+});
+async function restoreSession() {
+  try {
+    const {data,error}=await db.auth.getSession();
+    if(error) throw error;
+    if(data.session) {
+      const profile=await loadProfile(data.session.user);
+      showAuthenticatedApp(profile,data.session.user);
+    }
+  } catch(err) {showNotice("authNotice",err.message || "Could not restore session.",true);}
+}
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==="SIGNED_OUT") {
+    returnToPortal();
+  }
+});
+async function loadMyGrievances() {
+  if(!currentUser) return;
+  const tbody=$("myGrievanceTable");
+  tbody.innerHTML='<tr><td colspan="6" class="table-empty">Loading…</td></tr>';
+  const {data,error}=await db.from("grievances")
+    .select("created_at,subject,category,priority,status,hr_response")
+    .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
+  if(error) {
+    tbody.innerHTML='<tr><td colspan="6" class="table-empty">Could not load grievances: '+esc(error.message)+'</td></tr>'; return;
+  }
+  if(!data?.length) {tbody.innerHTML='<tr><td colspan="6" class="table-empty">You have not submitted any grievances yet.</td></tr>';return;}
+  tbody.innerHTML=data.map(g=>`<tr>
+    <td>${esc(g.created_at?new Date(g.created_at).toLocaleDateString("en-IN"):"—")}</td>
+    <td>${esc(g.subject||"—")}</td><td>${esc(g.category||"—")}</td>
+    <td>${esc(g.priority||"—")}</td><td><span class="status ${g.status==="resolved"?"resolved":g.status==="in_review"?"review":""}">${esc(({submitted:"Submitted",in_review:"In Review",resolved:"Resolved",closed:"Closed"})[g.status]||g.status||"Submitted")}</span></td>
+    <td>${esc(g.hr_response||"No response yet")}</td></tr>`).join("");
+}
+$("grievanceForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("gNotice");
+  if(!currentUser) return showNotice("gNotice","Please sign in again.",true);
+  const button=e.submitter; if(button){button.disabled=true;button.textContent="Submitting…";}
+  try {
+    const row={employee_id:currentUser.id,category:$("gCategory").value,subject:$("gSubject").value.trim(),description:$("gDescription").value.trim(),priority:$("gPriority").value,status:"submitted"};
+    const {error}=await db.from("grievances").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("gNotice","Your grievance was submitted. You can track its status below.");
+    await loadMyGrievances();
+  } catch(err) {showNotice("gNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit grievance";}}
+});
+$("refreshGrievances").addEventListener("click",loadMyGrievances);
+async function loadMyExits() {
+  if(!currentUser) return;
+  const tbody=$("myExitTable");tbody.innerHTML='<tr><td colspan="3" class="table-empty">Loading…</td></tr>';
+  const {data,error}=await db.from("exit_interviews")
+    .select("created_at,reason,feedback")
+    .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
+  if(error) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">Could not load feedback: '+esc(error.message)+'</td></tr>';return;}
+  if(!data?.length) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">You have not submitted exit feedback yet.</td></tr>';return;}
+  tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.reason||"—")}</td><td>${esc(r.feedback||"—")}</td></tr>`).join("");
+}
+$("exitForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("eNotice");
+  if(!currentUser) return showNotice("eNotice","Please sign in again.",true);
+  const button=e.submitter;if(button){button.disabled=true;button.textContent="Submitting…";}
+  try {
+    const { data: { user }, error: authError } = await db.auth.getUser();
+
+if (authError || !user) {
+  throw new Error("Your login session is invalid. Please sign in again.");
+}
+
+const row = {
+  employee_id: user.id,
+  reason: $("eReason").value,
+  feedback: $("eFeedback").value.trim()
+};
+    const {error}=await db.from("exit_interviews").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("eNotice","Your exit feedback was submitted successfully.");
+    await loadMyExits();
+  } catch(err) {showNotice("eNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit exit feedback";}}
+});
+$("refreshExits").addEventListener("click",loadMyExits);
+async function loadHrGrievances() {
+  if (currentRole !== "employer") return;
+
+  const tbody = $("hrGrievanceTable");
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading grievances…</td></tr>';
+  clearNotice("hrGNotice");
+
+  try {
+    const { data, error } = await db.from("grievances")
+      .select("id,employee_id,created_at,subject,description,category,priority,status,hr_response")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    if (!data?.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No grievance records found.</td></tr>';
+      return;
+    }
+
+    // Use a restricted database RPC to map only these record owners to employee codes.
+    const employeeIds = [...new Set(data.map(g => g.employee_id).filter(Boolean))];
+    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
+      employee_ids: employeeIds
+    });
+    if (profileError) throw profileError;
+
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [profile.id, profile.employee_code])
+    );
+
+    tbody.innerHTML = data.map(g => {
+      const employeeCode = employeeCodes[g.employee_id] || "Employee code unavailable";
+      return `<tr>
+        <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
+        <td>${esc(employeeCode)}</td>
+        <td><strong>${esc(g.subject || "—")}</strong><br>${esc(g.description || "")}</td>
+        <td>${esc(g.category || "—")}</td>
+        <td>${esc(g.priority || "—")}</td>
+        <td>
+          <select id="status-${esc(g.id)}" aria-label="Grievance status">
+            <option value="submitted" ${g.status === "submitted" ? "selected" : ""}>Submitted</option>
+            <option value="in_review" ${g.status === "in_review" ? "selected" : ""}>In Review</option>
+            <option value="resolved" ${g.status === "resolved" ? "selected" : ""}>Resolved</option>
+            <option value="closed" ${g.status === "closed" ? "selected" : ""}>Closed</option>
+          </select>
+        </td>
+        <td><textarea id="response-${esc(g.id)}" maxlength="2000" aria-label="HR response" style="min-width:180px;min-height:65px">${esc(g.hr_response || "")}</textarea></td>
+        <td><button class="btn-primary" type="button" onclick="saveGrievance('${esc(g.id)}')">Save</button></td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    showNotice("hrGNotice", err.message || "Could not load grievances.", true);
+  }
+}
+async function saveGrievance(id) {
+  if(currentRole!=="employer") return;
+  clearNotice("hrGNotice");
+  const status=$("status-"+id)?.value;
+  const hr_response=$("response-"+id)?.value.trim()||null;
+  try {
+    const {error}=await db.from("grievances").update({status,hr_response}).eq("id",id);
+    if(error) throw error;
+    await loadHrGrievances();
+    showNotice("hrGNotice","Grievance updated successfully.");
+  } catch(err) {showNotice("hrGNotice","Update failed. Check HR UPDATE permissions and RLS policies: "+(err.message||"Unknown error"),true);}
+}
+async function loadHrExits() {
+  if (currentRole !== "employer") return;
+  const tbody = $("hrExitTable");
+  tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
+  clearNotice("hrENotice");
+  try {
+    const { data, error } = await db.from("exit_interviews")
+      .select("employee_id,created_at,reason,feedback")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    if (!data?.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';
+      return;
+    }
+
+    // Resolve only the employee IDs attached to the exit records HR is viewing.
+    const employeeIds = [...new Set(data.map(r => r.employee_id).filter(Boolean))];
+    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
+      employee_ids: employeeIds
+    });
+    if (profileError) throw profileError;
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [profile.id, profile.employee_code])
+    );
+
+    tbody.innerHTML = data.map(r => {
+      const employeeCode = employeeCodes[r.employee_id] || "Employee code unavailable";
+      return `<tr>
+        <td>${esc(r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "—")}</td>
+        <td>${esc(employeeCode)}</td>
+        <td>${esc(r.reason || "—")}</td>
+        <td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback || "—")}</td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    showNotice("hrENotice", err.message || "Could not load exit feedback.", true);
+  }
+}
+$("refreshHrGrievances").addEventListener("click",loadHrGrievances);
+$("refreshHrExits").addEventListener("click",loadHrExits);
+
+async function loadHrAnalytics() {
+  $("metricStatus").textContent="Connecting";
+  $("analyticsMessage").textContent="Requesting aggregate-only analytics from the secure get_hr_analytics database function. Individual grievance and exit records are never queried by this page.";
+  try {
+    const {data,error}=await db.rpc("get_hr_analytics");
+    if(error) throw error;
+    const result=Array.isArray(data)?data[0]:data;
+    if(!result) throw new Error("The analytics function returned no aggregate data.");
+    $("metricGrievances").textContent=result.grievances_submitted ?? "—";
+    $("metricResolved").textContent=result.grievances_resolved ?? "—";
+    $("metricExits").textContent=result.exit_feedback_received ?? "—";
+    $("metricStatus").textContent="Connected";
+    $("analyticsMessage").textContent="Live aggregate analytics loaded successfully. No individual grievance or exit-feedback records were displayed.";
+  } catch(err) {
+    $("metricStatus").textContent="Setup needed";
+    $("analyticsMessage").textContent="Live analytics are not configured yet. The database administrator must create a secure get_hr_analytics() RPC that returns only aggregate counts (grievances_submitted, grievances_resolved, exit_feedback_received) and grants execution only to the employer role. Details: "+err.message;
+  }
+}
+
+async function loadMyHRRequests() {
+  const table = $("myHRRequestsTable");
+
+  if (!currentUser) return;
+
+  table.innerHTML =
+    '<tr><td colspan="5" class="table-empty">Loading requests...</td></tr>';
+
+  const { data, error } = await db
+    .from("hr_requests")
+    .select("id, created_at, subject, category, status, hr_reply")
+    .eq("employee_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML =
+      '<tr><td colspan="5" class="table-empty">Could not load requests. Please try again.</td></tr>';
+    console.error("Load HR requests error:", error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML =
+      '<tr><td colspan="5" class="table-empty">You have not submitted any HR requests yet.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = data.map(request => `
+    <tr>
+      <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>${esc(request.subject)}</td>
+      <td>${esc(request.category)}</td>
+      <td><span class="status">${esc(request.status)}</span></td>
+      <td>${esc(request.hr_reply || "Awaiting HR response")}</td>
+    </tr>
+  `).join("");
+}
+
+$("hrRequestForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (!currentUser || currentRole !== "employee") {
+    showNotice("hrRequestNotice", "Please log in using your employee account.", true);
+    return;
+  }
+
+  const category = $("hrRequestCategory").value;
+  const subject = $("hrRequestSubject").value.trim();
+  const description = $("hrRequestDescription").value.trim();
+  const submitButton = this.querySelector('button[type="submit"]');
+
+  if (!category || !subject || !description) {
+    showNotice("hrRequestNotice", "Please complete all required fields.", true);
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Submitting...";
+
+  const { error } = await db.from("hr_requests").insert({
+    employee_id: currentUser.id,
+    category,
+    subject,
+    description,
+    status: "Open"
+  });
+
+  submitButton.disabled = false;
+  submitButton.textContent = "Submit HR Request";
+
+  if (error) {
+    showNotice("hrRequestNotice", "Request could not be submitted. Please try again.", true);
+    console.error("Submit HR request error:", error.message);
+    return;
+  }
+
+  this.reset();
+  showNotice("hrRequestNotice", "Your HR request was submitted successfully.");
+  await loadMyHRRequests();
+});
+
+$("refreshHRRequests").addEventListener("click", loadMyHRRequests);
+
+
+async function loadHRHelpRequests() {
+  const table = $("hrHelpRequestsTable");
+
+  if (!currentUser || currentRole !== "employer") {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">Please log in using your employer account.</td></tr>';
+    return;
+  }
+
+  table.innerHTML =
+    '<tr><td colspan="6" class="table-empty">Loading requests...</td></tr>';
+
+  const { data, error } = await db
+    .from("hr_requests")
+    .select("id, employee_id, created_at, category, subject, description, status, hr_reply")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">Could not load requests.</td></tr>';
+    console.error("HR Help Centre load error:", error.message);
+    showNotice("hrHelpCentreNotice", "Unable to load requests. Check the employer access policy.", true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">No employee HR requests found.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = data.map(request => `
+    <tr>
+      <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>${esc(request.category)}</td>
+      <td>
+        <strong>${esc(request.subject)}</strong>
+        <p>${esc(request.description)}</p>
+      </td>
+      <td>
+        <select id="hrRequestStatus-${esc(request.id)}">
+          <option value="Open" ${request.status === "Open" ? "selected" : ""}>Open</option>
+          <option value="In Progress" ${request.status === "In Progress" ? "selected" : ""}>In Progress</option>
+          <option value="Resolved" ${request.status === "Resolved" ? "selected" : ""}>Resolved</option>
+        </select>
+      </td>
+      <td>
+        <textarea id="hrRequestReply-${esc(request.id)}"
+          maxlength="3000"
+          placeholder="Write your reply">${esc(request.hr_reply || "")}</textarea>
+      </td>
+      <td>
+        <button class="btn-primary"
+          type="button"
+          data-save-hr-request="${esc(request.id)}">
+          Save
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  table.querySelectorAll("[data-save-hr-request]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const id = button.dataset.saveHrRequest;
+      const status = $("hrRequestStatus-" + id).value;
+      const hr_reply = $("hrRequestReply-" + id).value.trim();
+
+      button.disabled = true;
+      button.textContent = "Saving...";
+
+      const { error: saveError } = await db
+        .from("hr_requests")
+        .update({
+          status,
+          hr_reply: hr_reply || null,
+          replied_by: currentUser.id,
+          replied_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
+
+      button.disabled = false;
+      button.textContent = "Save";
+
+      if (saveError) {
+        console.error("Save HR reply error:", saveError.message);
+        showNotice("hrHelpCentreNotice", "Could not save the reply. Please try again.", true);
+        return;
+      }
+
+      showNotice("hrHelpCentreNotice", "HR response and status saved successfully.");
+      await loadHRHelpRequests();
+    });
+  });
+}
+
+$("refreshHRHelpCentre").addEventListener("click", loadHRHelpRequests);
+
+  restoreSession();
+</script>
+</body>
 </html>
