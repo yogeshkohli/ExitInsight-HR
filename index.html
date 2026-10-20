@@ -124,72 +124,67 @@
         <div class="panel"><div class="panel-head"><div><div class="panel-title">Your exit feedback submissions</div><div class="panel-subtitle">Only records belonging to your account should be returned by RLS.</div></div><button class="btn-secondary" id="refreshExits">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Reason</th><th>Feedback</th></tr></thead><tbody id="myExitTable"><tr><td colspan="3" class="table-empty">Loading your records…</td></tr></tbody></table></div></div>
       </section>
    
+
 <section class="page" id="page-hrPolicies">
   <div class="page-heading">
     <div>
       <div class="eyebrow">EMPLOYEE RESOURCES</div>
       <h1>HR Policies</h1>
       <p class="heading-description">
-        Understand workplace rules, employee responsibilities,
-        and HR procedures.
+        Select a policy to read its details.
       </p>
     </div>
   </div>
 
-  <div class="grid-two">
-    <div class="panel">
+  <div class="grid-two" id="policyList">
+    <div class="panel" onclick="openPolicy('attendance')" style="cursor:pointer">
       <div class="panel-title">Attendance & Leave Policy</div>
-      <p class="panel-subtitle">
-        Information about attendance, punctuality, leave applications,
-        and holidays.
-      </p>
+      <p class="panel-subtitle">Attendance, leave types and holidays.</p>
+      <p>Click to read policy →</p>
     </div>
 
-    <div class="panel">
+    <div class="panel" onclick="openPolicy('salary')" style="cursor:pointer">
       <div class="panel-title">Salary & Benefits Policy</div>
-      <p class="panel-subtitle">
-        Information about salary payments, payslips, eligible benefits,
-        and payroll queries.
-      </p>
+      <p class="panel-subtitle">Salary, payslips and applicable benefits.</p>
+      <p>Click to read policy →</p>
     </div>
 
-    <div class="panel">
+    <div class="panel" onclick="openPolicy('conduct')" style="cursor:pointer">
       <div class="panel-title">Workplace Conduct Policy</div>
-      <p class="panel-subtitle">
-        Guidance on professional behaviour, respect, and workplace ethics.
-      </p>
+      <p class="panel-subtitle">Professional behaviour and workplace ethics.</p>
+      <p>Click to read policy →</p>
     </div>
 
-    <div class="panel">
+    <div class="panel" onclick="openPolicy('posh')" style="cursor:pointer">
       <div class="panel-title">POSH Policy</div>
-      <p class="panel-subtitle">
-        Information about preventing sexual harassment and the applicable
-        workplace reporting procedure.
-      </p>
+      <p class="panel-subtitle">Preventing and reporting sexual harassment.</p>
+      <p>Click to read policy →</p>
     </div>
 
-    <div class="panel">
+    <div class="panel" onclick="openPolicy('grievance')" style="cursor:pointer">
       <div class="panel-title">Grievance Policy</div>
-      <p class="panel-subtitle">
-        Learn how to raise workplace concerns and follow the grievance
-        resolution process.
-      </p>
+      <p class="panel-subtitle">Raise, track and escalate workplace concerns.</p>
+      <p>Click to read policy →</p>
     </div>
 
-    <div class="panel">
+    <div class="panel" onclick="openPolicy('exit')" style="cursor:pointer">
       <div class="panel-title">Resignation & Exit Policy</div>
-      <p class="panel-subtitle">
-        Information about resignation, notice periods, handover,
-        and final settlement procedures.
-      </p>
+      <p class="panel-subtitle">Resignation, handover and final settlement.</p>
+      <p>Click to read policy →</p>
     </div>
   </div>
 
-  <div class="info-box">
-    These are illustrative policy summaries for the prototype.
-    Refer to your employer's approved policies for the actual rules.
+  <div class="panel" id="policyDetails" style="display:none; margin-top:20px">
+    <button type="button" onclick="closePolicy()">← Back to HR Policies</button>
+    <h2 id="policyTitle"></h2>
+    <div id="policyContent"></div>
+    <p class="info-box">
+      Sample policy for this project only. Actual company rules,
+      entitlements and procedures must be confirmed with HR.
+    </p>
   </div>
 </section>
+
 
     </main>
     <footer class="footer"><span><strong>ExitInsight HR</strong> · KYR People Analytics</span><span>HR review pages require verified Supabase RLS policies.</span></footer>
