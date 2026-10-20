@@ -707,7 +707,91 @@ async function loadHrAnalytics() {
     $("analyticsMessage").textContent="Live analytics are not configured yet. The database administrator must create a secure get_hr_analytics() RPC that returns only aggregate counts (grievances_submitted, grievances_resolved, exit_feedback_received) and grants execution only to the employer role. Details: "+err.message;
   }
 }
-restoreSession();
+
+async function loadMyHRRequests() {
+  const table = $("myHRRequestsTable");
+
+  if (!currentUser) return;
+
+  table.innerHTML =
+    '<tr><td colspan="5" class="table-empty">Loading requests...</td></tr>';
+
+  const { data, error } = await db
+    .from("hr_requests")
+    .select("id, created_at, subject, category, status, hr_reply")
+    .eq("employee_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML =
+      '<tr><td colspan="5" class="table-empty">Could not load requests. Please try again.</td></tr>';
+    console.error("Load HR requests error:", error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML =
+      '<tr><td colspan="5" class="table-empty">You have not submitted any HR requests yet.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = data.map(request => `
+    <tr>
+      <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>${esc(request.subject)}</td>
+      <td>${esc(request.category)}</td>
+      <td><span class="status">${esc(request.status)}</span></td>
+      <td>${esc(request.hr_reply || "Awaiting HR response")}</td>
+    </tr>
+  `).join("");
+}
+
+$("hrRequestForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (!currentUser || currentRole !== "employee") {
+    showNotice("hrRequestNotice", "Please log in using your employee account.", true);
+    return;
+  }
+
+  const category = $("hrRequestCategory").value;
+  const subject = $("hrRequestSubject").value.trim();
+  const description = $("hrRequestDescription").value.trim();
+  const submitButton = this.querySelector('button[type="submit"]');
+
+  if (!category || !subject || !description) {
+    showNotice("hrRequestNotice", "Please complete all required fields.", true);
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Submitting...";
+
+  const { error } = await db.from("hr_requests").insert({
+    employee_id: currentUser.id,
+    category,
+    subject,
+    description,
+    status: "Open"
+  });
+
+  submitButton.disabled = false;
+  submitButton.textContent = "Submit HR Request";
+
+  if (error) {
+    showNotice("hrRequestNotice", "Request could not be submitted. Please try again.", true);
+    console.error("Submit HR request error:", error.message);
+    return;
+  }
+
+  this.reset();
+  showNotice("hrRequestNotice", "Your HR request was submitted successfully.");
+  await loadMyHRRequests();
+});
+
+$("refreshHRRequests").addEventListener("click", loadMyHRRequests);
+
+  restoreSession();
 </script>
 </body>
 </html>
