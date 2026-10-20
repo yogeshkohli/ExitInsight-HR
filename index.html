@@ -250,7 +250,17 @@ function showPage(name) {
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   const page=$("page-"+name); if(page) page.classList.add("active");
   document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
-  const names={dashboard:"Analytics Dashboard",hrGrievances:"Grievance Management",hrExits:"Exit Interview Feedback",employeeHome:"My Home",myGrievances:"My Grievances",myExit:"My Exit Feedback"};
+  const names={
+  dashboard:"Analytics Dashboard",
+  hrGrievances:"Grievance Management",
+  hrExits:"Exit Interview Feedback",
+  employeeHome:"My Home",
+  myGrievances:"My Grievances",
+  myExit:"My Exit Feedback",
+  hrPolicies:"HR Policies"
+};
+$("topTitle").textContent=names[name]||"ExitInsight HR";
+$("sidebar").classList.remove("open");
   $("topTitle").textContent=names[name]||"ExitInsight HR";
   $("sidebar").classList.remove("open");
   if(name==="myGrievances") loadMyGrievances();
