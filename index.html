@@ -107,6 +107,56 @@
         <div class="info-box">Access to individual grievance records must be restricted to authorised HR accounts by Supabase Row Level Security (RLS).</div>
         <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Subject / Description</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th><th>Action</th></tr></thead><tbody id="hrGrievanceTable"><tr><td colspan="8" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrGNotice" class="notice" role="status"></div></div>
       </section>
+     
+<section class="page" id="page-hrHelpCentre">
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">EMPLOYEE SUPPORT</div>
+      <h1>HR Help Centre</h1>
+      <p class="heading-description">
+        Review employee HR requests, respond to questions, and update request status.
+      </p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Employee HR Requests</div>
+        <div class="panel-subtitle">
+          Requests submitted through the employee portal.
+        </div>
+      </div>
+      <button class="btn-secondary" id="refreshHRHelpCentre" type="button">
+        Refresh
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Category</th>
+            <th>Subject and Description</th>
+            <th>Status</th>
+            <th>HR Reply</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="hrHelpRequestsTable">
+          <tr>
+            <td colspan="6" class="table-empty">
+              Click Refresh to load employee requests.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice" id="hrHelpCentreNotice" role="status"></div>
+  </div>
+</section>
+
       <section class="page" id="page-hrExits">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>Exit Interview Feedback</h1><p class="heading-description">Review exit reasons and feedback submitted by employees.</p></div><button class="btn-secondary" id="refreshHrExits">Refresh</button></div>
         <div class="info-box">Exit feedback may contain sensitive information. Restrict access to authorised HR users and handle feedback confidentially.</div>
