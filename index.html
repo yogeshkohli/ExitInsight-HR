@@ -373,6 +373,12 @@ function showNotice(id, message, error=false) {
   const el=$(id); el.textContent=message; el.classList.add("show");
   el.classList.toggle("error",error);
 }
+function clearNotice(id) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = "";
+  el.classList.remove("show", "error");
+}
 
 function showPage(name) {
   const employerPages = [
@@ -435,15 +441,6 @@ function showPage(name) {
   if (name === "hrExits") loadHrExits();
 }
 
-$("topTitle").textContent=names[name]||"ExitInsight HR";
-$("sidebar").classList.remove("open");
-  $("topTitle").textContent=names[name]||"ExitInsight HR";
-  $("sidebar").classList.remove("open");
-  if(name==="myGrievances") loadMyGrievances();
-  if(name==="myExit") loadMyExits();
-  if(name==="hrGrievances") loadHrGrievances();
-  if(name==="hrExits") loadHrExits();
-}
 
 const policyData = {
   attendance: {
@@ -733,7 +730,6 @@ async function saveGrievance(id) {
   try {
     const {error}=await db.from("grievances").update({status,hr_response}).eq("id",id);
     if(error) throw error;
-    showNotice("hrGNotice","Grievance updated successfully.");
     await loadHrGrievances();
     showNotice("hrGNotice","Grievance updated successfully.");
   } catch(err) {showNotice("hrGNotice","Update failed. Check HR UPDATE permissions and RLS policies: "+(err.message||"Unknown error"),true);}
