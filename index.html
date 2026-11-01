@@ -28,6 +28,10 @@
 #policyContent ul{padding-left:22px;margin:0 0 12px}
 #policyContent li{font-size:13px;margin:5px 0}
 .policy-back{border:1px solid var(--border);background:#fff;color:#526074;padding:10px 13px;border-radius:9px}
+.voice-audio-link{display:block;min-width:150px}
+#hrVoiceTable textarea{min-width:170px;min-height:65px}
+#hrVoiceTable select{min-width:115px;padding:7px;border:1px solid var(--border);border-radius:7px;background:#fff}
+
 
 </style>
 </head>
@@ -84,7 +88,9 @@
       <button class="nav-link" data-page="myGrievances" data-roles="employee">My Grievances</button>
       <button class="nav-link" data-page="myHRRequests" data-roles="employee">My HR Requests</button>
       <button class="nav-link" data-page="myExit" data-roles="employee">My Exit Feedback</button>
+      <button class="nav-link" data-page="myVoice" data-roles="employee">Share My Voice</button>
       <button class="nav-link" data-page="hrPolicies" data-roles="employee">HR Policies</button>
+      <button class="nav-link" data-page="hrVoice" data-roles="employer">Voice Feedback Review</button>
     </div>
     <div class="sidebar-bottom">ExitInsight HR · Prototype<br>Access is controlled by Supabase policies.</div>
   </aside>
@@ -326,6 +332,100 @@
 </section>
 
 
+
+      <section class="page" id="page-myVoice">
+        <div class="page-heading">
+          <div>
+            <div class="eyebrow">EMPLOYEE VOICE</div>
+            <h1>Share My Voice</h1>
+            <p class="heading-description">Share a workplace experience, concern or suggestion in writing or by recording your voice.</p>
+          </div>
+        </div>
+        <div class="info-box">You can choose your preferred language. Your submission is private and can be reviewed by authorised HR accounts. For urgent danger or an immediate safety issue, contact the appropriate manager or emergency service directly.</div>
+        <div class="panel">
+          <div class="panel-title">Share your feedback</div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="voiceLanguage">Preferred language *</label>
+              <select id="voiceLanguage" required>
+                <option value="">Choose language</option>
+                <option>தமிழ் (Tamil)</option>
+                <option>తెలుగు (Telugu)</option>
+                <option>ಕನ್ನಡ (Kannada)</option>
+                <option>മലയാളം (Malayalam)</option>
+                <option>हिन्दी (Hindi)</option>
+                <option>English</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="voiceCategory">Feedback category *</label>
+              <select id="voiceCategory" required>
+                <option value="">Choose category</option>
+                <option>Workplace Facilities</option>
+                <option>Supervisor or Manager Concern</option>
+                <option>Work Environment</option>
+                <option>Workload or Working Hours</option>
+                <option>Health and Safety</option>
+                <option>Suggestion for Improvement</option>
+                <option>Appreciation</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="voiceText">Written feedback (optional if you record audio)</label>
+              <textarea id="voiceText" maxlength="3000" placeholder="You may type your feedback here. You can also submit an audio recording instead."></textarea>
+            </div>
+          </div>
+          <div class="panel" style="background:#f8fafc;margin-top:18px;box-shadow:none">
+            <div class="panel-title">Audio recording</div>
+            <p class="panel-subtitle">Allow microphone access when your browser asks. Keep your recording under 2 minutes.</p>
+            <div class="form-actions">
+              <button class="btn-primary" type="button" id="startVoiceRecording">Start recording</button>
+              <button class="btn-secondary" type="button" id="stopVoiceRecording" disabled>Stop recording</button>
+            </div>
+            <p id="voiceRecordingStatus" class="panel-subtitle" aria-live="polite">No recording yet.</p>
+            <audio id="voiceAudioPreview" controls class="hidden" style="width:100%;margin-top:12px"></audio>
+            <button type="button" class="btn-secondary hidden" id="discardVoiceRecording" style="margin-top:10px">Discard recording</button>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" type="button" id="submitVoiceFeedback">Submit feedback</button>
+          </div>
+          <div class="notice" id="voiceEmployeeNotice" role="status"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div><div class="panel-title">My voice submissions</div><div class="panel-subtitle">Track the status of feedback submitted through this page.</div></div>
+            <button class="btn-secondary" type="button" id="refreshMyVoice">Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Submitted</th><th>Language</th><th>Category</th><th>Feedback</th><th>Status</th><th>HR remarks</th></tr></thead>
+              <tbody id="myVoiceTable"><tr><td colspan="6" class="table-empty">Your submissions will appear here.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-hrVoice">
+        <div class="page-heading">
+          <div>
+            <div class="eyebrow">EMPLOYEE VOICE</div>
+            <h1>Voice Feedback Review</h1>
+            <p class="heading-description">Review employee submissions, listen to recordings and record follow-up actions.</p>
+          </div>
+          <button class="btn-secondary" type="button" id="refreshHrVoice">Refresh</button>
+        </div>
+        <div class="info-box">Voice submissions may contain sensitive personal or workplace information. Access is limited by Supabase policies. Share recordings only with authorised reviewers.</div>
+        <div class="panel">
+          <div class="table-wrap">
+            <table><thead><tr><th>Submitted</th><th>Employee reference</th><th>Language</th><th>Category</th><th>Written feedback</th><th>Audio</th><th>Status</th><th>HR remarks</th><th>Action</th></tr></thead>
+              <tbody id="hrVoiceTable"><tr><td colspan="9" class="table-empty">Select this page to load submissions.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="notice" id="hrVoiceNotice" role="status"></div>
+        </div>
+      </section>
+
     </main>
     <footer class="footer"><span><strong>ExitInsight HR</strong> · KYR People Analytics</span><span>HR review pages require verified Supabase RLS policies.</span></footer>
   </div>
@@ -385,7 +485,8 @@ function showPage(name) {
     "dashboard",
     "hrGrievances",
     "hrHelpCentre",
-    "hrExits"
+    "hrExits",
+    "hrVoice"
   ];
 
   const employeePages = [
@@ -393,6 +494,7 @@ function showPage(name) {
     "myGrievances",
     "myHRRequests",
     "myExit",
+    "myVoice",
     "hrPolicies"
   ];
 
@@ -976,6 +1078,271 @@ async function loadHRHelpRequests() {
 }
 
 $("refreshHRHelpCentre").addEventListener("click", loadHRHelpRequests);
+
+
+// SHARE MY VOICE: browser recording + private Supabase Storage
+let voiceRecorder = null;
+let voiceStream = null;
+let voiceChunks = [];
+let voiceBlob = null;
+let voicePreviewUrl = null;
+let voiceRecordingTimer = null;
+let voiceRecordingSeconds = 0;
+
+function setVoiceRecordingStatus(message) {
+  const status = $("voiceRecordingStatus");
+  if (status) status.textContent = message;
+}
+
+function resetVoiceRecording() {
+  if (voiceRecordingTimer) clearInterval(voiceRecordingTimer);
+  voiceRecordingTimer = null;
+  voiceRecordingSeconds = 0;
+  if (voiceStream) voiceStream.getTracks().forEach(track => track.stop());
+  voiceStream = null;
+  voiceRecorder = null;
+  voiceChunks = [];
+  voiceBlob = null;
+  if (voicePreviewUrl) URL.revokeObjectURL(voicePreviewUrl);
+  voicePreviewUrl = null;
+  if ($("voiceAudioPreview")) {
+    $("voiceAudioPreview").pause();
+    $("voiceAudioPreview").removeAttribute("src");
+    $("voiceAudioPreview").classList.add("hidden");
+  }
+  $("discardVoiceRecording")?.classList.add("hidden");
+  $("startVoiceRecording").disabled = false;
+  $("stopVoiceRecording").disabled = true;
+  setVoiceRecordingStatus("No recording yet.");
+}
+
+async function startVoiceRecording() {
+  clearNotice("voiceEmployeeNotice");
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    showNotice("voiceEmployeeNotice", "Audio recording is not supported by this browser. Please use the written feedback option.", true);
+    return;
+  }
+  try {
+    voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const preferredType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+      ? "audio/webm;codecs=opus"
+      : (MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "");
+    voiceRecorder = new MediaRecorder(voiceStream, preferredType ? { mimeType: preferredType } : {});
+    voiceChunks = [];
+    voiceRecorder.ondataavailable = event => {
+      if (event.data && event.data.size > 0) voiceChunks.push(event.data);
+    };
+    voiceRecorder.onstop = () => {
+      const type = voiceRecorder?.mimeType || "audio/webm";
+      voiceBlob = new Blob(voiceChunks, { type });
+      if (voicePreviewUrl) URL.revokeObjectURL(voicePreviewUrl);
+      voicePreviewUrl = URL.createObjectURL(voiceBlob);
+      $("voiceAudioPreview").src = voicePreviewUrl;
+      $("voiceAudioPreview").classList.remove("hidden");
+      $("discardVoiceRecording").classList.remove("hidden");
+      setVoiceRecordingStatus("Recording ready. You can listen before submitting.");
+      if (voiceStream) voiceStream.getTracks().forEach(track => track.stop());
+      voiceStream = null;
+    };
+    voiceRecorder.start();
+    $("startVoiceRecording").disabled = true;
+    $("stopVoiceRecording").disabled = false;
+    voiceRecordingSeconds = 0;
+    setVoiceRecordingStatus("Recording... 0:00 (maximum 2 minutes)");
+    voiceRecordingTimer = setInterval(() => {
+      voiceRecordingSeconds++;
+      const mins = Math.floor(voiceRecordingSeconds / 60);
+      const secs = String(voiceRecordingSeconds % 60).padStart(2, "0");
+      setVoiceRecordingStatus(`Recording... ${mins}:${secs} (maximum 2 minutes)`);
+      if (voiceRecordingSeconds >= 120 && voiceRecorder?.state === "recording") stopVoiceRecording();
+    }, 1000);
+  } catch (err) {
+    if (voiceStream) voiceStream.getTracks().forEach(track => track.stop());
+    voiceStream = null;
+    showNotice("voiceEmployeeNotice", "Could not access your microphone. Check browser permission and try again. " + (err.message || ""), true);
+  }
+}
+
+function stopVoiceRecording() {
+  if (voiceRecordingTimer) clearInterval(voiceRecordingTimer);
+  voiceRecordingTimer = null;
+  if (voiceRecorder && voiceRecorder.state === "recording") voiceRecorder.stop();
+  $("startVoiceRecording").disabled = false;
+  $("stopVoiceRecording").disabled = true;
+}
+
+async function submitVoiceFeedback() {
+  clearNotice("voiceEmployeeNotice");
+  if (!currentUser || currentRole !== "employee") {
+    showNotice("voiceEmployeeNotice", "Please sign in with your employee account again.", true);
+    return;
+  }
+  const language = $("voiceLanguage").value;
+  const category = $("voiceCategory").value;
+  const feedbackText = $("voiceText").value.trim();
+  if (!language || !category) {
+    showNotice("voiceEmployeeNotice", "Please select your preferred language and a feedback category.", true);
+    return;
+  }
+  if (!feedbackText && !voiceBlob) {
+    showNotice("voiceEmployeeNotice", "Please enter written feedback or make an audio recording before submitting.", true);
+    return;
+  }
+  if (voiceBlob && voiceBlob.size > 15 * 1024 * 1024) {
+    showNotice("voiceEmployeeNotice", "The audio file is larger than 15 MB. Please make a shorter recording.", true);
+    return;
+  }
+
+  const button = $("submitVoiceFeedback");
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  let uploadedPath = null;
+  try {
+    if (voiceBlob) {
+      const extension = voiceBlob.type.includes("mp4") ? "m4a" : "webm";
+      uploadedPath = `${currentUser.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await db.storage
+        .from("employee-voice")
+        .upload(uploadedPath, voiceBlob, {
+          contentType: voiceBlob.type || "audio/webm",
+          upsert: false
+        });
+      if (uploadError) throw uploadError;
+    }
+
+    const { error: insertError } = await db.from("employee_voice_feedback").insert({
+      user_id: currentUser.id,
+      language,
+      category,
+      feedback_text: feedbackText || null,
+      audio_path: uploadedPath
+    });
+    if (insertError) throw insertError;
+
+    $("voiceLanguage").value = "";
+    $("voiceCategory").value = "";
+    $("voiceText").value = "";
+    resetVoiceRecording();
+    showNotice("voiceEmployeeNotice", "Your feedback has been submitted successfully.");
+    await loadMyVoiceFeedback();
+  } catch (err) {
+    if (uploadedPath) {
+      await db.storage.from("employee-voice").remove([uploadedPath]);
+    }
+    showNotice("voiceEmployeeNotice", "Submission failed: " + (err.message || "Please try again."), true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit feedback";
+  }
+}
+
+async function loadMyVoiceFeedback() {
+  if (!currentUser || currentRole !== "employee") return;
+  const table = $("myVoiceTable");
+  table.innerHTML = '<tr><td colspan="6" class="table-empty">Loading your submissions...</td></tr>';
+  const { data, error } = await db.from("employee_voice_feedback")
+    .select("id,created_at,language,category,feedback_text,audio_path,status,hr_remarks")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false });
+  if (error) {
+    table.innerHTML = `<tr><td colspan="6" class="table-empty">Could not load submissions: ${esc(error.message)}</td></tr>`;
+    return;
+  }
+  if (!data?.length) {
+    table.innerHTML = '<tr><td colspan="6" class="table-empty">You have not shared any voice feedback yet.</td></tr>';
+    return;
+  }
+  table.innerHTML = data.map(item => `<tr>
+    <td>${esc(item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN") : "—")}</td>
+    <td>${esc(item.language)}</td>
+    <td>${esc(item.category)}</td>
+    <td style="white-space:pre-wrap">${esc(item.feedback_text || (item.audio_path ? "Audio recording submitted" : "—"))}</td>
+    <td><span class="status ${item.status === "Closed" || item.status === "Action Taken" ? "resolved" : item.status === "Under Review" ? "review" : ""}">${esc(item.status)}</span></td>
+    <td style="white-space:pre-wrap">${esc(item.hr_remarks || "No HR update yet")}</td>
+  </tr>`).join("");
+}
+
+async function loadHrVoiceFeedback() {
+  if (!currentUser || currentRole !== "employer") return;
+  const table = $("hrVoiceTable");
+  table.innerHTML = '<tr><td colspan="9" class="table-empty">Loading voice submissions...</td></tr>';
+  clearNotice("hrVoiceNotice");
+  const { data, error } = await db.from("employee_voice_feedback")
+    .select("id,user_id,created_at,language,category,feedback_text,audio_path,status,hr_remarks")
+    .order("created_at", { ascending: false });
+  if (error) {
+    table.innerHTML = `<tr><td colspan="9" class="table-empty">Could not load submissions: ${esc(error.message)}</td></tr>`;
+    showNotice("hrVoiceNotice", error.message, true);
+    return;
+  }
+  if (!data?.length) {
+    table.innerHTML = '<tr><td colspan="9" class="table-empty">No voice feedback submissions found.</td></tr>';
+    return;
+  }
+
+  const rows = await Promise.all(data.map(async item => {
+    let audioCell = "No audio";
+    if (item.audio_path) {
+      const { data: signed, error: signedError } = await db.storage
+        .from("employee-voice").createSignedUrl(item.audio_path, 300);
+      if (!signedError && signed?.signedUrl) {
+        audioCell = `<audio controls preload="none" class="voice-audio-link" src="${esc(signed.signedUrl)}"></audio>`;
+      } else {
+        audioCell = "Audio unavailable";
+      }
+    }
+    const employeeRef = item.user_id ? item.user_id.slice(0, 8) + "…" : "—";
+    return `<tr>
+      <td>${esc(item.created_at ? new Date(item.created_at).toLocaleString("en-IN") : "—")}</td>
+      <td>${esc(employeeRef)}</td>
+      <td>${esc(item.language)}</td>
+      <td>${esc(item.category)}</td>
+      <td style="white-space:pre-wrap;min-width:180px">${esc(item.feedback_text || "Audio-only submission")}</td>
+      <td>${audioCell}</td>
+      <td><select id="voiceStatus-${esc(item.id)}">
+        <option ${item.status === "Submitted" ? "selected" : ""}>Submitted</option>
+        <option ${item.status === "Under Review" ? "selected" : ""}>Under Review</option>
+        <option ${item.status === "Action Taken" ? "selected" : ""}>Action Taken</option>
+        <option ${item.status === "Closed" ? "selected" : ""}>Closed</option>
+      </select></td>
+      <td><textarea id="voiceRemarks-${esc(item.id)}" maxlength="2000" placeholder="HR remarks">${esc(item.hr_remarks || "")}</textarea></td>
+      <td><button class="btn-primary" type="button" data-save-voice="${esc(item.id)}">Save</button></td>
+    </tr>`;
+  }));
+  table.innerHTML = rows.join("");
+
+  table.querySelectorAll("[data-save-voice]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const id = button.dataset.saveVoice;
+      const status = $("voiceStatus-" + id).value;
+      const hr_remarks = $("voiceRemarks-" + id).value.trim() || null;
+      button.disabled = true;
+      button.textContent = "Saving...";
+      const { error: updateError } = await db.from("employee_voice_feedback")
+        .update({ status, hr_remarks, updated_at: new Date().toISOString() })
+        .eq("id", id);
+      button.disabled = false;
+      button.textContent = "Save";
+      if (updateError) {
+        showNotice("hrVoiceNotice", "Could not save update: " + updateError.message, true);
+        return;
+      }
+      showNotice("hrVoiceNotice", "Voice feedback review updated.");
+      await loadHrVoiceFeedback();
+    });
+  });
+}
+
+$("startVoiceRecording").addEventListener("click", startVoiceRecording);
+$("stopVoiceRecording").addEventListener("click", stopVoiceRecording);
+$("discardVoiceRecording").addEventListener("click", () => {
+  resetVoiceRecording();
+  setVoiceRecordingStatus("Recording discarded.");
+});
+$("submitVoiceFeedback").addEventListener("click", submitVoiceFeedback);
+$("refreshMyVoice").addEventListener("click", loadMyVoiceFeedback);
+$("refreshHrVoice").addEventListener("click", loadHrVoiceFeedback);
+
 
   restoreSession();
 </script>
