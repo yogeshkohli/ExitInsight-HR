@@ -104,8 +104,8 @@
     <header class="topbar">
       <div class="topbar-heading"><h2 id="topTitle">Analytics Dashboard</h2><div class="muted" style="font-size:11px" id="topEmail"></div></div>
       <div class="topbar-quote" aria-label="ExitInsight people-centred message">
-        <div class="topbar-quote-text">“Better workplaces begin with understanding people, supporting their needs, and valuing their voices.”</div>
-        <div class="topbar-quote-tagline">Connecting people. Strengthening workplaces.</div>
+        <div class="topbar-quote-text" id="topbarQuoteText">“Better workplaces begin with understanding people, supporting their needs, and valuing their voices.”</div>
+        <div class="topbar-quote-tagline" id="topbarQuoteTagline">Connecting people. Strengthening workplaces.</div>
       </div>
       <div class="top-actions"><div class="profile-btn"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileName">User</strong><span id="profileRole">Signed in</span></div></div><button class="btn-secondary" id="logoutButton">Sign out</button></div>
     </header>
@@ -650,6 +650,13 @@ function showAuthenticatedApp(profile,user) {
   $("portalScreen").classList.add("hidden"); $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
   $("profileName").textContent=profile.full_name || user.email || "User";
   $("profileRole").textContent=currentRole==="employer"?"HR Analytics":"Employee";
+  if (currentRole === "employee") {
+    $("topbarQuoteText").textContent = "“You deserve a workplace where you feel respected, supported and valued.”";
+    $("topbarQuoteTagline").textContent = "Your experience matters. We're here to listen.";
+  } else {
+    $("topbarQuoteText").textContent = "“Better workplaces begin with understanding people, supporting their needs, and valuing their voices.”";
+    $("topbarQuoteTagline").textContent = "Connecting people. Strengthening workplaces.";
+  }
   $("topEmail").textContent=user.email || "";
   $("avatar").textContent=(profile.full_name || user.email || "U").charAt(0).toUpperCase();
   document.querySelectorAll(".nav-link").forEach(b=>{
