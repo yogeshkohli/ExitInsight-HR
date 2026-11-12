@@ -50,45 +50,99 @@
 .announcement-actions button{padding:7px 10px;font-size:11px}
 .announcement-status{display:inline-block;margin-left:7px}
 
+
+/* KYR ExitInsight authentication redesign only. App/dashboard styles remain unchanged. */
+.auth-shell{min-height:100vh;padding:30px;background:#eef2f7;display:flex;align-items:center;justify-content:center}
+.auth-layout{width:min(1120px,100%);min-height:650px;background:#fff;border-radius:24px;overflow:hidden;display:grid;grid-template-columns:1.02fr .98fr;box-shadow:0 24px 80px rgba(20,39,70,.16)}
+.auth-story{position:relative;overflow:hidden;min-height:650px;padding:38px 48px 28px;background:linear-gradient(145deg,#142b4b 0%,#1b3d68 62%,#244e7c 100%);color:#fff;display:flex;flex-direction:column}
+.auth-story:before,.auth-story:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.09);border-radius:50%;pointer-events:none}
+.auth-story:before{width:420px;height:420px;right:-180px;top:-190px}.auth-story:after{width:300px;height:300px;left:-190px;bottom:-170px}
+.story-brand{position:relative;z-index:1;display:flex;align-items:center;gap:11px;font-size:16px;letter-spacing:.2px;font-weight:600}.story-brand b{font-weight:800;color:#fff}.story-mark{width:43px;height:43px;border:2px solid #f29a5e;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:900;letter-spacing:.4px}
+.story-copy{position:relative;z-index:1;margin-top:66px;max-width:440px}.story-kicker,.panel-eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:800;color:#f5a16a}.story-copy h1{font-size:clamp(32px,4vw,46px);line-height:1.13;letter-spacing:-1.3px;margin:15px 0;color:#fff}.story-copy h1 em{font-style:normal;color:#f5a16a}.story-copy p{max-width:390px;color:#d2deec;font-size:14px;line-height:1.8}
+.story-illustration{position:relative;z-index:1;width:min(100%,480px);margin:auto auto 0;align-self:center}.story-illustration svg{display:block;width:100%;height:auto;max-height:280px}.story-footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.16);padding-top:17px;margin-top:10px;font-size:11px;letter-spacing:.5px;color:#d5e0ed}
+.auth-panel{padding:58px clamp(30px,5vw,68px) 28px;display:flex;flex-direction:column;justify-content:center;background:#fff;min-width:0}.panel-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:54px}.panel-eyebrow{color:#e77b35}.secure-label{font-size:10px;color:#8290a3;display:flex;align-items:center;gap:7px}.secure-label i{width:7px;height:7px;border-radius:50%;background:#22a06b;display:inline-block}.auth-panel h2{font-size:29px;letter-spacing:-.8px;color:#182f50;margin:12px 0 7px}.panel-intro{color:#7e8a9c;font-size:13px;line-height:1.6;margin-bottom:28px}.portal-options{display:grid;grid-template-columns:1fr;gap:14px;margin:8px 0 0}.portal-option{width:100%;min-height:104px;border:1px solid #e4e9f0;border-radius:14px;padding:17px;display:flex;flex-direction:row;align-items:center;gap:15px;text-align:left;background:#fff;transition:border-color .2s,box-shadow .2s,transform .2s}.portal-option:hover,.portal-option:focus-visible{transform:translateY(-2px);border-color:#e77b35;box-shadow:0 10px 28px rgba(23,47,80,.09);outline:none}.portal-option-icon{width:48px;height:48px;flex:0 0 48px;border-radius:13px;display:grid;place-items:center;font-size:22px;font-weight:800}.employee-icon{background:#fff1e7;color:#df702e}.hr-icon{background:#eaf0fb;color:#3157a0}.portal-option-copy{display:flex;flex-direction:column;gap:6px;flex:1}.portal-option-copy strong{font-size:14px;color:#1b3455}.portal-option-copy small{font-size:11px;line-height:1.5;color:#8290a3;font-weight:400}.portal-arrow{font-size:23px;color:#e77b35}.auth-help{font-size:10px;line-height:1.6;color:#8995a6;margin-top:22px}.panel-bottom-note{border-top:1px solid #edf0f4;margin-top:28px;padding-top:15px;color:#a0a9b7;font-size:10px}.login-panel{padding-top:38px}.back-to-portals{align-self:flex-start;background:transparent;color:#65758a;font-size:11px;padding:0;margin-bottom:38px}.back-to-portals:hover{color:#e77b35}.login-heading-mark{font-size:17px;font-weight:900;color:#1b3455;margin-bottom:35px}.login-heading-mark span{color:#e77b35}.login-panel .panel-eyebrow{margin-bottom:2px}.login-panel h2{margin-top:10px}.login-panel .panel-intro{margin-bottom:18px}.auth-panel .field{margin-top:17px;gap:8px}.auth-panel .field label{font-size:11px;color:#526176}.auth-panel .field input{padding:14px 15px;border:1px solid #e0e6ee;border-radius:9px;background:#f9fafc;font-size:13px}.auth-panel .field input:focus{background:#fff;border-color:#3157a0;box-shadow:0 0 0 3px rgba(49,87,160,.1)}.auth-panel .btn-primary{background:linear-gradient(90deg,#e77b35,#f19a54);border-radius:9px;padding:14px;font-size:13px;box-shadow:0 7px 16px rgba(231,123,53,.18)}.auth-panel .btn-primary:hover{filter:brightness(.97)}.auth-panel .full{margin-top:25px}.auth-panel .notice{font-size:11px}
+@media(max-width:800px){.auth-shell{padding:16px}.auth-layout{grid-template-columns:1fr;max-width:560px;min-height:0}.auth-story{min-height:300px;padding:25px 28px 18px}.story-copy{margin-top:35px}.story-copy h1{font-size:32px}.story-copy p{font-size:12px;max-width:450px}.story-illustration{position:absolute;width:190px;right:12px;bottom:18px;opacity:.5}.story-illustration svg{max-height:145px}.story-footer{margin-top:25px;padding-top:12px}.auth-panel{padding:34px 30px 24px}.panel-topline{margin-bottom:28px}.login-panel{padding-top:28px}.back-to-portals{margin-bottom:25px}.login-heading-mark{margin-bottom:24px}}
+@media(max-width:480px){.auth-shell{padding:0;background:#fff}.auth-layout{border-radius:0;box-shadow:none}.auth-story{min-height:265px;padding:22px 22px 16px}.story-copy{margin-top:29px}.story-copy h1{font-size:29px}.story-copy p{max-width:260px}.story-illustration{width:145px;right:-5px;bottom:22px;opacity:.38}.auth-panel{padding:29px 22px 22px}.portal-option{padding:14px;min-height:96px}.portal-option-icon{width:42px;height:42px;flex-basis:42px}.auth-panel h2{font-size:25px}}
+
 </style>
 </head>
 <body>
-<section id="portalScreen" class="auth-wrap">
-  <div class="portal-card">
-    <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:10px;letter-spacing:1px">HR MANAGEMENT PORTAL</div></div></div>
-    <h1>Welcome back!</h1>
-    <p class="muted">Choose your portal to continue.</p>
-    <div class="portal-options">
-      <button type="button" class="portal-option" onclick="selectPortal('employee')">
-        <span class="portal-icon" aria-hidden="true">♙</span>
-        <h2>Employee Login</h2>
-        <p>Submit grievances, share exit feedback, and follow up on your submissions.</p>
-        <span class="portal-action">Continue as Employee →</span>
-      </button>
-      <button type="button" class="portal-option" onclick="selectPortal('employer')">
-        <span class="portal-icon" aria-hidden="true">▦</span>
-        <h2>Employer / HR Login</h2>
-        <p>Manage grievances, review exit feedback, and access HR analytics.</p>
-        <span class="portal-action">Continue as HR →</span>
-      </button>
+<section id="portalScreen" class="auth-wrap auth-shell">
+  <div class="auth-layout portal-layout">
+    <div class="auth-story">
+      <div class="story-brand"><span class="story-mark">KYR</span><span>KYR <b>ExitInsight</b></span></div>
+      <div class="story-copy">
+        <span class="story-kicker">EMPLOYEE VOICE. BETTER WORKPLACES.</span>
+        <h1>Every voice<br><em>deserves to be heard.</em></h1>
+        <p>A people-centred space to share concerns, access HR support and build a more supportive workplace.</p>
+      </div>
+      <div class="story-illustration" aria-hidden="true">
+        <svg viewBox="0 0 560 330" role="img" aria-label="Illustration of people connecting at work">
+          <rect x="36" y="38" width="488" height="250" rx="28" fill="#ffffff" opacity=".08"/>
+          <path d="M68 238h420" stroke="#b8c9df" stroke-width="7" stroke-linecap="round" opacity=".6"/>
+          <rect x="95" y="166" width="170" height="12" rx="6" fill="#f2a36d"/><path d="M112 178v72m137-72v72" stroke="#d7e3f2" stroke-width="8" stroke-linecap="round"/>
+          <rect x="147" y="118" width="76" height="48" rx="7" fill="#dce8f6"/><rect x="154" y="125" width="62" height="34" rx="3" fill="#3157d5"/><path d="M138 169h94" stroke="#f2a36d" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="330" cy="112" r="29" fill="#e9a27e"/><path d="M301 110c0-27 16-43 37-39 18 3 27 19 23 39-12-6-23-15-29-25-7 13-18 21-31 25" fill="#263957"/>
+          <path d="M288 224c3-53 18-82 43-82 27 0 45 28 49 82" fill="#f1f5fb"/><path d="M310 148l20 33 20-33" fill="#e77b35"/><path d="M331 181v49" stroke="#3157d5" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="420" cy="177" r="22" fill="#d88e70"/><path d="M397 176c-2-22 10-35 26-35 15 0 25 12 24 31-14-3-24-10-29-18-5 11-12 18-21 22" fill="#263957"/><path d="M389 249c2-39 13-59 32-59s32 20 34 59" fill="#f2a36d"/>
+          <path d="M355 61h88a13 13 0 0 1 13 13v22a13 13 0 0 1-13 13h-43l-17 15v-15h-28a13 13 0 0 1-13-13V74a13 13 0 0 1 13-13" fill="#e77b35"/><circle cx="383" cy="85" r="4" fill="white"/><circle cx="400" cy="85" r="4" fill="white"/><circle cx="417" cy="85" r="4" fill="white"/>
+          <circle cx="92" cy="83" r="5" fill="#f2a36d"/><circle cx="475" cy="145" r="7" fill="#9bb6d5"/><path d="M65 122h35m-17-17v34" stroke="#9bb6d5" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+        </svg>
+      </div>
+      <div class="story-footer">Listen. Understand. Empower.</div>
     </div>
-    <div id="portalNotice" class="notice" role="status"></div>
-    <p class="auth-help muted">Secure access powered by Supabase. Your account role is verified before the dashboard opens.</p>
+    <div class="auth-panel portal-panel">
+      <div class="panel-topline"><span class="panel-eyebrow">WELCOME TO EXITINSIGHT</span><span class="secure-label"> <i></i> Secure portal</span></div>
+      <h2>Choose your portal</h2>
+      <p class="panel-intro">Select how you would like to continue.</p>
+      <div class="portal-options">
+        <button type="button" class="portal-option" onclick="selectPortal('employee')">
+          <span class="portal-option-icon employee-icon" aria-hidden="true">♙</span>
+          <span class="portal-option-copy"><strong>Employee Portal</strong><small>Raise grievances, request HR support and share feedback.</small></span>
+          <span class="portal-arrow" aria-hidden="true">→</span>
+        </button>
+        <button type="button" class="portal-option" onclick="selectPortal('employer')">
+          <span class="portal-option-icon hr-icon" aria-hidden="true">▦</span>
+          <span class="portal-option-copy"><strong>Employer / HR Portal</strong><small>Review concerns, manage requests and view workforce insights.</small></span>
+          <span class="portal-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+      <div id="portalNotice" class="notice" role="status"></div>
+      <p class="auth-help">Your account role is securely verified before access is granted.</p>
+      <div class="panel-bottom-note">© KYR ExitInsight · People-centred HR management</div>
+    </div>
   </div>
 </section>
 
-<section id="authScreen" class="auth-wrap hidden">
-  <div class="auth-card">
-    <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight</span></div><div class="muted" style="font-size:10px">HR MANAGEMENT PORTAL</div></div></div>
-    <h1 id="authTitle">Sign in</h1>
-    <p class="muted" id="authSubtitle">Sign in with your registered account to continue.</p>
-    <form id="loginForm">
-      <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
-      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
-      <button class="btn-primary full" type="submit" id="loginButton">Sign in</button>
-    </form>
-    <div id="authNotice" class="notice" role="status"></div>
-    <p class="auth-help muted">Accounts must be created in Supabase Authentication. Your role is read from the profiles table; you cannot choose or change your own role here.</p>
+<section id="authScreen" class="auth-wrap auth-shell hidden">
+  <div class="auth-layout login-layout">
+    <div class="auth-story">
+      <div class="story-brand"><span class="story-mark">KYR</span><span>KYR <b>ExitInsight</b></span></div>
+      <div class="story-copy">
+        <span class="story-kicker" id="loginStoryKicker">EMPLOYEE PORTAL</span>
+        <h1 id="loginStoryHeading">Your voice<br><em>matters here.</em></h1>
+        <p id="loginStoryText">You deserve a workplace where you feel respected, supported and valued.</p>
+      </div>
+      <div class="story-illustration login-illustration" aria-hidden="true">
+        <svg viewBox="0 0 560 330"><rect x="36" y="38" width="488" height="250" rx="28" fill="#ffffff" opacity=".08"/><path d="M70 246h420" stroke="#b8c9df" stroke-width="7" stroke-linecap="round" opacity=".6"/><rect x="95" y="174" width="180" height="12" rx="6" fill="#f2a36d"/><path d="M112 186v63m148-63v63" stroke="#d7e3f2" stroke-width="8" stroke-linecap="round"/><rect x="150" y="120" width="78" height="52" rx="7" fill="#dce8f6"/><rect x="157" y="127" width="64" height="38" rx="3" fill="#3157d5"/><circle cx="355" cy="112" r="30" fill="#e9a27e"/><path d="M325 111c0-28 18-44 39-39 18 4 27 20 22 40-12-6-23-15-30-26-7 13-18 21-31 25" fill="#263957"/><path d="M310 235c4-58 20-91 47-91s44 33 48 91" fill="#f1f5fb"/><path d="M336 151l21 34 21-34" fill="#e77b35"/><path d="M357 185v48" stroke="#3157d5" stroke-width="7" stroke-linecap="round"/><path d="M402 60h70a12 12 0 0 1 12 12v22a12 12 0 0 1-12 12h-33l-17 15v-15h-20a12 12 0 0 1-12-12V72a12 12 0 0 1 12-12" fill="#e77b35"/><circle cx="425" cy="83" r="4" fill="white"/><circle cx="442" cy="83" r="4" fill="white"/><circle cx="459" cy="83" r="4" fill="white"/></svg>
+      </div>
+      <div class="story-footer" id="loginStoryFooter">Your experience matters. We're here to listen.</div>
+    </div>
+    <div class="auth-panel login-panel">
+      <button class="back-to-portals" type="button" onclick="returnToPortal()">← <span>Back to portal selection</span></button>
+      <div class="login-heading-mark">KYR <span>ExitInsight</span></div>
+      <span class="panel-eyebrow">SECURE ACCOUNT ACCESS</span>
+      <h2 id="authTitle">Sign in</h2>
+      <p class="panel-intro" id="authSubtitle">Sign in with your registered account to continue.</p>
+      <form id="loginForm">
+        <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
+        <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Enter your password"></div>
+        <button class="btn-primary full" type="submit" id="loginButton">Sign in</button>
+      </form>
+      <div id="authNotice" class="notice" role="status"></div>
+      <p class="auth-help">Your access is based on the role registered in your secure ExitInsight account.</p>
+      <div class="panel-bottom-note">© KYR ExitInsight · Secure HR portal</div>
+    </div>
   </div>
 </section>
 
@@ -507,10 +561,20 @@ function selectPortal(role) {
   clearNotice("authNotice");
   $("portalScreen").classList.add("hidden");
   $("authScreen").classList.remove("hidden");
-  $("authTitle").textContent = role === "employee" ? "Employee Sign in" : "Employer / HR Sign in";
+  $("authTitle").textContent = role === "employee" ? "Welcome back" : "Welcome back";
   $("authSubtitle").textContent = role === "employee"
     ? "Sign in with your employee account to continue."
     : "Sign in with your employer or HR account to continue.";
+  $("loginStoryKicker").textContent = role === "employee" ? "EMPLOYEE PORTAL" : "EMPLOYER / HR PORTAL";
+  $("loginStoryHeading").innerHTML = role === "employee"
+    ? "Your voice<br><em>matters here.</em>"
+    : "Lead with insight.<br><em>Build better workplaces.</em>";
+  $("loginStoryText").textContent = role === "employee"
+    ? "You deserve a workplace where you feel respected, supported and valued."
+    : "Listen to employee voices, understand workplace needs and take meaningful action.";
+  $("loginStoryFooter").textContent = role === "employee"
+    ? "Your experience matters. We're here to listen."
+    : "Listen. Understand. Empower.";
   $("loginButton").textContent = "Sign in";
 }
 function returnToPortal(message, isError=true) {
