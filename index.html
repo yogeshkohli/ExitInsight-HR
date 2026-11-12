@@ -735,18 +735,45 @@ async function loadMyGrievances() {
     <td>${esc(g.priority||"—")}</td><td><span class="status ${g.status==="resolved"?"resolved":g.status==="in_review"?"review":""}">${esc(({submitted:"Submitted",in_review:"In Review",resolved:"Resolved",closed:"Closed"})[g.status]||g.status||"Submitted")}</span></td>
     <td>${esc(g.hr_response||"No response yet")}</td></tr>`).join("");
 }
-$("grievanceForm").addEventListener("submit",async e=>{
-  e.preventDefault();clearNotice("gNotice");
-  if(!currentUser) return showNotice("gNotice","Please sign in again.",true);
-  const button=e.submitter; if(button){button.disabled=true;button.textContent="Submitting…";}
+$("grievanceForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  clearNotice("gNotice");
+
+  const button = e.submitter;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Submitting...";
+  }
+
   try {
-    const row={employee_id:currentUser.id,category:$("gCategory").value,subject:$("gSubject").value.trim(),description:$("gDescription").value.trim(),priority:$("gPriority").value,status:"submitted"};
-    const {error}=await db.from("grievances").insert(row);
-    if(error) throw error;
-    e.target.reset();showNotice("gNotice","Your grievance was submitted. You can track its status below.");
+    const { data: { user }, error: authError } = await db.auth.getUser();
+    if (authError) throw authError;
+    if (!user) throw new Error("Please sign in again.");
+
+    const row = {
+      employee_id: user.id,
+      category: $("gCategory").value,
+      subject: $("gSubject").value.trim(),
+      description: $("gDescription").value.trim(),
+      priority: $("gPriority").value,
+      status: "submitted"
+    };
+
+    const { error } = await db.from("grievances").insert(row);
+    if (error) throw error;
+
+    e.target.reset();
+    showNotice("gNotice", "Your grievance was submitted. You can track its status below.");
     await loadMyGrievances();
-  } catch(err) {showNotice("gNotice","Submission failed: "+err.message,true);}
-  finally {if(button){button.disabled=false;button.textContent="Submit grievance";}}
+  } catch (err) {
+    console.error("Grievance submission error:", err);
+    showNotice("gNotice", "Submission failed: " + (err.message || "Please try again."), true);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Submit grievance";
+    }
+  }
 });
 $("refreshGrievances").addEventListener("click",loadMyGrievances);
 async function loadMyExits() {
@@ -950,6 +977,7 @@ async function loadMyHRRequests() {
 
 $("hrRequestForm").addEventListener("submit", async function(event) {
   event.preventDefault();
+  clearNotice("hrRequestNotice");
 
   if (!currentUser || currentRole !== "employee") {
     showNotice("hrRequestNotice", "Please log in using your employee account.", true);
@@ -969,28 +997,32 @@ $("hrRequestForm").addEventListener("submit", async function(event) {
   submitButton.disabled = true;
   submitButton.textContent = "Submitting...";
 
-  const { error } = await db.from("hr_requests").insert({
-    employee_id: currentUser.id,
-    category,
-    subject,
-    description,
-    status: "Open"
-  });
+  try {
+    const { data: { user }, error: authError } = await db.auth.getUser();
+    if (authError) throw authError;
+    if (!user) throw new Error("Please sign in again.");
 
-  submitButton.disabled = false;
-  submitButton.textContent = "Submit HR Request";
+    const { error } = await db.from("hr_requests").insert({
+      employee_id: user.id,
+      category,
+      subject,
+      description,
+      status: "Open"
+    });
 
-  if (error) {
-    showNotice("hrRequestNotice", "Request could not be submitted. Please try again.", true);
-    console.error("Submit HR request error:", error.message);
-    return;
+    if (error) throw error;
+
+    this.reset();
+    showNotice("hrRequestNotice", "Your HR request was submitted successfully.");
+    await loadMyHRRequests();
+  } catch (err) {
+    console.error("Submit HR request error:", err);
+    showNotice("hrRequestNotice", "Request could not be submitted: " + (err.message || "Please try again."), true);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit HR Request";
   }
-
-  this.reset();
-  showNotice("hrRequestNotice", "Your HR request was submitted successfully.");
-  await loadMyHRRequests();
 });
-
 $("refreshHRRequests").addEventListener("click", loadMyHRRequests);
 
 
