@@ -39,17 +39,6 @@
 #hrVoiceTable select{min-width:115px;padding:7px;border:1px solid var(--border);border-radius:7px;background:#fff}
 
 
-
-/* HR announcements */
-.announcement-card{border:1px solid var(--border);border-radius:10px;padding:15px;background:#fff;margin-top:11px}
-.announcement-card h3{font-size:14px;color:var(--navy);margin-bottom:6px}
-.announcement-meta{font-size:10px;color:var(--muted);margin-bottom:8px}
-.announcement-card p{font-size:12px;line-height:1.65;color:#596579;white-space:pre-wrap}
-.announcement-empty{padding:22px;text-align:center;color:var(--muted);font-size:12px}
-.announcement-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.announcement-actions button{padding:7px 10px;font-size:11px}
-.announcement-status{display:inline-block;margin-left:7px}
-
 </style>
 </head>
 <body>
@@ -101,7 +90,6 @@
       <button class="nav-link" data-page="hrGrievances" data-roles="employer">Grievance Management</button>
       <button class="nav-link" data-page="hrHelpCentre" data-roles="employer">HR Help Centre</button>
       <button class="nav-link" data-page="hrExits" data-roles="employer">Exit Interview Feedback</button>
-      <button class="nav-link" data-page="hrAnnouncements" data-roles="employer">HR Announcements</button>
       <button class="nav-link" data-page="employeeHome" data-roles="employee">My Home</button>
       <button class="nav-link" data-page="myGrievances" data-roles="employee">My Grievances</button>
       <button class="nav-link" data-page="myHRRequests" data-roles="employee">My HR Requests</button>
@@ -116,8 +104,8 @@
     <header class="topbar">
       <div class="topbar-heading"><h2 id="topTitle">Analytics Dashboard</h2><div class="muted" style="font-size:11px" id="topEmail"></div></div>
       <div class="topbar-quote" aria-label="ExitInsight people-centred message">
-        <div class="topbar-quote-text" id="topbarQuoteText">“Better workplaces begin with understanding people, supporting their needs, and valuing their voices.”</div>
-        <div class="topbar-quote-tagline" id="topbarQuoteTagline">Connecting people. Strengthening workplaces.</div>
+        <div class="topbar-quote-text">“Better workplaces begin with understanding people, supporting their needs, and valuing their voices.”</div>
+        <div class="topbar-quote-tagline">Connecting people. Strengthening workplaces.</div>
       </div>
       <div class="top-actions"><div class="profile-btn"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileName">User</strong><span id="profileRole">Signed in</span></div></div><button class="btn-secondary" id="logoutButton">Sign out</button></div>
     </header>
@@ -193,41 +181,9 @@
         <div class="info-box">Exit feedback may contain sensitive information. Restrict access to authorised HR users and handle feedback confidentially.</div>
         <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Primary reason</th><th>Feedback and suggestions</th></tr></thead><tbody id="hrExitTable"><tr><td colspan="4" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrENotice" class="notice" role="status"></div></div>
       </section>
-      <section class="page" id="page-hrAnnouncements">
-        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE COMMUNICATION</div><h1>HR Announcements</h1><p class="heading-description">Create and publish updates that appear on the employee home page.</p></div><button class="btn-secondary" type="button" id="refreshHrAnnouncements">Refresh</button></div>
-        <div class="panel">
-          <div class="panel-title" id="announcementFormTitle">Create an announcement</div>
-          <form id="announcementForm">
-            <div class="form-grid">
-              <div class="field full"><label for="announcementTitle">Announcement title *</label><input id="announcementTitle" maxlength="150" required placeholder="e.g. Upcoming Training Programme"></div>
-              <div class="field full"><label for="announcementDescription">Description *</label><textarea id="announcementDescription" maxlength="3000" required placeholder="Write the announcement for employees"></textarea></div>
-              <div class="field"><label for="announcementDate">Announcement date</label><input id="announcementDate" type="date"></div>
-              <div class="field"><label for="announcementStatus">Publication status</label><select id="announcementStatus"><option value="draft">Save as draft</option><option value="published">Publish now</option></select></div>
-            </div>
-            <div class="form-actions"><button class="btn-primary" type="submit" id="saveAnnouncementButton">Save announcement</button><button class="btn-secondary hidden" type="button" id="cancelAnnouncementEdit">Cancel edit</button></div>
-            <div class="notice" id="hrAnnouncementNotice" role="status"></div>
-          </form>
-        </div>
-        <div class="panel"><div class="panel-head"><div><div class="panel-title">All announcements</div><div class="panel-subtitle">Drafts are visible only to HR. Published announcements appear to employees.</div></div></div>
-          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Title and description</th><th>Status</th><th>Actions</th></tr></thead><tbody id="hrAnnouncementsTable"><tr><td colspan="4" class="table-empty">Select this page to load announcements.</td></tr></tbody></table></div>
-        </div>
-      </section>
-
       <section class="page" id="page-employeeHome">
-        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE SELF-SERVICE</div><h1>Good morning!</h1><p class="heading-description">Your workplace experience matters. Stay connected and make your voice heard.</p></div><button class="btn-secondary" type="button" id="refreshEmployeeHome">Refresh</button></div>
-        <div class="grid-two">
-          <div class="metric"><div class="metric-label">My Grievances</div><div class="metric-number" id="homeGrievanceCount">—</div><div class="metric-foot">Personal submissions</div><button class="btn-secondary" type="button" style="margin-top:12px" onclick="showPage('myGrievances')">View grievances</button></div>
-          <div class="metric"><div class="metric-label">HR Requests</div><div class="metric-number" id="homeRequestCount">—</div><div class="metric-foot">Requests submitted</div><button class="btn-secondary" type="button" style="margin-top:12px" onclick="showPage('myHRRequests')">View HR requests</button></div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div><div class="panel-title">Latest HR Announcements</div><div class="panel-subtitle">Updates and information shared by your HR team.</div></div><button class="btn-secondary" type="button" id="refreshEmployeeAnnouncements">Refresh</button></div>
-          <div id="employeeAnnouncementsList"><div class="announcement-empty">Loading announcements...</div></div>
-        </div>
-        <div class="grid-two">
-          <div class="panel"><div class="panel-title">Raise a grievance</div><p class="panel-subtitle">Your submission is linked to your signed-in account.</p><button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button></div>
-          <div class="panel"><div class="panel-title">Share exit feedback</div><p class="panel-subtitle">Submit feedback associated with your account.</p><button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button></div>
-        </div>
-        <div class="panel" style="background:#fff8f2;border-color:#ffe2cf"><div class="panel-title">Your voice matters.</div><p class="panel-subtitle" style="line-height:1.7">Every suggestion, concern and experience can help create a better workplace.</p><button class="btn-secondary" type="button" style="margin-top:12px" onclick="showPage('myVoice')">Share your voice</button></div>
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE SELF-SERVICE</div><h1>Welcome</h1><p class="heading-description">Submit a workplace concern or share exit feedback securely.</p></div></div>
+        <div class="grid-two"><div class="panel"><div class="panel-title">Raise a grievance</div><p class="panel-subtitle">Your submission is linked to your signed-in account.</p><button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button></div><div class="panel"><div class="panel-title">Share exit feedback</div><p class="panel-subtitle">Submit feedback associated with your account.</p><button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button></div></div>
       </section>
       <section class="page" id="page-myGrievances">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>My Grievances</h1><p class="heading-description">Submit a concern and review only your own submitted records.</p></div></div>
@@ -543,7 +499,6 @@ function showPage(name) {
     "hrGrievances",
     "hrHelpCentre",
     "hrExits",
-    "hrAnnouncements",
     "hrVoice"
   ];
 
@@ -583,7 +538,6 @@ function showPage(name) {
     hrGrievances: "Grievance Management",
     hrHelpCentre: "HR Help Centre",
     hrExits: "Exit Interview Feedback",
-    hrAnnouncements: "HR Announcements",
     employeeHome: "My Home",
     myGrievances: "My Grievances",
     myHRRequests: "My HR Requests",
@@ -600,155 +554,8 @@ function showPage(name) {
   if (name === "hrGrievances") loadHrGrievances();
   if (name === "hrHelpCentre") loadHRHelpRequests();
   if (name === "hrExits") loadHrExits();
-  if (name === "hrAnnouncements") loadHrAnnouncements();
-  if (name === "employeeHome") loadEmployeeHome();
 }
 
-
-let editingAnnouncementId = null;
-let announcementsRealtimeChannel = null;
-
-function subscribeToAnnouncements() {
-  if (announcementsRealtimeChannel) db.removeChannel(announcementsRealtimeChannel);
-  announcementsRealtimeChannel = db.channel("hr-announcements-live")
-    .on("postgres_changes", { event: "*", schema: "public", table: "hr_announcements" }, () => {
-      if (currentRole === "employee" && $("page-employeeHome")?.classList.contains("active")) loadEmployeeAnnouncements();
-      if (currentRole === "employer" && $("page-hrAnnouncements")?.classList.contains("active")) loadHrAnnouncements();
-    })
-    .subscribe();
-}
-
-function resetAnnouncementForm() {
-  editingAnnouncementId = null;
-  $("announcementForm").reset();
-  $("announcementFormTitle").textContent = "Create an announcement";
-  $("saveAnnouncementButton").textContent = "Save announcement";
-  $("cancelAnnouncementEdit").classList.add("hidden");
-}
-
-async function loadHrAnnouncements() {
-  if (currentRole !== "employer") return;
-  const table = $("hrAnnouncementsTable");
-  table.innerHTML = '<tr><td colspan="4" class="table-empty">Loading announcements...</td></tr>';
-  const { data, error } = await db.from("hr_announcements")
-    .select("id,title,description,announcement_date,status,created_at")
-    .order("created_at", { ascending: false });
-  if (error) {
-    table.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load announcements. Check the hr_announcements table and HR RLS policies.</td></tr>';
-    showNotice("hrAnnouncementNotice", error.message, true);
-    return;
-  }
-  if (!data?.length) {
-    table.innerHTML = '<tr><td colspan="4" class="table-empty">No announcements created yet.</td></tr>';
-    return;
-  }
-  table.innerHTML = data.map(item => `<tr>
-    <td>${esc(item.announcement_date ? new Date(item.announcement_date + "T00:00:00").toLocaleDateString("en-IN") : "—")}</td>
-    <td><strong>${esc(item.title)}</strong><br><span style="white-space:pre-wrap">${esc(item.description)}</span></td>
-    <td><span class="status ${item.status === "published" ? "resolved" : "review"}">${esc(item.status)}</span></td>
-    <td><div class="announcement-actions">
-      <button class="btn-secondary" type="button" data-edit-announcement="${esc(item.id)}">Edit</button>
-      <button class="btn-secondary" type="button" data-toggle-announcement="${esc(item.id)}" data-next-status="${item.status === "published" ? "draft" : "published"}">${item.status === "published" ? "Unpublish" : "Publish"}</button>
-      <button class="btn-secondary" type="button" data-delete-announcement="${esc(item.id)}">Delete</button>
-    </div></td>
-  </tr>`).join("");
-
-  table.querySelectorAll("[data-edit-announcement]").forEach(button => button.addEventListener("click", () => {
-    const item = data.find(row => String(row.id) === button.dataset.editAnnouncement);
-    if (!item) return;
-    editingAnnouncementId = item.id;
-    $("announcementTitle").value = item.title || "";
-    $("announcementDescription").value = item.description || "";
-    $("announcementDate").value = item.announcement_date || "";
-    $("announcementStatus").value = item.status || "draft";
-    $("announcementFormTitle").textContent = "Edit announcement";
-    $("saveAnnouncementButton").textContent = "Update announcement";
-    $("cancelAnnouncementEdit").classList.remove("hidden");
-    $("announcementForm").scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
-  table.querySelectorAll("[data-toggle-announcement]").forEach(button => button.addEventListener("click", async () => {
-    const { error: updateError } = await db.from("hr_announcements")
-      .update({ status: button.dataset.nextStatus }).eq("id", button.dataset.toggleAnnouncement);
-    if (updateError) { showNotice("hrAnnouncementNotice", updateError.message, true); return; }
-    showNotice("hrAnnouncementNotice", `Announcement ${button.dataset.nextStatus === "published" ? "published" : "unpublished"} successfully.`);
-    await loadHrAnnouncements();
-  }));
-  table.querySelectorAll("[data-delete-announcement]").forEach(button => button.addEventListener("click", async () => {
-    if (!window.confirm("Delete this announcement? Employees will no longer see it.")) return;
-    const { error: deleteError } = await db.from("hr_announcements").delete().eq("id", button.dataset.deleteAnnouncement);
-    if (deleteError) { showNotice("hrAnnouncementNotice", deleteError.message, true); return; }
-    showNotice("hrAnnouncementNotice", "Announcement deleted.");
-    await loadHrAnnouncements();
-  }));
-}
-
-$("announcementForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (currentRole !== "employer" || !currentUser) return;
-  clearNotice("hrAnnouncementNotice");
-  const payload = {
-    title: $("announcementTitle").value.trim(),
-    description: $("announcementDescription").value.trim(),
-    announcement_date: $("announcementDate").value || null,
-    status: $("announcementStatus").value
-  };
-  const button = $("saveAnnouncementButton");
-  button.disabled = true; button.textContent = "Saving...";
-  try {
-    const result = editingAnnouncementId
-      ? await db.from("hr_announcements").update(payload).eq("id", editingAnnouncementId)
-      : await db.from("hr_announcements").insert({ ...payload, created_by: currentUser.id });
-    if (result.error) throw result.error;
-    resetAnnouncementForm();
-    showNotice("hrAnnouncementNotice", "Announcement saved successfully.");
-    await loadHrAnnouncements();
-  } catch (error) {
-    showNotice("hrAnnouncementNotice", "Could not save announcement: " + error.message, true);
-  } finally {
-    button.disabled = false;
-    if (!editingAnnouncementId) button.textContent = "Save announcement";
-  }
-});
-$("cancelAnnouncementEdit").addEventListener("click", resetAnnouncementForm);
-$("refreshHrAnnouncements").addEventListener("click", loadHrAnnouncements);
-
-async function loadEmployeeAnnouncements() {
-  const list = $("employeeAnnouncementsList");
-  if (!currentUser || currentRole !== "employee") return;
-  list.innerHTML = '<div class="announcement-empty">Loading announcements...</div>';
-  const { data, error } = await db.from("hr_announcements")
-    .select("id,title,description,announcement_date,created_at")
-    .eq("status", "published")
-    .order("created_at", { ascending: false })
-    .limit(5);
-  if (error) {
-    list.innerHTML = '<div class="announcement-empty">Announcements are temporarily unavailable. Please try again later.</div>';
-    console.error("Employee announcements load error:", error.message);
-    return;
-  }
-  if (!data?.length) {
-    list.innerHTML = '<div class="announcement-empty">There are no new announcements right now.</div>';
-    return;
-  }
-  list.innerHTML = data.map(item => `<article class="announcement-card">
-    <h3>${esc(item.title)}</h3>
-    <div class="announcement-meta">${esc(item.announcement_date ? new Date(item.announcement_date + "T00:00:00").toLocaleDateString("en-IN") : (item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN") : ""))}</div>
-    <p>${esc(item.description)}</p>
-  </article>`).join("");
-}
-
-async function loadEmployeeHome() {
-  if (!currentUser || currentRole !== "employee") return;
-  const [grievances, requests] = await Promise.all([
-    db.from("grievances").select("id", { count: "exact", head: true }).eq("employee_id", currentUser.id),
-    db.from("hr_requests").select("id", { count: "exact", head: true }).eq("employee_id", currentUser.id)
-  ]);
-  $("homeGrievanceCount").textContent = grievances.error ? "—" : String(grievances.count ?? 0);
-  $("homeRequestCount").textContent = requests.error ? "—" : String(requests.count ?? 0);
-  await loadEmployeeAnnouncements();
-}
-$("refreshEmployeeHome").addEventListener("click", loadEmployeeHome);
-$("refreshEmployeeAnnouncements").addEventListener("click", loadEmployeeAnnouncements);
 
 const policyData = {
   attendance: {
@@ -840,17 +647,9 @@ function closePolicy() {
 document.querySelectorAll(".nav-link").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 function showAuthenticatedApp(profile,user) {
   currentUser=user; currentProfile=profile; currentRole=profile.role;
-  subscribeToAnnouncements();
   $("portalScreen").classList.add("hidden"); $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
   $("profileName").textContent=profile.full_name || user.email || "User";
   $("profileRole").textContent=currentRole==="employer"?"HR Analytics":"Employee";
-  if (currentRole === "employee") {
-    $("topbarQuoteText").textContent = "“You deserve a workplace where you feel respected, supported and valued.”";
-    $("topbarQuoteTagline").textContent = "Your experience matters. We're here to listen.";
-  } else {
-    $("topbarQuoteText").textContent = "“Better workplaces begin with understanding people, supporting their needs, and valuing their voices.”";
-    $("topbarQuoteTagline").textContent = "Connecting people. Strengthening workplaces.";
-  }
   $("topEmail").textContent=user.email || "";
   $("avatar").textContent=(profile.full_name || user.email || "U").charAt(0).toUpperCase();
   document.querySelectorAll(".nav-link").forEach(b=>{
@@ -958,4 +757,607 @@ async function loadMyExits() {
     .eq("employee_id",currentUser.id).order("created_at",{ascending:false});
   if(error) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">Could not load feedback: '+esc(error.message)+'</td></tr>';return;}
   if(!data?.length) {tbody.innerHTML='<tr><td colspan="3" class="table-empty">You have not submitted exit feedback yet.</td></tr>';return;}
-  tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.reason||"—")
+  tbody.innerHTML=data.map(r=>`<tr><td>${esc(r.created_at?new Date(r.created_at).toLocaleDateString("en-IN"):"—")}</td><td>${esc(r.reason||"—")}</td><td>${esc(r.feedback||"—")}</td></tr>`).join("");
+}
+$("exitForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("eNotice");
+  if(!currentUser) return showNotice("eNotice","Please sign in again.",true);
+  const button=e.submitter;if(button){button.disabled=true;button.textContent="Submitting…";}
+  try {
+    const { data: { user }, error: authError } = await db.auth.getUser();
+
+if (authError || !user) {
+  throw new Error("Your login session is invalid. Please sign in again.");
+}
+
+const row = {
+  employee_id: user.id,
+  reason: $("eReason").value,
+  feedback: $("eFeedback").value.trim()
+};
+    const {error}=await db.from("exit_interviews").insert(row);
+    if(error) throw error;
+    e.target.reset();showNotice("eNotice","Your exit feedback was submitted successfully.");
+    await loadMyExits();
+  } catch(err) {showNotice("eNotice","Submission failed: "+err.message,true);}
+  finally {if(button){button.disabled=false;button.textContent="Submit exit feedback";}}
+});
+$("refreshExits").addEventListener("click",loadMyExits);
+async function loadHrGrievances() {
+  if (currentRole !== "employer") return;
+
+  const tbody = $("hrGrievanceTable");
+  tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading grievances…</td></tr>';
+  clearNotice("hrGNotice");
+
+  try {
+    const { data, error } = await db.from("grievances")
+      .select("id,employee_id,created_at,subject,description,category,priority,status,hr_response")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    if (!data?.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No grievance records found.</td></tr>';
+      return;
+    }
+
+    // Use a restricted database RPC to map only these record owners to employee codes.
+    const employeeIds = [...new Set(data.map(g => g.employee_id).filter(Boolean))];
+    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
+      employee_ids: employeeIds
+    });
+    if (profileError) throw profileError;
+
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [profile.id, profile.employee_code])
+    );
+
+    tbody.innerHTML = data.map(g => {
+      const employeeCode = employeeCodes[g.employee_id] || "Employee code unavailable";
+      return `<tr>
+        <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
+        <td>${esc(employeeCode)}</td>
+        <td><strong>${esc(g.subject || "—")}</strong><br>${esc(g.description || "")}</td>
+        <td>${esc(g.category || "—")}</td>
+        <td>${esc(g.priority || "—")}</td>
+        <td>
+          <select id="status-${esc(g.id)}" aria-label="Grievance status">
+            <option value="submitted" ${g.status === "submitted" ? "selected" : ""}>Submitted</option>
+            <option value="in_review" ${g.status === "in_review" ? "selected" : ""}>In Review</option>
+            <option value="resolved" ${g.status === "resolved" ? "selected" : ""}>Resolved</option>
+            <option value="closed" ${g.status === "closed" ? "selected" : ""}>Closed</option>
+          </select>
+        </td>
+        <td><textarea id="response-${esc(g.id)}" maxlength="2000" aria-label="HR response" style="min-width:180px;min-height:65px">${esc(g.hr_response || "")}</textarea></td>
+        <td><button class="btn-primary" type="button" onclick="saveGrievance('${esc(g.id)}')">Save</button></td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    showNotice("hrGNotice", err.message || "Could not load grievances.", true);
+  }
+}
+async function saveGrievance(id) {
+  if(currentRole!=="employer") return;
+  clearNotice("hrGNotice");
+  const status=$("status-"+id)?.value;
+  const hr_response=$("response-"+id)?.value.trim()||null;
+  try {
+    const {error}=await db.from("grievances").update({status,hr_response}).eq("id",id);
+    if(error) throw error;
+    await loadHrGrievances();
+    showNotice("hrGNotice","Grievance updated successfully.");
+  } catch(err) {showNotice("hrGNotice","Update failed. Check HR UPDATE permissions and RLS policies: "+(err.message||"Unknown error"),true);}
+}
+async function loadHrExits() {
+  if (currentRole !== "employer") return;
+  const tbody = $("hrExitTable");
+  tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
+  clearNotice("hrENotice");
+  try {
+    const { data, error } = await db.from("exit_interviews")
+      .select("employee_id,created_at,reason,feedback")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    if (!data?.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';
+      return;
+    }
+
+    // Resolve only the employee IDs attached to the exit records HR is viewing.
+    const employeeIds = [...new Set(data.map(r => r.employee_id).filter(Boolean))];
+    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
+      employee_ids: employeeIds
+    });
+    if (profileError) throw profileError;
+    const employeeCodes = Object.fromEntries(
+      (profiles || []).map(profile => [profile.id, profile.employee_code])
+    );
+
+    tbody.innerHTML = data.map(r => {
+      const employeeCode = employeeCodes[r.employee_id] || "Employee code unavailable";
+      return `<tr>
+        <td>${esc(r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "—")}</td>
+        <td>${esc(employeeCode)}</td>
+        <td>${esc(r.reason || "—")}</td>
+        <td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback || "—")}</td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    showNotice("hrENotice", err.message || "Could not load exit feedback.", true);
+  }
+}
+$("refreshHrGrievances").addEventListener("click",loadHrGrievances);
+$("refreshHrExits").addEventListener("click",loadHrExits);
+
+async function loadHrAnalytics() {
+  $("metricStatus").textContent="Connecting";
+  $("analyticsMessage").textContent="Requesting aggregate-only analytics from the secure get_hr_analytics database function. Individual grievance and exit records are never queried by this page.";
+  try {
+    const {data,error}=await db.rpc("get_hr_analytics");
+    if(error) throw error;
+    const result=Array.isArray(data)?data[0]:data;
+    if(!result) throw new Error("The analytics function returned no aggregate data.");
+    $("metricGrievances").textContent=result.grievances_submitted ?? "—";
+    $("metricResolved").textContent=result.grievances_resolved ?? "—";
+    $("metricExits").textContent=result.exit_feedback_received ?? "—";
+    $("metricStatus").textContent="Connected";
+    $("analyticsMessage").textContent="Live aggregate analytics loaded successfully. No individual grievance or exit-feedback records were displayed.";
+  } catch(err) {
+    $("metricStatus").textContent="Setup needed";
+    $("analyticsMessage").textContent="Live analytics are not configured yet. The database administrator must create a secure get_hr_analytics() RPC that returns only aggregate counts (grievances_submitted, grievances_resolved, exit_feedback_received) and grants execution only to the employer role. Details: "+err.message;
+  }
+}
+
+async function loadMyHRRequests() {
+  const table = $("myHRRequestsTable");
+
+  if (!currentUser) return;
+
+  table.innerHTML =
+    '<tr><td colspan="5" class="table-empty">Loading requests...</td></tr>';
+
+  const { data, error } = await db
+    .from("hr_requests")
+    .select("id, created_at, subject, category, status, hr_reply")
+    .eq("employee_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML =
+      '<tr><td colspan="5" class="table-empty">Could not load requests. Please try again.</td></tr>';
+    console.error("Load HR requests error:", error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML =
+      '<tr><td colspan="5" class="table-empty">You have not submitted any HR requests yet.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = data.map(request => `
+    <tr>
+      <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>${esc(request.subject)}</td>
+      <td>${esc(request.category)}</td>
+      <td><span class="status">${esc(request.status)}</span></td>
+      <td>${esc(request.hr_reply || "Awaiting HR response")}</td>
+    </tr>
+  `).join("");
+}
+
+$("hrRequestForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (!currentUser || currentRole !== "employee") {
+    showNotice("hrRequestNotice", "Please log in using your employee account.", true);
+    return;
+  }
+
+  const category = $("hrRequestCategory").value;
+  const subject = $("hrRequestSubject").value.trim();
+  const description = $("hrRequestDescription").value.trim();
+  const submitButton = this.querySelector('button[type="submit"]');
+
+  if (!category || !subject || !description) {
+    showNotice("hrRequestNotice", "Please complete all required fields.", true);
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Submitting...";
+
+  const { error } = await db.from("hr_requests").insert({
+    employee_id: currentUser.id,
+    category,
+    subject,
+    description,
+    status: "Open"
+  });
+
+  submitButton.disabled = false;
+  submitButton.textContent = "Submit HR Request";
+
+  if (error) {
+    showNotice("hrRequestNotice", "Request could not be submitted. Please try again.", true);
+    console.error("Submit HR request error:", error.message);
+    return;
+  }
+
+  this.reset();
+  showNotice("hrRequestNotice", "Your HR request was submitted successfully.");
+  await loadMyHRRequests();
+});
+
+$("refreshHRRequests").addEventListener("click", loadMyHRRequests);
+
+
+async function loadHRHelpRequests() {
+  const table = $("hrHelpRequestsTable");
+
+  if (!currentUser || currentRole !== "employer") {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">Please log in using your employer account.</td></tr>';
+    return;
+  }
+
+  table.innerHTML =
+    '<tr><td colspan="6" class="table-empty">Loading requests...</td></tr>';
+
+  const { data, error } = await db
+    .from("hr_requests")
+    .select("id, employee_id, created_at, category, subject, description, status, hr_reply")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">Could not load requests.</td></tr>';
+    console.error("HR Help Centre load error:", error.message);
+    showNotice("hrHelpCentreNotice", "Unable to load requests. Check the employer access policy.", true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML =
+      '<tr><td colspan="6" class="table-empty">No employee HR requests found.</td></tr>';
+    return;
+  }
+
+  table.innerHTML = data.map(request => `
+    <tr>
+      <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>${esc(request.category)}</td>
+      <td>
+        <strong>${esc(request.subject)}</strong>
+        <p>${esc(request.description)}</p>
+      </td>
+      <td>
+        <select id="hrRequestStatus-${esc(request.id)}">
+          <option value="Open" ${request.status === "Open" ? "selected" : ""}>Open</option>
+          <option value="In Progress" ${request.status === "In Progress" ? "selected" : ""}>In Progress</option>
+          <option value="Resolved" ${request.status === "Resolved" ? "selected" : ""}>Resolved</option>
+        </select>
+      </td>
+      <td>
+        <textarea id="hrRequestReply-${esc(request.id)}"
+          maxlength="3000"
+          placeholder="Write your reply">${esc(request.hr_reply || "")}</textarea>
+      </td>
+      <td>
+        <button class="btn-primary"
+          type="button"
+          data-save-hr-request="${esc(request.id)}">
+          Save
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  table.querySelectorAll("[data-save-hr-request]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const id = button.dataset.saveHrRequest;
+      const status = $("hrRequestStatus-" + id).value;
+      const hr_reply = $("hrRequestReply-" + id).value.trim();
+
+      button.disabled = true;
+      button.textContent = "Saving...";
+
+      const { error: saveError } = await db
+        .from("hr_requests")
+        .update({
+          status,
+          hr_reply: hr_reply || null,
+          replied_by: currentUser.id,
+          replied_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
+
+      button.disabled = false;
+      button.textContent = "Save";
+
+      if (saveError) {
+        console.error("Save HR reply error:", saveError.message);
+        showNotice("hrHelpCentreNotice", "Could not save the reply. Please try again.", true);
+        return;
+      }
+
+      showNotice("hrHelpCentreNotice", "HR response and status saved successfully.");
+      await loadHRHelpRequests();
+    });
+  });
+}
+
+$("refreshHRHelpCentre").addEventListener("click", loadHRHelpRequests);
+
+
+// SHARE MY VOICE: browser recording + private Supabase Storage
+let voiceRecorder = null;
+let voiceStream = null;
+let voiceChunks = [];
+let voiceBlob = null;
+let voicePreviewUrl = null;
+let voiceRecordingTimer = null;
+let voiceRecordingSeconds = 0;
+
+function setVoiceRecordingStatus(message) {
+  const status = $("voiceRecordingStatus");
+  if (status) status.textContent = message;
+}
+
+function resetVoiceRecording() {
+  if (voiceRecordingTimer) clearInterval(voiceRecordingTimer);
+  voiceRecordingTimer = null;
+  voiceRecordingSeconds = 0;
+  if (voiceStream) voiceStream.getTracks().forEach(track => track.stop());
+  voiceStream = null;
+  voiceRecorder = null;
+  voiceChunks = [];
+  voiceBlob = null;
+  if (voicePreviewUrl) URL.revokeObjectURL(voicePreviewUrl);
+  voicePreviewUrl = null;
+  if ($("voiceAudioPreview")) {
+    $("voiceAudioPreview").pause();
+    $("voiceAudioPreview").removeAttribute("src");
+    $("voiceAudioPreview").classList.add("hidden");
+  }
+  $("discardVoiceRecording")?.classList.add("hidden");
+  $("startVoiceRecording").disabled = false;
+  $("stopVoiceRecording").disabled = true;
+  setVoiceRecordingStatus("No recording yet.");
+}
+
+async function startVoiceRecording() {
+  clearNotice("voiceEmployeeNotice");
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    showNotice("voiceEmployeeNotice", "Audio recording is not supported by this browser. Please use the written feedback option.", true);
+    return;
+  }
+  try {
+    voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const preferredType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+      ? "audio/webm;codecs=opus"
+      : (MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "");
+    voiceRecorder = new MediaRecorder(voiceStream, preferredType ? { mimeType: preferredType } : {});
+    voiceChunks = [];
+    voiceRecorder.ondataavailable = event => {
+      if (event.data && event.data.size > 0) voiceChunks.push(event.data);
+    };
+    voiceRecorder.onstop = () => {
+      const type = voiceRecorder?.mimeType || "audio/webm";
+      voiceBlob = new Blob(voiceChunks, { type });
+      if (voicePreviewUrl) URL.revokeObjectURL(voicePreviewUrl);
+      voicePreviewUrl = URL.createObjectURL(voiceBlob);
+      $("voiceAudioPreview").src = voicePreviewUrl;
+      $("voiceAudioPreview").classList.remove("hidden");
+      $("discardVoiceRecording").classList.remove("hidden");
+      setVoiceRecordingStatus("Recording ready. You can listen before submitting.");
+      if (voiceStream) voiceStream.getTracks().forEach(track => track.stop());
+      voiceStream = null;
+    };
+    voiceRecorder.start();
+    $("startVoiceRecording").disabled = true;
+    $("stopVoiceRecording").disabled = false;
+    voiceRecordingSeconds = 0;
+    setVoiceRecordingStatus("Recording... 0:00 (maximum 2 minutes)");
+    voiceRecordingTimer = setInterval(() => {
+      voiceRecordingSeconds++;
+      const mins = Math.floor(voiceRecordingSeconds / 60);
+      const secs = String(voiceRecordingSeconds % 60).padStart(2, "0");
+      setVoiceRecordingStatus(`Recording... ${mins}:${secs} (maximum 2 minutes)`);
+      if (voiceRecordingSeconds >= 120 && voiceRecorder?.state === "recording") stopVoiceRecording();
+    }, 1000);
+  } catch (err) {
+    if (voiceStream) voiceStream.getTracks().forEach(track => track.stop());
+    voiceStream = null;
+    showNotice("voiceEmployeeNotice", "Could not access your microphone. Check browser permission and try again. " + (err.message || ""), true);
+  }
+}
+
+function stopVoiceRecording() {
+  if (voiceRecordingTimer) clearInterval(voiceRecordingTimer);
+  voiceRecordingTimer = null;
+  if (voiceRecorder && voiceRecorder.state === "recording") voiceRecorder.stop();
+  $("startVoiceRecording").disabled = false;
+  $("stopVoiceRecording").disabled = true;
+}
+
+async function submitVoiceFeedback() {
+  clearNotice("voiceEmployeeNotice");
+  if (!currentUser || currentRole !== "employee") {
+    showNotice("voiceEmployeeNotice", "Please sign in with your employee account again.", true);
+    return;
+  }
+  const language = $("voiceLanguage").value;
+  const category = $("voiceCategory").value;
+  const feedbackText = $("voiceText").value.trim();
+  if (!language || !category) {
+    showNotice("voiceEmployeeNotice", "Please select your preferred language and a feedback category.", true);
+    return;
+  }
+  if (!feedbackText && !voiceBlob) {
+    showNotice("voiceEmployeeNotice", "Please enter written feedback or make an audio recording before submitting.", true);
+    return;
+  }
+  if (voiceBlob && voiceBlob.size > 15 * 1024 * 1024) {
+    showNotice("voiceEmployeeNotice", "The audio file is larger than 15 MB. Please make a shorter recording.", true);
+    return;
+  }
+
+  const button = $("submitVoiceFeedback");
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  let uploadedPath = null;
+  try {
+    if (voiceBlob) {
+      const extension = voiceBlob.type.includes("mp4") ? "m4a" : "webm";
+      uploadedPath = `${currentUser.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await db.storage
+        .from("employee-voice")
+        .upload(uploadedPath, voiceBlob, {
+          contentType: voiceBlob.type || "audio/webm",
+          upsert: false
+        });
+      if (uploadError) throw uploadError;
+    }
+
+    const { error: insertError } = await db.from("employee_voice_feedback").insert({
+      user_id: currentUser.id,
+      language,
+      category,
+      feedback_text: feedbackText || null,
+      audio_path: uploadedPath
+    });
+    if (insertError) throw insertError;
+
+    $("voiceLanguage").value = "";
+    $("voiceCategory").value = "";
+    $("voiceText").value = "";
+    resetVoiceRecording();
+    showNotice("voiceEmployeeNotice", "Your feedback has been submitted successfully.");
+    await loadMyVoiceFeedback();
+  } catch (err) {
+    if (uploadedPath) {
+      await db.storage.from("employee-voice").remove([uploadedPath]);
+    }
+    showNotice("voiceEmployeeNotice", "Submission failed: " + (err.message || "Please try again."), true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit feedback";
+  }
+}
+
+async function loadMyVoiceFeedback() {
+  if (!currentUser || currentRole !== "employee") return;
+  const table = $("myVoiceTable");
+  table.innerHTML = '<tr><td colspan="6" class="table-empty">Loading your submissions...</td></tr>';
+  const { data, error } = await db.from("employee_voice_feedback")
+    .select("id,created_at,language,category,feedback_text,audio_path,status,hr_remarks")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false });
+  if (error) {
+    table.innerHTML = `<tr><td colspan="6" class="table-empty">Could not load submissions: ${esc(error.message)}</td></tr>`;
+    return;
+  }
+  if (!data?.length) {
+    table.innerHTML = '<tr><td colspan="6" class="table-empty">You have not shared any voice feedback yet.</td></tr>';
+    return;
+  }
+  table.innerHTML = data.map(item => `<tr>
+    <td>${esc(item.created_at ? new Date(item.created_at).toLocaleDateString("en-IN") : "—")}</td>
+    <td>${esc(item.language)}</td>
+    <td>${esc(item.category)}</td>
+    <td style="white-space:pre-wrap">${esc(item.feedback_text || (item.audio_path ? "Audio recording submitted" : "—"))}</td>
+    <td><span class="status ${item.status === "Closed" || item.status === "Action Taken" ? "resolved" : item.status === "Under Review" ? "review" : ""}">${esc(item.status)}</span></td>
+    <td style="white-space:pre-wrap">${esc(item.hr_remarks || "No HR update yet")}</td>
+  </tr>`).join("");
+}
+
+async function loadHrVoiceFeedback() {
+  if (!currentUser || currentRole !== "employer") return;
+  const table = $("hrVoiceTable");
+  table.innerHTML = '<tr><td colspan="9" class="table-empty">Loading voice submissions...</td></tr>';
+  clearNotice("hrVoiceNotice");
+  const { data, error } = await db.from("employee_voice_feedback")
+    .select("id,user_id,created_at,language,category,feedback_text,audio_path,status,hr_remarks")
+    .order("created_at", { ascending: false });
+  if (error) {
+    table.innerHTML = `<tr><td colspan="9" class="table-empty">Could not load submissions: ${esc(error.message)}</td></tr>`;
+    showNotice("hrVoiceNotice", error.message, true);
+    return;
+  }
+  if (!data?.length) {
+    table.innerHTML = '<tr><td colspan="9" class="table-empty">No voice feedback submissions found.</td></tr>';
+    return;
+  }
+
+  const rows = await Promise.all(data.map(async item => {
+    let audioCell = "No audio";
+    if (item.audio_path) {
+      const { data: signed, error: signedError } = await db.storage
+        .from("employee-voice").createSignedUrl(item.audio_path, 300);
+      if (!signedError && signed?.signedUrl) {
+        audioCell = `<audio controls preload="none" class="voice-audio-link" src="${esc(signed.signedUrl)}"></audio>`;
+      } else {
+        audioCell = "Audio unavailable";
+      }
+    }
+    const employeeRef = item.user_id ? item.user_id.slice(0, 8) + "…" : "—";
+    return `<tr>
+      <td>${esc(item.created_at ? new Date(item.created_at).toLocaleString("en-IN") : "—")}</td>
+      <td>${esc(employeeRef)}</td>
+      <td>${esc(item.language)}</td>
+      <td>${esc(item.category)}</td>
+      <td style="white-space:pre-wrap;min-width:180px">${esc(item.feedback_text || "Audio-only submission")}</td>
+      <td>${audioCell}</td>
+      <td><select id="voiceStatus-${esc(item.id)}">
+        <option ${item.status === "Submitted" ? "selected" : ""}>Submitted</option>
+        <option ${item.status === "Under Review" ? "selected" : ""}>Under Review</option>
+        <option ${item.status === "Action Taken" ? "selected" : ""}>Action Taken</option>
+        <option ${item.status === "Closed" ? "selected" : ""}>Closed</option>
+      </select></td>
+      <td><textarea id="voiceRemarks-${esc(item.id)}" maxlength="2000" placeholder="HR remarks">${esc(item.hr_remarks || "")}</textarea></td>
+      <td><button class="btn-primary" type="button" data-save-voice="${esc(item.id)}">Save</button></td>
+    </tr>`;
+  }));
+  table.innerHTML = rows.join("");
+
+  table.querySelectorAll("[data-save-voice]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const id = button.dataset.saveVoice;
+      const status = $("voiceStatus-" + id).value;
+      const hr_remarks = $("voiceRemarks-" + id).value.trim() || null;
+      button.disabled = true;
+      button.textContent = "Saving...";
+      const { error: updateError } = await db.from("employee_voice_feedback")
+        .update({ status, hr_remarks, updated_at: new Date().toISOString() })
+        .eq("id", id);
+      button.disabled = false;
+      button.textContent = "Save";
+      if (updateError) {
+        showNotice("hrVoiceNotice", "Could not save update: " + updateError.message, true);
+        return;
+      }
+      showNotice("hrVoiceNotice", "Voice feedback review updated.");
+      await loadHrVoiceFeedback();
+    });
+  });
+}
+
+$("startVoiceRecording").addEventListener("click", startVoiceRecording);
+$("stopVoiceRecording").addEventListener("click", stopVoiceRecording);
+$("discardVoiceRecording").addEventListener("click", () => {
+  resetVoiceRecording();
+  setVoiceRecordingStatus("Recording discarded.");
+});
+$("submitVoiceFeedback").addEventListener("click", submitVoiceFeedback);
+$("refreshMyVoice").addEventListener("click", loadMyVoiceFeedback);
+$("refreshHrVoice").addEventListener("click", loadHrVoiceFeedback);
+
+
+  restoreSession();
+</script>
+</body>
+</html>
