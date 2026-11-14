@@ -39,6 +39,18 @@
 #hrVoiceTable select{min-width:115px;padding:7px;border:1px solid var(--border);border-radius:7px;background:#fff}
 
 
+/* HR announcements */
+.announcement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.announcement-card{border:1px solid var(--border);border-radius:12px;background:#fff;padding:17px;box-shadow:var(--shadow)}
+.announcement-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px;color:#69778d;margin-bottom:10px}
+.announcement-tag{display:inline-block;border-radius:14px;padding:4px 9px;background:#eef2ff;color:#3157d5;font-size:10px;font-weight:800}
+.announcement-tag.draft{background:#fff0e8;color:#c05b1b}
+.announcement-card h3{font-size:15px;color:var(--navy);line-height:1.45;margin:0 0 9px}
+.announcement-body{font-size:12px;color:#4b5668;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.announcement-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.announcement-empty{padding:18px;color:#778294;background:#f8fafc;border-radius:9px;font-size:12px;line-height:1.6}
+.announcement-form label{font-size:12px;font-weight:700}
+.announcement-form .field{margin-top:12px}
 </style>
 </head>
 <body>
@@ -87,10 +99,12 @@
     <div class="sidebar-scroll">
       <div class="nav-label">WORKSPACE</div>
       <button class="nav-link active" data-page="dashboard" data-roles="employer">Analytics Dashboard</button>
+      <button class="nav-link" data-page="hrAnnouncements" data-roles="employer">HR Announcements</button>
       <button class="nav-link" data-page="hrGrievances" data-roles="employer">Grievance Management</button>
       <button class="nav-link" data-page="hrHelpCentre" data-roles="employer">HR Help Centre</button>
       <button class="nav-link" data-page="hrExits" data-roles="employer">Exit Interview Feedback</button>
       <button class="nav-link" data-page="employeeHome" data-roles="employee">My Home</button>
+      <button class="nav-link" data-page="announcements" data-roles="employee">HR Announcements</button>
       <button class="nav-link" data-page="myGrievances" data-roles="employee">My Grievances</button>
       <button class="nav-link" data-page="myHRRequests" data-roles="employee">My HR Requests</button>
       <button class="nav-link" data-page="myExit" data-roles="employee">My Exit Feedback</button>
@@ -120,6 +134,32 @@
           <article class="metric"><div class="metric-label">Analytics status</div><div class="metric-number" style="font-size:20px" id="metricStatus">Setup needed</div><div class="metric-foot">No individual records loaded</div></article>
         </div>
         <div class="panel"><div class="panel-title">Analytics connection</div><p class="panel-subtitle" id="analyticsMessage" style="line-height:1.7">After your database administrator creates a secure aggregate-only RPC named get_hr_analytics, this panel can show approved counts. Do not grant HR users direct access to confidential rows merely to make charts work.</p></div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Recent HR Announcements</div><div class="panel-subtitle">Updates visible to your employees</div></div><button class="btn-secondary" type="button" onclick="showPage('hrAnnouncements')">Manage announcements</button></div>
+          <div id="dashboardAnnouncementList" class="announcement-grid"><p class="announcement-empty">Loading announcements…</p></div>
+        </div>
+      </section>
+      <section class="page" id="page-hrAnnouncements">
+        <div class="page-heading"><div><div class="eyebrow">INTERNAL COMMUNICATIONS</div><h1>HR Announcements</h1><p class="heading-description">Publish company events, upcoming meetings, holidays, and employee updates.</p></div></div>
+        <div class="panel">
+          <div class="panel-title" id="announcementFormTitle">Create an announcement</div>
+          <p class="panel-subtitle">Only verified Employer / HR accounts can create or change announcements.</p>
+          <form id="announcementForm" class="announcement-form">
+            <div class="form-grid">
+              <div class="field full"><label for="announcementTitle">Announcement title *</label><input id="announcementTitle" required maxlength="150" placeholder="Example: Annual Team Celebration"></div>
+              
+              <div class="field"><label for="announcementEventDate">Announcement / event date (optional)</label><input id="announcementEventDate" type="date"></div>
+              <div class="field full"><label for="announcementMessage">Announcement details *</label><textarea id="announcementMessage" required maxlength="3000" placeholder="Describe the event, venue, timing or important message"></textarea></div>
+            </div>
+            <div class="field"><label><input type="checkbox" id="announcementPublished" checked style="width:auto;margin-right:8px">Publish now (visible to employees)</label></div>
+            <div class="form-actions"><button class="btn-primary" id="saveAnnouncementButton" type="submit">Publish / Save announcement</button><button class="btn-secondary" id="cancelAnnouncementEdit" type="button" style="display:none">Cancel editing</button></div>
+            <div class="notice" id="announcementNotice" role="status"></div>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Manage announcements</div><p class="panel-subtitle">Only the HR author can edit or remove their own announcements.</p></div><button class="btn-secondary" id="refreshHrAnnouncements" type="button">Refresh</button></div>
+          <div id="hrAnnouncementList" class="announcement-grid"><p class="announcement-empty">Loading announcements…</p></div>
+        </div>
       </section>
       <section class="page" id="page-hrGrievances">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>Grievance Management</h1><p class="heading-description">Review employee concerns and update case status or HR response.</p></div><button class="btn-secondary" id="refreshHrGrievances">Refresh</button></div>
@@ -183,7 +223,15 @@
       </section>
       <section class="page" id="page-employeeHome">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE SELF-SERVICE</div><h1>Welcome</h1><p class="heading-description">Submit a workplace concern or share exit feedback securely.</p></div></div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">HR Announcements</div><p class="panel-subtitle">Latest notices, events and company updates from HR.</p></div><button class="btn-secondary" type="button" onclick="showPage('announcements')">View all</button></div>
+          <div id="homeAnnouncementList" class="announcement-grid"><p class="announcement-empty">Loading announcements…</p></div>
+        </div>
         <div class="grid-two"><div class="panel"><div class="panel-title">Raise a grievance</div><p class="panel-subtitle">Your submission is linked to your signed-in account.</p><button class="btn-primary full" onclick="showPage('myGrievances')">Open grievance form</button></div><div class="panel"><div class="panel-title">Share exit feedback</div><p class="panel-subtitle">Submit feedback associated with your account.</p><button class="btn-primary full" onclick="showPage('myExit')">Open exit feedback form</button></div></div>
+      </section>
+      <section class="page" id="page-announcements">
+        <div class="page-heading"><div><div class="eyebrow">EMPLOYEE NEWS</div><h1>HR Announcements</h1><p class="heading-description">Read published company announcements, holiday information and upcoming events.</p></div><button class="btn-secondary" id="refreshEmployeeAnnouncements" type="button">Refresh</button></div>
+        <div id="allAnnouncementList" class="announcement-grid"><p class="announcement-empty">Loading announcements…</p></div>
       </section>
       <section class="page" id="page-myGrievances">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>My Grievances</h1><p class="heading-description">Submit a concern and review only your own submitted records.</p></div></div>
@@ -486,6 +534,15 @@ function showNotice(id, message, error=false) {
   const el=$(id); el.textContent=message; el.classList.add("show");
   el.classList.toggle("error",error);
 }
+// Display the returned Supabase error code to help diagnose a rejected submission.
+// Never log user passwords, access tokens, or confidential form answers.
+function describeSubmissionError(error) {
+  const message = error?.message || "Unknown error";
+  const code = error?.code ? ` [code: ${error.code}]` : "";
+  const status = error?.status ? ` [HTTP ${error.status}]` : "";
+  return message + code + status;
+}
+
 function clearNotice(id) {
   const el = $(id);
   if (!el) return;
@@ -496,6 +553,7 @@ function clearNotice(id) {
 function showPage(name) {
   const employerPages = [
     "dashboard",
+    "hrAnnouncements",
     "hrGrievances",
     "hrHelpCentre",
     "hrExits",
@@ -504,6 +562,7 @@ function showPage(name) {
 
   const employeePages = [
     "employeeHome",
+    "announcements",
     "myGrievances",
     "myHRRequests",
     "myExit",
@@ -535,10 +594,12 @@ function showPage(name) {
 
   const names = {
     dashboard: "Analytics Dashboard",
+    hrAnnouncements: "HR Announcements",
     hrGrievances: "Grievance Management",
     hrHelpCentre: "HR Help Centre",
     hrExits: "Exit Interview Feedback",
     employeeHome: "My Home",
+    announcements: "HR Announcements",
     myGrievances: "My Grievances",
     myHRRequests: "My HR Requests",
     myExit: "My Exit Feedback",
@@ -548,12 +609,16 @@ function showPage(name) {
   $("topTitle").textContent = names[name] || "ExitInsight HR";
   $("sidebar").classList.remove("open");
 
+  if (name === "dashboard" || name === "hrAnnouncements") loadHrAnnouncements();
+  if (name === "employeeHome" || name === "announcements") loadEmployeeAnnouncements();
   if (name === "myGrievances") loadMyGrievances();
   if (name === "myHRRequests") loadMyHRRequests();
   if (name === "myExit") loadMyExits();
   if (name === "hrGrievances") loadHrGrievances();
   if (name === "hrHelpCentre") loadHRHelpRequests();
   if (name === "hrExits") loadHrExits();
+  if (name === "myVoice") loadMyVoiceFeedback();
+  if (name === "hrVoice") loadHrVoiceFeedback();
 }
 
 
@@ -767,7 +832,7 @@ $("grievanceForm").addEventListener("submit", async e => {
     await loadMyGrievances();
   } catch (err) {
     console.error("Grievance submission error:", err);
-    showNotice("gNotice", "Submission failed: " + (err.message || "Please try again."), true);
+    showNotice("gNotice", "Submission failed: " + describeSubmissionError(err), true);
   } finally {
     if (button) {
       button.disabled = false;
@@ -806,7 +871,7 @@ const row = {
     if(error) throw error;
     e.target.reset();showNotice("eNotice","Your exit feedback was submitted successfully.");
     await loadMyExits();
-  } catch(err) {showNotice("eNotice","Submission failed: "+err.message,true);}
+  } catch(err) {console.error("Exit feedback submission error:", err); showNotice("eNotice","Submission failed: "+describeSubmissionError(err),true);}
   finally {if(button){button.disabled=false;button.textContent="Submit exit feedback";}}
 });
 $("refreshExits").addEventListener("click",loadMyExits);
@@ -1017,7 +1082,7 @@ $("hrRequestForm").addEventListener("submit", async function(event) {
     await loadMyHRRequests();
   } catch (err) {
     console.error("Submit HR request error:", err);
-    showNotice("hrRequestNotice", "Request could not be submitted: " + (err.message || "Please try again."), true);
+    showNotice("hrRequestNotice", "Request could not be submitted: " + describeSubmissionError(err), true);
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Submit HR Request";
@@ -1243,9 +1308,15 @@ async function submitVoiceFeedback() {
   button.textContent = "Submitting...";
   let uploadedPath = null;
   try {
+    const { data: authData, error: authError } = await db.auth.getUser();
+    if (authError) throw authError;
+    const authenticatedUser = authData?.user;
+    if (!authenticatedUser || authenticatedUser.id !== currentUser.id) {
+      throw new Error("Your session is no longer valid. Sign out and sign in again.");
+    }
     if (voiceBlob) {
       const extension = voiceBlob.type.includes("mp4") ? "m4a" : "webm";
-      uploadedPath = `${currentUser.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      uploadedPath = `${authenticatedUser.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
       const { error: uploadError } = await db.storage
         .from("employee-voice")
         .upload(uploadedPath, voiceBlob, {
@@ -1256,7 +1327,7 @@ async function submitVoiceFeedback() {
     }
 
     const { error: insertError } = await db.from("employee_voice_feedback").insert({
-      user_id: currentUser.id,
+      user_id: authenticatedUser.id,
       language,
       category,
       feedback_text: feedbackText || null,
@@ -1271,10 +1342,12 @@ async function submitVoiceFeedback() {
     showNotice("voiceEmployeeNotice", "Your feedback has been submitted successfully.");
     await loadMyVoiceFeedback();
   } catch (err) {
+    console.error("Voice feedback submission error:", err);
     if (uploadedPath) {
-      await db.storage.from("employee-voice").remove([uploadedPath]);
+      const { error: cleanupError } = await db.storage.from("employee-voice").remove([uploadedPath]);
+      if (cleanupError) console.warn("Voice upload cleanup failed:", cleanupError);
     }
-    showNotice("voiceEmployeeNotice", "Submission failed: " + (err.message || "Please try again."), true);
+    showNotice("voiceEmployeeNotice", "Submission failed: " + describeSubmissionError(err), true);
   } finally {
     button.disabled = false;
     button.textContent = "Submit feedback";
@@ -1388,6 +1461,184 @@ $("submitVoiceFeedback").addEventListener("click", submitVoiceFeedback);
 $("refreshMyVoice").addEventListener("click", loadMyVoiceFeedback);
 $("refreshHrVoice").addEventListener("click", loadHrVoiceFeedback);
 
+
+
+// HR Announcements restored using the ORIGINAL public.hr_announcements table.
+// Database columns: id (bigint), title, description, announcement_date,
+// status, created_by; no schema changes or additional SQL setup required.
+// Supabase RLS controls who can read and modify records.
+let announcementCache = [];
+let announcementEditingId = null;
+
+function announcementDate(value) {
+  if (!value) return "";
+  const date = new Date(String(value).slice(0, 10) + "T12:00:00");
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-IN", {
+    day: "numeric", month: "short", year: "numeric"
+  });
+}
+
+function announcementCard(item, isHr = false) {
+  const editable = isHr && item.created_by === currentUser?.id;
+  const date = announcementDate(item.announcement_date);
+  const published = item.status === "published";
+  const statusTag = isHr
+    ? `<span class="announcement-tag ${published ? "" : "draft"}">${esc(published ? "Published" : item.status || "Draft")}</span>`
+    : "";
+  return `<article class="announcement-card">
+    <div class="announcement-meta"><span class="announcement-tag">HR Update</span>${statusTag}
+      ${date ? `<span>Date: ${esc(date)}</span>` : ""}
+    </div>
+    <h3>${esc(item.title)}</h3>
+    <div class="announcement-body">${esc(item.description)}</div>
+    ${editable ? `<div class="announcement-actions">
+      <button type="button" class="btn-secondary" data-announcement-action="edit" data-announcement-id="${esc(item.id)}">Edit</button>
+      <button type="button" class="btn-secondary" data-announcement-action="toggle" data-announcement-id="${esc(item.id)}">${published ? "Unpublish" : "Publish"}</button>
+      <button type="button" class="btn-secondary" data-announcement-action="delete" data-announcement-id="${esc(item.id)}">Delete</button>
+    </div>` : ""}
+  </article>`;
+}
+
+async function loadEmployeeAnnouncements() {
+  if (!currentUser || currentRole !== "employee") return;
+  for (const id of ["homeAnnouncementList", "allAnnouncementList"]) {
+    $(id).innerHTML = '<p class="announcement-empty">Loading announcements…</p>';
+  }
+  const { data, error } = await db.from("hr_announcements")
+    .select("id,title,description,announcement_date,status")
+    .eq("status", "published")
+    .order("id", { ascending: false })
+    .limit(50);
+  if (error) {
+    const msg = `Unable to load HR announcements: ${esc(error.message)}. Please check existing SELECT permissions.`;
+    $("homeAnnouncementList").innerHTML = `<p class="announcement-empty">${msg}</p>`;
+    $("allAnnouncementList").innerHTML = `<p class="announcement-empty">${msg}</p>`;
+    return;
+  }
+  const records = data || [];
+  const empty = '<p class="announcement-empty">No published HR announcements yet.</p>';
+  $("homeAnnouncementList").innerHTML = records.length ? records.slice(0, 3).map(item => announcementCard(item)).join("") : empty;
+  $("allAnnouncementList").innerHTML = records.length ? records.map(item => announcementCard(item)).join("") : empty;
+}
+
+async function loadHrAnnouncements() {
+  if (!currentUser || currentRole !== "employer") return;
+  for (const id of ["dashboardAnnouncementList", "hrAnnouncementList"]) {
+    $(id).innerHTML = '<p class="announcement-empty">Loading announcements…</p>';
+  }
+  const { data, error } = await db.from("hr_announcements")
+    .select("id,title,description,announcement_date,status,created_by")
+    .order("id", { ascending: false })
+    .limit(50);
+  if (error) {
+    const msg = `Could not load announcements: ${esc(error.message)}. Please check existing SELECT permissions.`;
+    $("hrAnnouncementList").innerHTML = `<p class="announcement-empty">${msg}</p>`;
+    $("dashboardAnnouncementList").innerHTML = `<p class="announcement-empty">${msg}</p>`;
+    return;
+  }
+  announcementCache = data || [];
+  const empty = '<p class="announcement-empty">No announcements yet. Use the form above to create one.</p>';
+  $("hrAnnouncementList").innerHTML = announcementCache.length ? announcementCache.map(item => announcementCard(item, true)).join("") : empty;
+  const published = announcementCache.filter(item => item.status === "published");
+  $("dashboardAnnouncementList").innerHTML = published.length ? published.slice(0, 3).map(item => announcementCard(item)).join("") : '<p class="announcement-empty">No published announcements yet.</p>';
+}
+
+function resetAnnouncementForm() {
+  announcementEditingId = null;
+  $("announcementForm").reset();
+  $("announcementPublished").checked = true;
+  $("announcementFormTitle").textContent = "Create an announcement";
+  $("saveAnnouncementButton").textContent = "Publish / Save announcement";
+  $("cancelAnnouncementEdit").style.display = "none";
+}
+
+$("announcementForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearNotice("announcementNotice");
+  if (!currentUser || currentRole !== "employer") {
+    showNotice("announcementNotice", "Sign in as Employer / HR to post announcements.", true);
+    return;
+  }
+  const title = $("announcementTitle").value.trim();
+  const description = $("announcementMessage").value.trim();
+  const announcement_date = $("announcementEventDate").value || null;
+  const status = $("announcementPublished").checked ? "published" : "draft";
+  if (!title || !description) {
+    showNotice("announcementNotice", "Please enter a title and announcement details.", true);
+    return;
+  }
+  const button = $("saveAnnouncementButton");
+  button.disabled = true;
+  button.textContent = "Saving…";
+  try {
+    const { data: authData, error: authError } = await db.auth.getUser();
+    if (authError) throw authError;
+    const user = authData?.user;
+    if (!user || user.id !== currentUser.id) throw new Error("Your HR session has expired. Please sign in again.");
+    const values = { title, description, announcement_date, status };
+    const result = announcementEditingId !== null
+      ? await db.from("hr_announcements").update(values).eq("id", announcementEditingId).select("id")
+      : await db.from("hr_announcements").insert({ ...values, created_by: user.id }).select("id");
+    if (result.error) throw result.error;
+    if (!result.data?.length) throw new Error("No announcement was saved. Check your HR permissions.");
+    const messageText = announcementEditingId !== null
+      ? "Announcement updated."
+      : (status === "published" ? "Announcement published to employees." : "Announcement saved as a draft.");
+    resetAnnouncementForm();
+    await loadHrAnnouncements();
+    showNotice("announcementNotice", messageText);
+  } catch (err) {
+    showNotice("announcementNotice", "Unable to save announcement: " + describeSubmissionError(err), true);
+  } finally {
+    button.disabled = false;
+    button.textContent = announcementEditingId !== null ? "Save changes" : "Publish / Save announcement";
+  }
+});
+
+$("cancelAnnouncementEdit").addEventListener("click", () => {
+  resetAnnouncementForm();
+  clearNotice("announcementNotice");
+});
+
+$("hrAnnouncementList").addEventListener("click", async event => {
+  const button = event.target.closest("button[data-announcement-action]");
+  if (!button || currentRole !== "employer") return;
+  // DOM dataset values are strings, while legacy announcement IDs are bigint.
+  const item = announcementCache.find(record => String(record.id) === button.dataset.announcementId);
+  if (!item || item.created_by !== currentUser?.id) return;
+  const action = button.dataset.announcementAction;
+  clearNotice("announcementNotice");
+  if (action === "edit") {
+    announcementEditingId = item.id;
+    $("announcementTitle").value = item.title;
+    $("announcementMessage").value = item.description;
+    $("announcementEventDate").value = item.announcement_date || "";
+    $("announcementPublished").checked = item.status === "published";
+    $("announcementFormTitle").textContent = "Edit announcement";
+    $("saveAnnouncementButton").textContent = "Save changes";
+    $("cancelAnnouncementEdit").style.display = "inline-block";
+    $("announcementForm").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (action === "delete" && !confirm("Delete this announcement permanently?")) return;
+  button.disabled = true;
+  try {
+    const result = action === "toggle"
+      ? await db.from("hr_announcements").update({ status: item.status === "published" ? "draft" : "published" }).eq("id", item.id).select("id")
+      : await db.from("hr_announcements").delete().eq("id", item.id).select("id");
+    if (result.error) throw result.error;
+    if (!result.data?.length) throw new Error("The announcement was not changed. Check your HR permissions.");
+    if (announcementEditingId !== null && String(announcementEditingId) === String(item.id)) resetAnnouncementForm();
+    await loadHrAnnouncements();
+    showNotice("announcementNotice", action === "delete" ? "Announcement deleted." : "Announcement visibility updated.");
+  } catch (err) {
+    button.disabled = false;
+    showNotice("announcementNotice", "Unable to change announcement: " + describeSubmissionError(err), true);
+  }
+});
+
+$("refreshHrAnnouncements").addEventListener("click", loadHrAnnouncements);
+$("refreshEmployeeAnnouncements").addEventListener("click", loadEmployeeAnnouncements);
 
   restoreSession();
 </script>
