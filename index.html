@@ -289,6 +289,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <span class="portal-action">Continue <span aria-hidden="true">→</span></span>
       </button>
     </div>
+    <div class="portal-options" style="margin-top:12px"><button type="button" class="portal-option" onclick="selectPortal('platform_admin')"><span class="portal-icon" aria-hidden="true">A</span><h2>Super Admin Portal</h2><p>Platform oversight and registered companies.</p><span class="portal-action">Continue</span></button></div>
     <div id="portalNotice" class="notice" role="status"></div>
     <div class="portal-trust"><span class="trust-icon" aria-hidden="true">✓</span><span>Secure sign-in. Access depends on your assigned account role.</span></div>
   </div>
@@ -320,7 +321,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <button class="btn-primary full signin-cta" type="submit" id="loginButton">Sign in</button>
     </form>
     <div id="authNotice" class="notice" role="status"></div>
-    <p class="auth-help muted">Accounts must be created in Supabase Authentication. Your role is read from the profiles table; you cannot choose or change your own role here.</p>
+    <p class="auth-help muted">Accounts must be created in Supabase Authentication. Access is verified by Supabase. You cannot choose or change your own role here.</p>
   </div>
   </div></div>
 </section>
@@ -330,6 +331,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <div class="sidebar-brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight.</span></div><div class="muted" style="font-size:9px">PEOPLE EXPERIENCE · BY KYR</div></div></div>
     <div class="sidebar-scroll">
       <div class="sidebar-section-label">WORKSPACE</div><div class="nav-label">WORKSPACE</div>
+      <button class="nav-link" data-page="platformDashboard" data-roles="platform_admin">Platform Dashboard</button>
+      <button class="nav-link" data-page="platformCompanies" data-roles="platform_admin">Registered Companies</button>
       <button class="nav-link active" data-page="dashboard" data-roles="employer">Analytics Dashboard</button>
       <button class="nav-link" data-page="hrAnnouncements" data-roles="employer">HR Announcements</button>
       <button class="nav-link" data-page="hrGrievances" data-roles="employer">Grievance Management</button>
@@ -734,6 +737,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         </div>
       </section>
 
+      <section class="page" id="page-platformDashboard">
+        <div class="page-heading"><div><div class="eyebrow">PLATFORM ADMINISTRATION</div><h1>Super Admin Dashboard</h1><p class="heading-description">Live overview of registered organisations.</p></div><button class="btn-secondary" onclick="loadPlatformCompanies()">Refresh</button></div>
+        <div class="metrics"><div class="metric"><div class="metric-label">Total companies</div><div class="metric-number" id="paCompanies">—</div><div class="metric-foot">Registered company totals</div></div><div class="metric"><div class="metric-label">Active companies</div><div class="metric-number" id="paActive">—</div><div class="metric-foot">Registered company totals</div></div><div class="metric"><div class="metric-label">Total employees</div><div class="metric-number" id="paEmployees">—</div><div class="metric-foot">Registered company totals</div></div><div class="metric"><div class="metric-label">Total employers</div><div class="metric-number" id="paEmployers">—</div><div class="metric-foot">Registered company totals</div></div></div><div class="panel"><div id="paStatus" role="status">Loading…</div><div class="form-actions"><button class="btn-primary" onclick="showPage('platformCompanies')">View registered companies</button></div></div>
+      </section>
+      <section class="page" id="page-platformCompanies"><div class="page-heading"><div><div class="eyebrow">PLATFORM DIRECTORY</div><h1>Registered Companies</h1><p class="heading-description">Read-only company information and account counts.</p></div><button class="btn-secondary" onclick="loadPlatformCompanies()">Refresh</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Company</th><th>Industry</th><th>Status</th><th>Employees</th><th>Employers</th><th>Registered</th></tr></thead><tbody id="paTable"></tbody></table></div></div></section>
     </main>
     <footer class="footer"><span><strong>ExitInsight HR</strong> · KYR People Analytics</span><span>HR review pages require verified Supabase RLS policies.</span></footer>
   </div>
@@ -752,20 +760,22 @@ let currentRole = null;
 let selectedPortal = null;
 
 function selectPortal(role) {
-  if (role !== "employee" && role !== "employer") return;
+  if (!["employee","employer","platform_admin"].includes(role)) return;
   selectedPortal = role;
   clearNotice("portalNotice");
   clearNotice("authNotice");
   $("portalScreen").classList.add("hidden");
   $("authScreen").classList.remove("hidden");
-  $("authTitle").textContent = role === "employee" ? "Employee Sign in" : "Employer / HR Sign in";
-  $("authSubtitle").textContent = role === "employee"
+  $("authTitle").textContent = role === "platform_admin" ? "Super Admin Sign in" : role === "employee" ? "Employee Sign in" : "Employer / HR Sign in";
+  $("authSubtitle").textContent = role === "platform_admin" ? "Sign in with your authorised platform administrator account." : role === "employee"
     ? "Sign in with your employee account to continue."
     : "Sign in with your employer or HR account to continue.";
   $("loginButton").textContent = "Sign in";
 }
 function returnToPortal(message, isError=true) {
   selectedPortal = null;
+  currentUser=null; currentProfile=null; currentRole=null;
+  clearPlatformData();
   $("appScreen").classList.add("hidden");
   $("authScreen").classList.add("hidden");
   $("portalScreen").classList.remove("hidden");
@@ -800,6 +810,7 @@ function clearNotice(id) {
 // Page-specific messages keep the two portals relevant to their users.
 // These are original ExitInsight HR microcopy, not attributed quotations.
 const workplaceQuotes = {
+  platform_admin: {platformDashboard: "Responsible oversight builds trusted workplaces.", platformCompanies: "Every organisation deserves secure service."},
   employee: {
     employeeHome: "A better workplace begins when every employee feels heard.",
     announcements: "Being informed helps everyone feel included.",
@@ -826,6 +837,8 @@ function updateWorkplaceQuote(pageName) {
 }
 
 function showPage(name) {
+  const adminPages = ["platformDashboard", "platformCompanies"];
+  if (!currentRole || (adminPages.includes(name) !== (currentRole === "platform_admin"))) return;
   const employerPages = [
     "dashboard",
     "hrAnnouncements",
@@ -868,6 +881,8 @@ function showPage(name) {
   });
 
   const names = {
+    platformDashboard: "Super Admin Dashboard",
+    platformCompanies: "Registered Companies",
     dashboard: "Analytics Dashboard",
     hrAnnouncements: "HR Announcements",
     hrGrievances: "Grievance Management",
@@ -885,6 +900,7 @@ function showPage(name) {
   updateWorkplaceQuote(name);
   $("sidebar").classList.remove("open");
 
+  if (adminPages.includes(name)) loadPlatformCompanies();
   if (name === "dashboard" || name === "hrAnnouncements") loadHrAnnouncements();
   if (name === "employeeHome" || name === "announcements") loadEmployeeAnnouncements();
   if (name === "myGrievances") loadMyGrievances();
@@ -990,19 +1006,55 @@ function showAuthenticatedApp(profile,user) {
   currentUser=user; currentProfile=profile; currentRole=profile.role;
   $("portalScreen").classList.add("hidden"); $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
   $("profileName").textContent=profile.full_name || user.email || "User";
-  $("profileRole").textContent=currentRole==="employer"?"HR Analytics":"Employee";
+  $("profileRole").textContent=currentRole==="platform_admin"?"Super Admin":currentRole==="employer"?"HR Analytics":"Employee";
   $("topEmail").textContent=user.email || "";
   $("avatar").textContent=(profile.full_name || user.email || "U").charAt(0).toUpperCase();
   document.querySelectorAll(".nav-link").forEach(b=>{
     b.classList.toggle("hidden",!b.dataset.roles.split(" ").includes(currentRole));
   });
-  if(currentRole==="employer") {
+  if(currentRole==="platform_admin") {
+    showPage("platformDashboard");
+  } else if(currentRole==="employer") {
     showPage("dashboard");
     loadHrAnalytics();
   } else if(currentRole==="employee") {
     showPage("employeeHome");
   } else {
     returnToPortal("Your profile role is not recognised. Ask the administrator to set profiles.role to employer or employee.",true);
+  }
+}
+async function verifyPlatformAdmin() {
+  const {data,error}=await db.rpc("is_platform_admin");
+  if(error) throw new Error("Could not verify platform access: " + error.message);
+  return data === true;
+}
+let platformRequest=0;
+function clearPlatformData() {
+  platformRequest++;
+  for(const id of ["paCompanies","paActive","paEmployees","paEmployers"]) $(id).textContent="—";
+  $("paTable").replaceChildren(); $("paStatus").textContent="Not loaded";
+}
+async function loadPlatformCompanies() {
+  if(!currentUser || currentRole!=="platform_admin") return;
+  clearPlatformData();
+  const request=platformRequest, userId=currentUser.id;
+  $("paStatus").textContent="Loading companies…";
+  try {
+    const {data,error}=await db.rpc("platform_list_companies");
+    if(request!==platformRequest || currentRole!=="platform_admin" || currentUser?.id!==userId) return;
+    if(error) throw error;
+    if(!Array.isArray(data)) throw new Error("Unexpected company response.");
+    const sum=key=>data.reduce((n,row)=>n+Number(row[key]||0),0);
+    $("paCompanies").textContent=data.length;
+    $("paActive").textContent=data.filter(row=>row.status==="active").length;
+    $("paEmployees").textContent=sum("total_employees");
+    $("paEmployers").textContent=sum("total_employers");
+    $("paTable").innerHTML=data.length?data.map(row=>`<tr><td>${esc(row.company_name)}</td><td>${esc(row.industry||"—")}</td><td>${esc(row.status)}</td><td>${esc(row.total_employees)}</td><td>${esc(row.total_employers)}</td><td>${esc(row.created_at?new Date(row.created_at).toLocaleDateString("en-IN"):"—")}</td></tr>`).join(""):'<tr><td colspan="6" class="table-empty">No registered companies.</td></tr>';
+    $("paStatus").textContent="Live company data loaded successfully.";
+  } catch(error) {
+    if(request!==platformRequest) return;
+    $("paStatus").textContent="Unable to load companies: "+error.message;
+    $("paTable").innerHTML='<tr><td colspan="6" class="table-empty">'+esc(error.message)+'</td></tr>';
   }
 }
 async function loadProfile(user) {
@@ -1021,6 +1073,17 @@ $("loginForm").addEventListener("submit",async e=>{
       email:$("loginEmail").value.trim(),password:$("loginPassword").value
     });
     if(error) throw error;
+    const portal = selectedPortal;
+    const admin = await verifyPlatformAdmin();
+    if (portal === "platform_admin" || admin) {
+      if (!admin || portal !== "platform_admin") {
+        await db.auth.signOut();
+        returnToPortal(admin ? "Choose Super Admin Portal for this account." : "Super Admin access required.");
+        return;
+      }
+      showAuthenticatedApp({role:"platform_admin"},data.user);
+      return;
+    }
     const profile=await loadProfile(data.user);
     if (!selectedPortal || profile.role !== selectedPortal) {
       await db.auth.signOut();
@@ -1036,7 +1099,8 @@ $("loginForm").addEventListener("submit",async e=>{
     }
     showAuthenticatedApp(profile,data.user);
   } catch(err) {
-    showNotice("authNotice",err.message || "Sign-in failed.",true);
+    await db.auth.signOut();
+    returnToPortal(err.message || "Sign-in failed.",true);
   } finally {button.disabled=false;button.textContent="Sign in";}
 });
 $("logoutButton").addEventListener("click",async()=>{
@@ -1049,10 +1113,14 @@ async function restoreSession() {
     const {data,error}=await db.auth.getSession();
     if(error) throw error;
     if(data.session) {
+      if (await verifyPlatformAdmin()) {
+        showAuthenticatedApp({role:"platform_admin"},data.session.user);
+        return;
+      }
       const profile=await loadProfile(data.session.user);
       showAuthenticatedApp(profile,data.session.user);
     }
-  } catch(err) {showNotice("authNotice",err.message || "Could not restore session.",true);}
+  } catch(err) {await db.auth.signOut(); returnToPortal(err.message || "Could not restore session.",true);}
 }
 db.auth.onAuthStateChange(async(event,session)=>{
   if(event==="SIGNED_OUT") {
