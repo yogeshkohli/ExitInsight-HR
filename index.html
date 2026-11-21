@@ -253,6 +253,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(max-width:340px){.home-action-grid{grid-template-columns:1fr}.auth-side .portal-option{grid-template-columns:36px 1fr}.portal-action{grid-column:2;grid-row:3;margin-top:4px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
 
+/* Company registration entry and combined signup form */
+.company-auth-options{display:grid;gap:12px;margin-top:24px}.company-auth-option{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;background:#fff;color:var(--navy);padding:18px 15px;border:1px solid #dfe7e0;border-radius:8px;width:100%}.company-auth-option:hover{background:#f6faf4;border-color:#397653}.company-auth-icon{display:grid;place-items:center;background:#e8f0e9;border-radius:7px;width:40px;height:40px;font-size:23px;color:#2b694d}.company-auth-option strong{display:block;font-size:13px}.company-auth-option small{display:block;color:#727f78;font-size:11px;line-height:1.6;margin-top:5px}.company-form-section{margin:25px 0 10px;padding-top:13px;border-top:1px solid #e4e9e3;color:#356c57;font-size:10px;font-weight:800;letter-spacing:1px}#newCompanyForm .field{margin-top:13px}#newCompanyForm .field textarea{min-height:76px;border-radius:6px}#newCompanyForm .field input{padding:12px 13px}button:disabled{cursor:wait;opacity:.65}
 </style>
 </head>
 <body>
@@ -314,14 +316,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </div><div class="auth-side">
   <div class="auth-card">
     <div class="brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight.</span></div><div class="muted" style="font-size:10px">PEOPLE EXPERIENCE · BY KYR</div></div></div>
-    <button type="button" class="auth-back" onclick="returnToPortal()">← Back to workspace selection</button><div class="form-eyebrow">SECURE ACCOUNT ACCESS</div><h1 id="authTitle">Sign in</h1>
+    <button type="button" class="auth-back" id="authBack" onclick="backFromAuth()">← Back to workspace selection</button><div class="form-eyebrow" id="authEyebrow">SECURE ACCOUNT ACCESS</div><h1 id="authTitle">Sign in</h1>
     <p class="muted" id="authSubtitle">Sign in with your registered account to continue.</p>
     <form id="loginForm">
       <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
       <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
       <button class="btn-primary full signin-cta" type="submit" id="loginButton">Sign in</button>
     </form>
-    <div id="registrationAuthActions" class="hidden" style="margin-top:12px"><button type="button" class="btn-secondary full" id="createApplicantAccount">Create applicant account</button><p class="muted" style="margin-top:8px">Use your official work email and a unique password of at least 12 characters. Confirm your email before signing in. Registration does not grant HR access.</p></div>
+    <div id="registrationAuthActions" class="hidden company-auth-options">
+      <button type="button" class="company-auth-option" id="newCompanyOption"><span class="company-auth-icon" aria-hidden="true">+</span><span><strong>New Company Registration</strong><small>Register your business and create your own HR account.</small></span><span aria-hidden="true">→</span></button>
+      <button type="button" class="company-auth-option" id="trackCompanyOption"><span class="company-auth-icon" aria-hidden="true">✓</span><span><strong>Track My Application</strong><small>Already created an account? Sign in to check your status or finish registration.</small></span><span aria-hidden="true">→</span></button>
+      <div class="info-box" style="margin-top:18px">New company accounts require email verification and Super Admin approval. Approved representatives use the same email and password in HR Management.</div>
+    </div>
+    <form id="newCompanyForm" class="hidden">
+      <div class="company-form-section">01 · COMPANY DETAILS</div>
+      <div class="field"><label for="signupCompanyName">Company name *</label><input id="signupCompanyName" required maxlength="200" autocomplete="organization" placeholder="Registered company name"></div>
+      <div class="field"><label for="signupIndustry">Industry *</label><input id="signupIndustry" required maxlength="100" placeholder="e.g. Information Technology"></div>
+      <div class="field"><label for="signupContact">Authorized HR representative *</label><input id="signupContact" required maxlength="150" autocomplete="name" placeholder="Full name"></div>
+      <div class="field"><label for="signupPhone">Contact number</label><input id="signupPhone" type="tel" maxlength="50" autocomplete="tel"></div>
+      <div class="field"><label for="signupWebsite">Company website</label><input id="signupWebsite" type="url" maxlength="500" placeholder="https://company.com" autocomplete="url"></div>
+      <div class="field"><label for="signupAddress">Company address</label><textarea id="signupAddress" maxlength="1000" rows="3" autocomplete="street-address" placeholder="Registered office address"></textarea></div>
+      <div class="company-form-section">02 · CREATE YOUR ACCOUNT</div>
+      <div class="field"><label for="signupEmail">Official company email *</label><input id="signupEmail" type="email" required maxlength="254" autocomplete="email" placeholder="hr@company.com"></div>
+      <div class="field"><label for="signupPassword">Create password *</label><input id="signupPassword" type="password" required minlength="12" autocomplete="new-password" placeholder="At least 12 characters"></div>
+      <div class="field"><label for="signupConfirmPassword">Confirm password *</label><input id="signupConfirmPassword" type="password" required minlength="12" autocomplete="new-password" placeholder="Re-enter your password"></div>
+      <p class="muted" style="margin-top:16px;font-size:11px;line-height:1.6">Your company details are saved as an account draft. After verifying your email, review and submit them for Super Admin approval. Creating an account does not grant employer access.</p>
+      <button type="submit" class="btn-primary full signin-cta" id="createApplicantAccount">Create account &amp; verify email</button>
+    </form>
     <div id="authNotice" class="notice" role="status"></div>
     <p class="auth-help muted" id="regularAuthHelp">Accounts must be created in Supabase Authentication. Access is verified by Supabase. You cannot choose or change your own role here.</p>
   </div>
@@ -783,6 +804,31 @@ let currentUser = null;
 let currentProfile = null;
 let currentRole = null;
 let selectedPortal = null;
+let companyAuthMode = null;
+let signupBusy = false;
+function setCompanyAuthMode(mode) {
+  if(selectedPortal!=="company_applicant" || !["choice","new","track"].includes(mode)) return;
+  companyAuthMode=mode;
+  clearNotice("authNotice");
+  $("registrationAuthActions").classList.toggle("hidden",mode!=="choice");
+  $("newCompanyForm").classList.toggle("hidden",mode!=="new");
+  $("loginForm").classList.toggle("hidden",mode!=="track");
+  $("regularAuthHelp").classList.add("hidden");
+  $("authBack").textContent=mode==="choice"?"← Back to workspace selection":"← Back to company registration";
+  $("authEyebrow").textContent="COMPANY ONBOARDING";
+  $("authTitle").textContent=mode==="new"?"New Company Registration":mode==="track"?"Track My Application":"Register your company";
+  $("authSubtitle").textContent=mode==="new"?"Enter your company details and create your own account.":mode==="track"?"Sign in with your verified email to review or track your application. Approved accounts open the HR workspace.":"Choose an option to get started.";
+  $("loginButton").textContent="Sign in";
+  $("loginPassword").value="";
+  $("signupPassword").value=""; $("signupConfirmPassword").value="";
+}
+function backFromAuth() {
+  if(signupBusy || $("loginButton").disabled) return;
+  if(selectedPortal==="company_applicant" && companyAuthMode!=="choice") {setCompanyAuthMode("choice");return;}
+  returnToPortal();
+}
+$("newCompanyOption").addEventListener("click",()=>setCompanyAuthMode("new"));
+$("trackCompanyOption").addEventListener("click",()=>setCompanyAuthMode("track"));
 
 function selectPortal(role) {
   if (!["employee","employer","platform_admin","company_applicant"].includes(role)) return;
@@ -791,8 +837,14 @@ function selectPortal(role) {
   clearNotice("authNotice");
   $("portalScreen").classList.add("hidden");
   $("authScreen").classList.remove("hidden");
-  $("registrationAuthActions").classList.toggle("hidden",role!=="company_applicant");
-  $("regularAuthHelp").classList.toggle("hidden",role==="company_applicant");
+  if(role==="company_applicant") {setCompanyAuthMode("choice");return;}
+  companyAuthMode=null;
+  $("registrationAuthActions").classList.add("hidden");
+  $("newCompanyForm").classList.add("hidden");
+  $("loginForm").classList.remove("hidden");
+  $("authBack").textContent="← Back to workspace selection";
+  $("authEyebrow").textContent="SECURE ACCOUNT ACCESS";
+  $("regularAuthHelp").classList.remove("hidden");
   $("authTitle").textContent = role === "company_applicant" ? "Company registration" : role === "platform_admin" ? "Super Admin Sign in" : role === "employee" ? "Employee Sign in" : "Employer / HR Sign in";
   $("authSubtitle").textContent = role === "company_applicant" ? "Sign in or create an applicant account with your official email." : role === "platform_admin" ? "Sign in with your authorised platform administrator account." : role === "employee"
     ? "Sign in with your employee account to continue."
@@ -801,6 +853,8 @@ function selectPortal(role) {
 }
 function returnToPortal(message, isError=true) {
   selectedPortal = null;
+  companyAuthMode=null;
+  $("newCompanyForm").reset();
   currentUser=null; currentProfile=null; currentRole=null;
   clearPlatformData();
   clearRegistrationData();
@@ -1103,7 +1157,9 @@ async function loadProfile(user) {
   return data;
 }
 $("loginForm").addEventListener("submit",async e=>{
-  e.preventDefault(); clearNotice("authNotice");
+  e.preventDefault();
+  if(!selectedPortal || (selectedPortal==="company_applicant" && companyAuthMode!=="track") || signupBusy || $("loginButton").disabled) return;
+  clearNotice("authNotice");
   const button=$("loginButton"); button.disabled=true; button.textContent="Signing in…";
   try {
     const {data,error}=await db.auth.signInWithPassword({
@@ -2061,28 +2117,53 @@ function clearRegistrationData() {
   for(const id of ["registrationPending","registrationApproved","registrationRejected"]) $(id).textContent="—";
   clearNotice("myRegistrationNotice"); clearNotice("registrationAdminNotice");
 }
-$("createApplicantAccount").addEventListener("click",async()=>{
-  if(selectedPortal!=="company_applicant" || $("loginButton").disabled) return;
-  const email=$("loginEmail").value.trim(), password=$("loginPassword").value;
-  if(!$("loginEmail").checkValidity() || password.length<12) {
-    showNotice("authNotice","Enter a valid official email and a password of at least 12 characters.",true); return;
+// Draft data is user-editable metadata, never used for authorization.
+const companyDraftFields=[
+  ["company_name","signupCompanyName","registrationCompanyName",200],
+  ["industry","signupIndustry","registrationIndustry",100],
+  ["contact_person","signupContact","registrationContact",150],
+  ["company_phone","signupPhone","registrationPhone",50],
+  ["company_website","signupWebsite","registrationWebsite",500],
+  ["company_address","signupAddress","registrationAddress",1000]
+];
+function prefillCompanyDraft() {
+  const draft=currentUser?.user_metadata?.exitinsight_company_draft;
+  if(!draft || draft.version!==1) return;
+  for(const [key,,target,max] of companyDraftFields) {
+    if(!$(target).value && typeof draft[key]==="string" && draft[key].length<=max) $(target).value=draft[key];
   }
-  const button=$("createApplicantAccount"); button.disabled=true; $("loginButton").disabled=true;
+}
+$("newCompanyForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(selectedPortal!=="company_applicant" || companyAuthMode!=="new" || signupBusy) return;
   clearNotice("authNotice");
+  const email=$("signupEmail").value.trim(),password=$("signupPassword").value;
+  if(password!==$("signupConfirmPassword").value) {showNotice("authNotice","Passwords do not match.",true);$("signupConfirmPassword").focus();return;}
+  if(password.length<12 || !$("signupEmail").checkValidity()) {showNotice("authNotice","Enter a valid email address and a password of at least 12 characters.",true);return;}
+  const draft={version:1};
+  for(const [key,source,,max] of companyDraftFields) {
+    const value=$(source).value.trim();
+    if(value.length>max || (["company_name","industry","contact_person"].includes(key)&&!value)) {showNotice("authNotice","Enter valid required company details.",true);return;}
+    draft[key]=value;
+  }
+  const button=$("createApplicantAccount"); signupBusy=true;button.disabled=true;$("authBack").disabled=true;button.textContent="Creating account…";
   try {
-    // Do not accept user-selected role or company metadata.
-    const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+    const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{exitinsight_company_draft:draft}}});
     if(error) throw error;
-    $("loginPassword").value="";
+    $("signupPassword").value="";$("signupConfirmPassword").value="";
     if(data.session) {
-      await db.auth.signOut();
-      returnToPortal("Account created, but email confirmation is not configured for signup. Contact the platform administrator before submitting a company application.",true);
+      const {error:signoutError}=await db.auth.signOut();
+      returnToPortal(signoutError?"Email verification could not be enforced and sign-out failed. Close this session and contact the administrator.":"Email confirmation is not configured for signup. Contact the administrator before submitting a company application.",true);
       return;
     }
-    if(selectedPortal==="company_applicant") showNotice("authNotice","If the address is eligible, check your inbox for the confirmation email. Then return here and sign in.");
+    if(selectedPortal==="company_applicant") {
+      $("newCompanyForm").reset();
+      setCompanyAuthMode("track"); $("loginEmail").value=email;
+      showNotice("authNotice","If this address is eligible, check your inbox for a verification email. After verification, sign in (if needed), review your company details and submit for approval. If you already have an account, sign in using your existing password.");
+    }
   } catch(err) {
     if(selectedPortal==="company_applicant") showNotice("authNotice",err.message||"Could not create applicant account.",true);
-  } finally {button.disabled=false; $("loginButton").disabled=false;}
+  } finally {signupBusy=false;button.disabled=false;$("authBack").disabled=false;button.textContent="Create account & verify email";}
 });
 async function loadMyRegistration() {
   const ctx=registrationContext("company_applicant"); if(!ctx) return;
@@ -2097,13 +2178,16 @@ async function loadMyRegistration() {
     if(error) throw error;
     if(!Array.isArray(data)) throw new Error("Unexpected application response.");
     const latest=data[0];
-    $("myRegistrationStatus").textContent=latest?({pending:"Your registration is awaiting Super Admin verification.",approved:"Your company is approved. Sign out and sign in through HR management to access your workspace.",rejected:"Your registration was rejected. You can submit a corrected application."}[latest.status]||"Unknown application status."):"No application submitted yet.";
+    $("myRegistrationStatus").textContent=latest?({pending:"Your registration is awaiting Super Admin verification.",approved:"Your company is approved. Sign out and sign in through HR management to access your workspace.",rejected:"Your registration was rejected. You can submit a corrected application."}[latest.status]||"Unknown application status."):"No application submitted yet. Review your company details below and submit for approval.";
     for(const item of data) {
       const line=document.createElement("p"); line.style.marginBottom="8px";
       line.textContent=`${item.company_name} — ${item.status}${item.admin_remarks?" · "+item.admin_remarks:""}`;
       $("myRegistrationHistory").append(line);
     }
-    if(!data.some(r=>r.status==="pending"||r.status==="approved") && (!latest||latest.status==="rejected")) $("registrationFormPanel").classList.remove("hidden");
+    if(!data.some(r=>r.status==="pending"||r.status==="approved") && (!latest||latest.status==="rejected")) {
+      if(!latest) prefillCompanyDraft();
+      $("registrationFormPanel").classList.remove("hidden");
+    }
   } catch(err) {
     if(registrationContextValid(ctx)&&seq===applicantLoad) $("myRegistrationStatus").textContent="Unable to check application status: "+err.message;
   }
@@ -2124,6 +2208,13 @@ $("companyRegistrationForm").addEventListener("submit",async e=>{
     if(!data) throw new Error("No registration ID returned.");
     $("companyRegistrationForm").reset(); showNotice("myRegistrationNotice","Registration submitted for verification.");
     await loadMyRegistration();
+    // Application is now persisted; discard redundant draft metadata if possible.
+    if(registrationContextValid(ctx) && currentUser?.user_metadata?.exitinsight_company_draft) {
+      try {
+        const result=await db.auth.updateUser({data:{exitinsight_company_draft:null}});
+        if(!result.error && registrationContextValid(ctx) && result.data?.user) currentUser=result.data.user;
+      } catch(_) { /* Registration already succeeded; draft cleanup is best effort. */ }
+    }
   } catch(err) {if(registrationContextValid(ctx)) showNotice("myRegistrationNotice",err.message||"Submission failed.",true);}
   finally {if(registrationContextValid(ctx)){applicantBusy=false;$("submitCompanyRegistration").disabled=false;}}
 });
