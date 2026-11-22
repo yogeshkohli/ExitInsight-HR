@@ -473,7 +473,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <section class="page" id="page-hrGrievances">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>Grievance Management</h1><p class="heading-description">Review employee concerns and update case status or HR response.</p></div><button class="btn-secondary" id="refreshHrGrievances">Refresh</button></div>
         <div class="info-box">Access to individual grievance records must be restricted to authorised HR accounts by Supabase Row Level Security (RLS).</div>
-        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Subject / Description</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th><th>Action</th></tr></thead><tbody id="hrGrievanceTable"><tr><td colspan="8" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrGNotice" class="notice" role="status"></div></div>
+        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee</th><th>Subject / Description</th><th>Category</th><th>Priority</th><th>Status</th><th>HR response</th><th>Action</th></tr></thead><tbody id="hrGrievanceTable"><tr><td colspan="8" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrGNotice" class="notice" role="status"></div></div>
       </section>
      
 <section class="page" id="page-hrHelpCentre">
@@ -573,7 +573,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       </section>
       <section class="page" id="page-myGrievances">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE RELATIONS</div><h1>My Grievances</h1><p class="heading-description">Submit a concern and review only your own submitted records.</p></div></div>
-        <div class="panel"><div class="panel-title">Submit a grievance</div><form id="grievanceForm"><div class="form-grid">
+        <div class="panel"><div class="panel-title">Submit a grievance</div><p class="panel-subtitle" style="margin-top:8px">This is an identified, confidential report. Authorised HR users in your company can see your name and employee ID. This form is not anonymous.</p><form id="grievanceForm"><div class="form-grid">
           <div class="field"><label for="gCategory">Category *</label><select id="gCategory" required><option value="">Select category</option><option>Workplace Environment</option><option>Compensation or Benefits</option><option>Managerial Concern</option><option>Workload</option><option>Policy Concern</option><option>Other</option></select></div>
           <div class="field"><label for="gPriority">Priority *</label><select id="gPriority" required><option value="">Select priority</option><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></select></div>
           <div class="field full"><label for="gSubject">Subject *</label><input id="gSubject" maxlength="150" required placeholder="Brief subject"></div>
@@ -1518,17 +1518,23 @@ const row = {
   finally {if(button){button.disabled=false;button.textContent="Submit exit feedback";}}
 });
 $("refreshExits").addEventListener("click",loadMyExits);
+let hrGrievanceLoadSequence = 0;
 async function loadHrGrievances() {
-  if (currentRole !== "employer") return;
-
+  const sequence = ++hrGrievanceLoadSequence;
+  if (currentRole !== "employer" || !currentUser || !currentProfile?.company_id) return;
+  const userId = currentUser.id;
+  const companyId = currentProfile.company_id;
+  const stillCurrent = () => sequence === hrGrievanceLoadSequence && currentRole === "employer" && currentUser?.id === userId && currentProfile?.company_id === companyId;
   const tbody = $("hrGrievanceTable");
   tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading grievances…</td></tr>';
   clearNotice("hrGNotice");
 
   try {
     const { data, error } = await db.from("grievances")
-      .select("id,employee_id,created_at,subject,description,category,priority,status,hr_response")
+      .select("id,created_at,subject,description,category,priority,status,hr_response")
+      .eq("company_id", companyId)
       .order("created_at", { ascending: false });
+    if (!stillCurrent()) return;
     if (error) throw error;
 
     if (!data?.length) {
@@ -1536,22 +1542,25 @@ async function loadHrGrievances() {
       return;
     }
 
-    // Use a restricted database RPC to map only these record owners to employee codes.
-    const employeeIds = [...new Set(data.map(g => g.employee_id).filter(Boolean))];
-    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
-      employee_ids: employeeIds
-    });
-    if (profileError) throw profileError;
-
-    const employeeCodes = Object.fromEntries(
-      (profiles || []).map(profile => [profile.id, profile.employee_code])
-    );
-
+    // Look up identity by grievance ID; the RPC checks the caller's company and role.
+    let identities = new Map();
+    let identityError = false;
+    try {
+      const { data: rows, error: lookupError } = await db.rpc("get_hr_grievance_employee_identity", {
+        p_grievance_ids: data.map(g => g.id)
+      });
+      if (lookupError) throw lookupError;
+      identities = new Map((rows || []).map(row => [row.grievance_id, row]));
+    } catch (err) {
+      identityError = true;
+      console.error("Grievance employee lookup failed:", err?.message || "Unknown error");
+    }
+    if (!stillCurrent()) return;
     tbody.innerHTML = data.map(g => {
-      const employeeCode = employeeCodes[g.employee_id] || "Employee code unavailable";
+      const identity = identities.get(g.id);
       return `<tr>
         <td>${esc(g.created_at ? new Date(g.created_at).toLocaleDateString("en-IN") : "—")}</td>
-        <td>${esc(employeeCode)}</td>
+        <td><strong>${esc(identity?.employee_name || (identityError ? "Lookup unavailable" : "Not available"))}</strong><p class="muted" style="margin-top:4px">Employee ID: ${esc(identity?.employee_number || "Not provided")}</p></td>
         <td><strong>${esc(g.subject || "—")}</strong><br>${esc(g.description || "")}</td>
         <td>${esc(g.category || "—")}</td>
         <td>${esc(g.priority || "—")}</td>
@@ -1568,7 +1577,8 @@ async function loadHrGrievances() {
       </tr>`;
     }).join("");
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    if (!stillCurrent()) return;
+    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Could not load grievances. Check HR permissions.</td></tr>';
     showNotice("hrGNotice", err.message || "Could not load grievances.", true);
   }
 }
@@ -1578,7 +1588,9 @@ async function saveGrievance(id) {
   const status=$("status-"+id)?.value;
   const hr_response=$("response-"+id)?.value.trim()||null;
   try {
-    const {error}=await db.from("grievances").update({status,hr_response}).eq("id",id);
+    const companyId = currentProfile?.company_id;
+    if (!companyId) throw new Error("Company access unavailable.");
+    const {error}=await db.from("grievances").update({status,hr_response}).eq("id",id).eq("company_id",companyId);
     if(error) throw error;
     await loadHrGrievances();
     showNotice("hrGNotice","Grievance updated successfully.");
