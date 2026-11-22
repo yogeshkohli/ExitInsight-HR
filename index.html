@@ -407,6 +407,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <section class="page" id="page-employeeDirectory">
 <div class="page-heading"><div><div class="eyebrow">HR WORKSPACE</div><h1>Employee Management</h1><p class="heading-description">Manage your company's employee directory. Directory records do not create login accounts.</p></div><button type="button" class="btn-secondary" id="edRefresh">Refresh</button></div>
 <div id="edNotice" class="notice" role="status"></div>
+<dialog id="edCodeDialog" aria-labelledby="edCodeTitle" style="margin:auto;width:min(92vw,490px);padding:24px;border:1px solid var(--border);border-radius:14px;color:var(--text);background:white;box-shadow:0 20px 70px #0003"><h2 id="edCodeTitle" style="font-size:19px;margin-bottom:12px">Employee activation code</h2><p id="edCodeRecipient" style="overflow-wrap:anywhere"></p><div class="field"><label for="edCodeValue">Single-use code (expires in 24 hours)</label><input id="edCodeValue" readonly autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:15px"></div><p class="panel-subtitle">Share only with the employee at the email shown above. The code is not stored in this browser. If you close this window, generate a new code if needed; that invalidates the previous unused code. Employee redemption page is not yet installed.</p><div class="form-actions"><button type="button" id="edCodeCopy" class="btn-primary">Copy code</button><button type="button" id="edCodeClose" class="btn-secondary">Close</button></div><p id="edCodeMessage" class="panel-subtitle" role="status"></p></dialog>
 <div id="edAccess" class="info-box">Checking access…</div>
 <div id="edWorkspace" class="hidden">
 <div class="metrics"><article class="metric"><div class="metric-label">Total directory records</div><div class="metric-number" id="edTotal">—</div></article><article class="metric"><div class="metric-label">Active employment</div><div class="metric-number" id="edActive">—</div></article><article class="metric"><div class="metric-label">Inactive employment</div><div class="metric-number" id="edInactive">—</div></article></div>
@@ -970,6 +971,7 @@ function showPage(name) {
     return;
   }
 
+  if(name!=="employeeDirectory") edCloseCode();
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
@@ -2297,13 +2299,13 @@ let edGeneration=0, edRows=[], edEditing=null, edBusy=false, edReady=false;
 function edContext(){return currentRole==='employer' && currentUser && currentProfile?.company_id ? {generation:edGeneration,user:currentUser.id,company:currentProfile.company_id}:null;}
 function edValid(c){return !!c && c.generation===edGeneration && currentRole==='employer' && currentUser?.id===c.user && currentProfile?.company_id===c.company;}
 function edButtons(){for(const id of ['edRefresh','edAdd','edChoose','edSave','edCancel','edTemplate','edFile']) $(id).disabled=edBusy || (id!=='edRefresh'&&!edReady); for(const b of $('edRows').querySelectorAll('button')) b.disabled=edBusy||!edReady;}
-function clearEmployeeDirectory(){edGeneration++;edRows=[];edEditing=null;edBusy=false;edReady=false;$('edRows').replaceChildren();$('edForm').reset();$('edForm').classList.add('hidden');$('edWorkspace').classList.add('hidden');$('edSearch').value='';$('edFilter').value='';$('edFile').value='';$('edAccess').textContent='Checking access…';$('edListStatus').textContent='';for(const id of ['edTotal','edActive','edInactive']) $(id).textContent='—';clearNotice('edNotice');edButtons();}
+function clearEmployeeDirectory(){edCloseCode();edGeneration++;edRows=[];edEditing=null;edBusy=false;edReady=false;$('edRows').replaceChildren();$('edForm').reset();$('edForm').classList.add('hidden');$('edWorkspace').classList.add('hidden');$('edSearch').value='';$('edFilter').value='';$('edFile').value='';$('edAccess').textContent='Checking access…';$('edListStatus').textContent='';for(const id of ['edTotal','edActive','edInactive']) $(id).textContent='—';clearNotice('edNotice');edButtons();}
 function edRender(){
  const term=$('edSearch').value.trim().toLowerCase(), filter=$('edFilter').value;
  const matches=edRows.filter(r=>(!filter||r.employment_status===filter)&&(!term||[r.employee_id,r.full_name,r.email,r.department,r.designation].some(v=>String(v??'').toLowerCase().includes(term))));
  $('edTotal').textContent=edRows.length; $('edActive').textContent=edRows.filter(r=>r.employment_status==='active').length;$('edInactive').textContent=edRows.filter(r=>r.employment_status==='inactive').length;
  $('edRows').replaceChildren();$('edListStatus').textContent=`Showing ${matches.length} of ${edRows.length} records.`;
- for(const r of matches){const tr=document.createElement('tr');for(const key of ['employee_id','full_name','email','department','designation','employment_status']){const td=document.createElement('td');td.textContent=r[key]??'—';tr.append(td);}const td=document.createElement('td');for(const [label,fn] of [['Edit',()=>edOpen(r)], [r.employment_status==='active'?'Deactivate':'Reactivate',()=>edStatus(r)]]){const b=document.createElement('button');b.type='button';b.className='btn-secondary';b.style.margin='2px';b.textContent=label;b.addEventListener('click',fn);td.append(b);}tr.append(td);$('edRows').append(tr);}
+ for(const r of matches){const tr=document.createElement('tr');for(const key of ['employee_id','full_name','email','department','designation','employment_status']){const td=document.createElement('td');td.textContent=r[key]??'—';tr.append(td);}const td=document.createElement('td');for(const [label,fn] of [['Edit',()=>edOpen(r)], [r.employment_status==='active'?'Deactivate':'Reactivate',()=>edStatus(r)], ...(r.employment_status==='active' ? [['Generate Code',()=>edGenerateCode(r)]] : [])]){const b=document.createElement('button');b.type='button';b.className='btn-secondary';b.style.margin='2px';b.textContent=label;b.addEventListener('click',fn);td.append(b);}tr.append(td);$('edRows').append(tr);}
  edButtons();
 }
 async function loadEmployeeDirectory(){
@@ -2312,6 +2314,21 @@ async function loadEmployeeDirectory(){
  const all=[];for(let offset=0;;offset+=1000){const result=await db.from('employee_directory').select('*').eq('company_id',c.company).order('id').range(offset,offset+999);if(!edValid(c))return;if(result.error)throw result.error;all.push(...result.data);if(result.data.length<1000)break;}
  edRows=all;edReady=true;$('edAccess').textContent='Approved employer access verified. Only your company directory is shown.';$('edWorkspace').classList.remove('hidden');edRender();
  }catch(e){if(edValid(c)){$('edAccess').textContent='Unable to load directory: '+e.message;}}finally{if(edValid(c)){edBusy=false;edButtons();}}
+}
+function edClearCode(){ $('edCodeValue').value=''; $('edCodeRecipient').textContent=''; $('edCodeMessage').textContent=''; }
+function edCloseCode(){if($('edCodeDialog').open)$('edCodeDialog').close();edClearCode();}
+$('edCodeDialog').addEventListener('close',()=>{if(!$('edCodeDialog').open)edClearCode();});
+$('edCodeClose').addEventListener('click',edCloseCode);
+$('edCodeCopy').addEventListener('click',async()=>{const c=edContext();const code=$('edCodeValue').value;if(!c||!$('edCodeDialog').open||!code)return;try{await navigator.clipboard.writeText(code);if(edValid(c)&&$('edCodeDialog').open&&$('edCodeValue').value===code)$('edCodeMessage').textContent='Copied. Share privately; clear your clipboard afterward.';}catch(e){if(edValid(c)&&$('edCodeDialog').open&&$('edCodeValue').value===code){$('edCodeValue').select();$('edCodeMessage').textContent='Copy manually using Ctrl+C.';}}});
+async function edGenerateCode(r){
+ const c=edContext();if(!c||!edReady||edBusy||r.employment_status!=='active')return;
+ if(!confirm(`Generate a private activation code for ${r.full_name} (${r.email})? This replaces any previous unused code and expires in 24 hours.`))return;
+ edBusy=true;edButtons();clearNotice('edNotice');edCloseCode();
+ try{const result=await db.rpc('generate_employee_activation_code',{p_employee_directory_id:r.id});if(!edValid(c))return;if(result.error)throw result.error;
+ if(typeof result.data!=='string'||! /^[0-9A-F]{32}$/.test(result.data))throw new Error('Unexpected activation code response.');
+ if(!$('page-employeeDirectory').classList.contains('active'))return;
+ $('edCodeRecipient').textContent=r.full_name+' · '+r.email;$('edCodeValue').value=result.data;$('edCodeDialog').showModal();
+ }catch(e){if(edValid(c))showNotice('edNotice',e.message||'Unable to generate activation code.',true);}finally{if(edValid(c)){edBusy=false;edButtons();}}
 }
 function edOpen(r=null){if(!edReady||edBusy||!edContext())return;edEditing=r?.id??null;$('edForm').reset();for(const k of edFields)$('ed_'+k).value=r?.[k]??'';$('edFormTitle').textContent=r?'Edit employee':'Add employee';$('edForm').classList.remove('hidden');$('ed_employee_id').focus();}
 function edValidate(raw){const out={};for(const k of edFields){const input=$('ed_'+k),v=String(raw[k]??'').trim();if(input.required&&!v)throw new Error('Required field missing: '+k);if(input.maxLength>0&&v.length>input.maxLength)throw new Error('Value too long: '+k);out[k]=v||null;}
