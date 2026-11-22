@@ -270,6 +270,26 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .mp-details dt{font-size:11px;color:var(--muted);font-weight:650;margin-bottom:8px}
 .mp-details dd{font-size:14px;color:var(--text);font-weight:650;margin:0;overflow-wrap:anywhere}
 @media(max-width:520px){.mp-details{grid-template-columns:1fr}.mp-avatar{width:50px;height:50px;flex-basis:50px;font-size:22px}.mp-summary h2{font-size:19px}}
+
+/* Mobile workspace navigation: desktop layout is unchanged. */
+.mobile-nav-toggle,.mobile-nav-close,.mobile-nav-backdrop{display:none}
+@media(max-width:800px){
+  .topbar{gap:8px;padding-left:10px;padding-right:10px}
+  .topbar-heading{flex:1;min-width:0;max-width:none}
+  .topbar-heading h2,.topbar-heading #topEmail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-actions{flex-shrink:0;gap:7px}
+  .mobile-nav-toggle,.mobile-nav-close{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;height:44px;border-radius:8px;cursor:pointer}
+  .mobile-nav-toggle{background:#E8F0E9;border:1px solid #DCE7DD;color:#244636}
+  .mobile-nav-close{margin-left:auto;width:36px;height:36px;background:transparent;border:1px solid #FFFFFF38;color:white;font-size:24px;line-height:1}
+  .sidebar{width:min(300px,calc(100vw - 32px));visibility:hidden;z-index:51}
+  .sidebar.open{visibility:visible;transform:translateX(0);box-shadow:8px 0 32px #152b2440}
+  .sidebar-brand{padding:0 12px;flex-shrink:0}
+  .sidebar-scroll{min-height:0;overscroll-behavior:contain}
+  .sidebar-bottom{flex-shrink:0}
+  .mobile-nav-backdrop:not([hidden]){display:block;position:fixed;inset:0;z-index:50;background:rgba(16,32,24,.52)}
+  .mobile-nav-toggle:focus-visible,.mobile-nav-close:focus-visible{outline:3px solid #91BA62;outline-offset:2px}
+}
+
 </style>
 </head>
 <body>
@@ -397,8 +417,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </section>
 
 <div id="appScreen" class="app hidden">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight.</span></div><div class="muted" style="font-size:9px">PEOPLE EXPERIENCE · BY KYR</div></div></div>
+  <div id="mobileNavBackdrop" class="mobile-nav-backdrop" hidden aria-hidden="true"></div>
+  <aside class="sidebar" id="sidebar" aria-label="Workspace navigation">
+    <div class="sidebar-brand"><div class="brand-mark">KYR</div><div><div class="brand-name">Exit<span>Insight.</span></div><div class="muted" style="font-size:9px">PEOPLE EXPERIENCE · BY KYR</div></div><button type="button" class="mobile-nav-close" id="mobileNavClose" aria-label="Close navigation menu">×</button></div>
     <div class="sidebar-scroll">
       <div class="sidebar-section-label">WORKSPACE</div><div class="nav-label">WORKSPACE</div>
       <button class="nav-link" data-page="platformDashboard" data-roles="platform_admin">Platform Dashboard</button>
@@ -425,6 +446,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   </aside>
   <div class="main">
     <header class="topbar">
+      <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation menu" title="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       <div class="topbar-heading"><h2 id="topTitle">Analytics Dashboard</h2><div class="muted" style="font-size:11px" id="topEmail"></div></div>
       <div class="topbar-quote" aria-label="Workplace message for your portal"><span class="topbar-quote-text" id="roleQuote">Your workplace, your voice.</span></div>
       <div class="top-actions"><div class="profile-btn" id="employeeProfileShortcut"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileName">User</strong><span id="profileRole">Signed in</span></div></div><button class="btn-secondary" id="logoutButton">Sign out</button></div>
@@ -2770,6 +2792,58 @@ $('edAdd').addEventListener('click',()=>edOpen());$('edCancel').addEventListener
     // Require a fresh sign-in rather than restoring a previous browser login.
     void db.auth.signOut({scope:'local'}).then(({error})=>returnToPortal(error?'Please sign in again. If the problem persists, contact the administrator.':changed?'Password updated successfully. Sign in using your new password.':'Password recovery closed. Please sign in.',!!error)).catch(()=>returnToPortal('Please sign in again.',true));
   }else restoreSession();
+</script>
+<script>
+// UI-only mobile drawer; uses the existing role-filtered navigation.
+(() => {
+  const app = document.getElementById('appScreen');
+  const side = document.getElementById('sidebar');
+  const main = app.querySelector('.main');
+  const toggle = document.getElementById('mobileNavToggle');
+  const close = document.getElementById('mobileNavClose');
+  const backdrop = document.getElementById('mobileNavBackdrop');
+  const mobile = window.matchMedia('(max-width: 800px)');
+  let wasOpen = false;
+  function sync() {
+    const visible = !app.classList.contains('hidden');
+    const open = visible && mobile.matches && side.classList.contains('open');
+    if ((!visible || !mobile.matches) && side.classList.contains('open')) side.classList.remove('open');
+    toggle.setAttribute('aria-expanded',String(open));
+    backdrop.hidden = !open;
+    main.inert = open;
+    side.inert = mobile.matches && !open;
+    if (open) {
+      side.setAttribute('role','dialog');
+      side.setAttribute('aria-modal','true');
+      if(!wasOpen) close.focus();
+    } else {
+      side.removeAttribute('role');
+      side.removeAttribute('aria-modal');
+      if(wasOpen && visible && mobile.matches) toggle.focus();
+    }
+    wasOpen = open;
+  }
+  function hide() { side.classList.remove('open'); sync(); }
+  toggle.addEventListener('click', () => { if(mobile.matches) {side.classList.add('open'); sync();} });
+  close.addEventListener('click',hide);
+  backdrop.addEventListener('click',hide);
+  document.addEventListener('keydown', event => {
+    if(!wasOpen) return;
+    if(event.key==='Escape'){event.preventDefault();hide();}
+    if(event.key==='Tab'){
+      const controls=Array.from(side.querySelectorAll('button')).filter(b=>!b.disabled && b.getClientRects().length>0 && getComputedStyle(b).visibility==='visible');
+      if(!controls.length)return;
+      const first=controls[0],last=controls[controls.length-1];
+      if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+    }
+  });
+  const observer=new MutationObserver(sync);
+  observer.observe(side,{attributes:true,attributeFilter:['class']});
+  observer.observe(app,{attributes:true,attributeFilter:['class']});
+  mobile.addEventListener('change',sync);
+  sync();
+})();
 </script>
 </body>
 </html>
