@@ -505,6 +505,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <thead>
           <tr>
             <th>Submitted</th>
+            <th>Employee</th>
             <th>Category</th>
             <th>Subject and Description</th>
             <th>Status</th>
@@ -514,7 +515,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         </thead>
         <tbody id="hrHelpRequestsTable">
           <tr>
-            <td colspan="6" class="table-empty">
+            <td colspan="7" class="table-empty">
               Click Refresh to load employee requests.
             </td>
           </tr>
@@ -989,6 +990,7 @@ function returnToPortal(message, isError=true) {
   clearPlatformData();
   clearRegistrationData();
   clearEmployeeDirectory();
+  $("hrHelpRequestsTable").replaceChildren();
   $("loginPassword").value="";
   $("appScreen").classList.add("hidden");
   $("authScreen").classList.add("hidden");
@@ -1276,6 +1278,7 @@ $('employeeProfileShortcut').addEventListener('click',()=>{if(currentRole==='emp
 $('employeeProfileShortcut').addEventListener('keydown',event=>{if(currentRole==='employee'&&(event.key==='Enter'||event.key===' ')){event.preventDefault();showPage('myProfile');}});
 function showAuthenticatedApp(profile,user) {
   clearEmployeeDirectory();
+  $("hrHelpRequestsTable").replaceChildren();
   currentUser=user; currentProfile=profile; currentRole=profile.role;
   clearOwnEmployeeProfile(); configureEmployeeProfileShortcut();
   $("portalScreen").classList.add("hidden"); $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
@@ -1731,26 +1734,35 @@ $("hrRequestForm").addEventListener("submit", async function(event) {
 $("refreshHRRequests").addEventListener("click", loadMyHRRequests);
 
 
+let hrHelpLoadSequence = 0;
 async function loadHRHelpRequests() {
+  const sequence = ++hrHelpLoadSequence;
   const table = $("hrHelpRequestsTable");
 
-  if (!currentUser || currentRole !== "employer") {
+  if (!currentUser || currentRole !== "employer" || !currentProfile?.company_id) {
     table.innerHTML =
-      '<tr><td colspan="6" class="table-empty">Please log in using your employer account.</td></tr>';
+      '<tr><td colspan="7" class="table-empty">Please log in using your employer account.</td></tr>';
     return;
   }
 
   table.innerHTML =
-    '<tr><td colspan="6" class="table-empty">Loading requests...</td></tr>';
+    '<tr><td colspan="7" class="table-empty">Loading requests...</td></tr>';
 
+  const userId = currentUser.id;
+  const companyId = currentProfile.company_id;
+  const sameAccount = () => currentRole === "employer" && currentUser?.id === userId && currentProfile?.company_id === companyId;
+  const stillCurrent = () => sameAccount() && sequence === hrHelpLoadSequence;
   const { data, error } = await db
     .from("hr_requests")
     .select("id, employee_id, created_at, category, subject, description, status, hr_reply")
+    .eq("company_id", companyId)
     .order("created_at", { ascending: false });
+
+  if (!stillCurrent()) return;
 
   if (error) {
     table.innerHTML =
-      '<tr><td colspan="6" class="table-empty">Could not load requests.</td></tr>';
+      '<tr><td colspan="7" class="table-empty">Could not load requests.</td></tr>';
     console.error("HR Help Centre load error:", error.message);
     showNotice("hrHelpCentreNotice", "Unable to load requests. Check the employer access policy.", true);
     return;
@@ -1758,13 +1770,33 @@ async function loadHRHelpRequests() {
 
   if (!data || data.length === 0) {
     table.innerHTML =
-      '<tr><td colspan="6" class="table-empty">No employee HR requests found.</td></tr>';
+      '<tr><td colspan="7" class="table-empty">No employee HR requests found.</td></tr>';
     return;
   }
 
-  table.innerHTML = data.map(request => `
+  let identities = new Map();
+  let identityError = false;
+  try {
+    const { data: rows, error: lookupError } = await db.rpc("get_hr_request_employee_identity", {
+      p_request_ids: data.map(request => request.id)
+    });
+    if (lookupError) throw lookupError;
+    identities = new Map((rows || []).map(row => [row.request_id, row]));
+  } catch (err) {
+    identityError = true;
+    console.error("HR request employee lookup failed:", err?.message || "Unknown error");
+  }
+  if (!stillCurrent()) return;
+
+  table.innerHTML = data.map(request => {
+    const identity = identities.get(request.id);
+    return `
     <tr>
       <td>${esc(new Date(request.created_at).toLocaleDateString("en-IN"))}</td>
+      <td>
+        <strong>${esc(identity?.employee_name || (identityError ? "Lookup unavailable" : "Not available"))}</strong>
+        <p class="muted" style="margin-top:4px">Employee ID: ${esc(identity?.employee_number || "Not provided")}</p>
+      </td>
       <td>${esc(request.category)}</td>
       <td>
         <strong>${esc(request.subject)}</strong>
@@ -1790,10 +1822,12 @@ async function loadHRHelpRequests() {
         </button>
       </td>
     </tr>
-  `).join("");
+  `;
+  }).join("");
 
   table.querySelectorAll("[data-save-hr-request]").forEach(button => {
     button.addEventListener("click", async () => {
+      if (!stillCurrent()) return;
       const id = button.dataset.saveHrRequest;
       const status = $("hrRequestStatus-" + id).value;
       const hr_reply = $("hrRequestReply-" + id).value.trim();
@@ -1806,11 +1840,14 @@ async function loadHRHelpRequests() {
         .update({
           status,
           hr_reply: hr_reply || null,
-          replied_by: currentUser.id,
+          replied_by: userId,
           replied_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("company_id", companyId);
+
+      if (!stillCurrent()) return;
 
       button.disabled = false;
       button.textContent = "Save";
