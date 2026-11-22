@@ -544,7 +544,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <section class="page" id="page-hrExits">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>Exit Interview Feedback</h1><p class="heading-description">Review exit reasons and feedback submitted by employees.</p></div><button class="btn-secondary" id="refreshHrExits">Refresh</button></div>
         <div class="info-box">Exit feedback may contain sensitive information. Restrict access to authorised HR users and handle feedback confidentially.</div>
-        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee ID</th><th>Primary reason</th><th>Feedback and suggestions</th></tr></thead><tbody id="hrExitTable"><tr><td colspan="4" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrENotice" class="notice" role="status"></div></div>
+        <div class="panel"><div class="table-wrap"><table><thead><tr><th>Submitted</th><th>Employee</th><th>Primary reason</th><th>Feedback and suggestions</th></tr></thead><tbody id="hrExitTable"><tr><td colspan="4" class="table-empty">Select this page to load records.</td></tr></tbody></table></div><div id="hrENotice" class="notice" role="status"></div></div>
       </section>
       <section class="page" id="page-myProfile">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE WORKSPACE</div><h1>My Profile</h1><p class="heading-description">View the employment information linked to your own account.</p></div></div>
@@ -677,7 +677,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
       <section class="page" id="page-myExit">
         <div class="page-heading"><div><div class="eyebrow">EMPLOYEE LIFECYCLE</div><h1>My Exit Feedback</h1><p class="heading-description">Share feedback for your exit process. Only use this when appropriate for your employment situation.</p></div></div>
-        <div class="panel"><div class="panel-title">Submit exit feedback</div><form id="exitForm"><div class="form-grid">
+        <div class="panel"><div class="panel-title">Submit exit feedback</div><p class="panel-subtitle" style="margin-top:8px">This is an identified, confidential submission, not anonymous. Authorised HR users in your company can see your name and employee ID along with your feedback.</p><form id="exitForm"><div class="form-grid">
           <div class="field"><label for="eReason">Primary reason *</label><select id="eReason" required><option value="">Select reason</option><option>Career Growth</option><option>Compensation</option><option>Work Environment</option><option>Managerial Relationship</option><option>Personal Reasons</option><option>Other</option></select></div>
           <div class="field full"><label for="eFeedback">Feedback and suggestions *</label><textarea id="eFeedback" required maxlength="4000" placeholder="Share your experience and suggestions"></textarea></div>
         </div><div class="form-actions"><button class="btn-primary" type="submit">Submit exit feedback</button></div><div class="notice" id="eNotice" role="status"></div></form></div>
@@ -1145,6 +1145,8 @@ function returnToPortal(message, isError=true) {
   clearEmployeeDirectory();
   $("hrHelpRequestsTable").replaceChildren();
   $("hrVoiceTable").replaceChildren();
+  hrExitLoadSequence++;
+  $("hrExitTable").replaceChildren();
   $("loginPassword").value="";
   $("appScreen").classList.add("hidden");
   $("authScreen").classList.add("hidden");
@@ -1753,42 +1755,53 @@ async function saveGrievance(id) {
     showNotice("hrGNotice","Grievance updated successfully.");
   } catch(err) {showNotice("hrGNotice","Update failed. Check HR UPDATE permissions and RLS policies: "+(err.message||"Unknown error"),true);}
 }
+let hrExitLoadSequence = 0;
 async function loadHrExits() {
-  if (currentRole !== "employer") return;
+  const sequence = ++hrExitLoadSequence;
+  if (currentRole !== "employer" || !currentUser || !currentProfile?.company_id) return;
+  const userId = currentUser.id;
+  const companyId = currentProfile.company_id;
+  const stillCurrent = () => sequence === hrExitLoadSequence && currentRole === "employer" && currentUser?.id === userId && currentProfile?.company_id === companyId;
   const tbody = $("hrExitTable");
   tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Loading exit feedback…</td></tr>';
   clearNotice("hrENotice");
   try {
     const { data, error } = await db.from("exit_interviews")
-      .select("employee_id,created_at,reason,feedback")
+      .select("id,created_at,reason,feedback")
+      .eq("company_id", companyId)
       .order("created_at", { ascending: false });
+    if (!stillCurrent()) return;
     if (error) throw error;
     if (!data?.length) {
       tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No exit feedback records found.</td></tr>';
       return;
     }
-
-    // Resolve only the employee IDs attached to the exit records HR is viewing.
-    const employeeIds = [...new Set(data.map(r => r.employee_id).filter(Boolean))];
-    const { data: profiles, error: profileError } = await db.rpc("get_employee_codes", {
-      employee_ids: employeeIds
-    });
-    if (profileError) throw profileError;
-    const employeeCodes = Object.fromEntries(
-      (profiles || []).map(profile => [profile.id, profile.employee_code])
-    );
-
+    let identities = new Map();
+    let identityError = false;
+    try {
+      const { data: rows, error: lookupError } = await db.rpc("get_hr_exit_employee_identity", {
+        p_exit_ids: data.map(r => r.id)
+      });
+      if (lookupError) throw lookupError;
+      identities = new Map((rows || []).map(row => [row.exit_id, row]));
+    } catch (err) {
+      identityError = true;
+      console.error("Exit employee lookup failed:", err?.message || "Unknown error");
+    }
+    if (!stillCurrent()) return;
     tbody.innerHTML = data.map(r => {
-      const employeeCode = employeeCodes[r.employee_id] || "Employee code unavailable";
+      const identity = identities.get(r.id);
       return `<tr>
         <td>${esc(r.created_at ? new Date(r.created_at).toLocaleDateString("en-IN") : "—")}</td>
-        <td>${esc(employeeCode)}</td>
+        <td style="min-width:140px"><strong>${esc(identity?.employee_name || (identityError ? "Lookup unavailable" : "Not available"))}</strong><p class="muted" style="margin-top:4px">Employee ID: ${esc(identity?.employee_number || "Not provided")}</p></td>
         <td>${esc(r.reason || "—")}</td>
         <td style="white-space:pre-wrap;min-width:260px">${esc(r.feedback || "—")}</td>
       </tr>`;
     }).join("");
+    if (identityError) showNotice("hrENotice", "Employee details could not be loaded. Check the exit identity database function and refresh.", true);
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR permissions and the get_employee_codes RPC setup.</td></tr>';
+    if (!stillCurrent()) return;
+    tbody.innerHTML = '<tr><td colspan="4" class="table-empty">Could not load exit feedback. Check HR permissions.</td></tr>';
     showNotice("hrENotice", err.message || "Could not load exit feedback.", true);
   }
 }
