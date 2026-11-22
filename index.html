@@ -324,6 +324,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
       <button class="btn-primary full signin-cta" type="submit" id="loginButton">Sign in</button>
     </form>
+    <div id="employeeAuthActions" class="hidden" style="margin-top:18px">
+      <button type="button" class="btn-secondary" id="eaNew">New employee? Activate your account</button>
+    </div>
+    <form id="eaSignup" class="hidden">
+      <div class="info-box" style="margin-top:16px">Use the email address registered by HR. Verify your email first, then enter the private code provided by HR.</div>
+      <div class="field"><label for="eaEmail">Email address</label><input id="eaEmail" type="email" required maxlength="254" autocomplete="email"></div>
+      <div class="field"><label for="eaPassword">Create password</label><input id="eaPassword" type="password" required minlength="12" autocomplete="new-password"></div>
+      <div class="field"><label for="eaConfirm">Confirm password</label><input id="eaConfirm" type="password" required minlength="12" autocomplete="new-password"></div>
+      <button type="submit" class="btn-primary full signin-cta" id="eaSignupButton">Create account &amp; verify email</button>
+      <button type="button" class="btn-secondary full" id="eaExisting">Already have an account? Sign in</button>
+    </form>
+    <form id="eaRedeem" class="hidden">
+      <div class="info-box" id="eaSignedEmail" style="margin-top:16px"></div>
+      <div class="field"><label for="eaCode">Activation code from HR</label><input id="eaCode" type="password" required minlength="32" maxlength="32" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+      <button type="submit" class="btn-primary full signin-cta" id="eaRedeemButton">Activate employee account</button>
+      <button type="button" class="btn-secondary full" id="eaExit">Sign out</button>
+    </form>
     <div id="registrationAuthActions" class="hidden company-auth-options">
       <button type="button" class="company-auth-option" id="newCompanyOption"><span class="company-auth-icon" aria-hidden="true">+</span><span><strong>New Company Registration</strong><small>Register your business and create your own HR account.</small></span><span aria-hidden="true">→</span></button>
       <button type="button" class="company-auth-option" id="trackCompanyOption"><span class="company-auth-icon" aria-hidden="true">✓</span><span><strong>Track My Application</strong><small>Already created an account? Sign in to check your status or finish registration.</small></span><span aria-hidden="true">→</span></button>
@@ -820,6 +837,67 @@ let currentRole = null;
 let selectedPortal = null;
 let companyAuthMode = null;
 let signupBusy = false;
+let eaUser = null;
+let eaMode = null;
+let eaBusy = false;
+function eaReset() {
+  eaUser=null; eaMode=null;
+  for(const id of ['employeeAuthActions','eaSignup','eaRedeem']) $(id).classList.add('hidden');
+  $('eaSignup').reset(); $('eaRedeem').reset(); $('eaSignedEmail').textContent='';
+}
+function eaShowSignup(){
+  if(selectedPortal!=='employee'||eaBusy||signupBusy||$('loginButton').disabled)return;
+  eaReset(); eaMode='signup'; clearNotice('authNotice');
+  $('loginForm').classList.add('hidden'); $('regularAuthHelp').classList.add('hidden');
+  $('eaSignup').classList.remove('hidden'); $('authTitle').textContent='Activate your employee account';
+  $('authSubtitle').textContent='Create a login with the email registered by your HR team.';
+  $('authBack').textContent='← Back to employee sign in';
+}
+function eaShowRedeem(user){
+  eaReset(); eaUser=user; eaMode='redeem'; selectedPortal='employee'; companyAuthMode=null;
+  currentUser=null; currentProfile=null; currentRole=null;
+  clearPlatformData(); clearRegistrationData(); clearEmployeeDirectory();
+  $('portalScreen').classList.add('hidden'); $('appScreen').classList.add('hidden'); $('authScreen').classList.remove('hidden');
+  for(const id of ['loginForm','newCompanyForm','registrationAuthActions','regularAuthHelp']) $(id).classList.add('hidden');
+  $('authBack').classList.add('hidden'); $('eaRedeem').classList.remove('hidden'); clearNotice('authNotice');
+  $('authEyebrow').textContent='EMPLOYEE ONBOARDING'; $('authTitle').textContent='Activate your employee account';
+  $('authSubtitle').textContent='Enter the single-use code provided privately by HR.';
+  $('eaSignedEmail').textContent='Signed in as '+(user.email||'')+'. Your activation code must match this verified email.';
+}
+$('eaNew').addEventListener('click',eaShowSignup);
+$('eaExisting').addEventListener('click',()=>{if(!eaBusy)selectPortal('employee');});
+$('eaExit').addEventListener('click',async()=>{if(eaBusy)return;const {error}=await db.auth.signOut();if(error)showNotice('authNotice',error.message,true);else returnToPortal('Signed out.',false);});
+$('eaSignup').addEventListener('submit',async e=>{
+  e.preventDefault(); if(eaMode!=='signup'||selectedPortal!=='employee'||eaBusy)return;
+  const email=$('eaEmail').value.trim(),password=$('eaPassword').value;
+  if(password.length<12||password!==$('eaConfirm').value){showNotice('authNotice','Use at least 12 characters and matching passwords.',true);return;}
+  eaBusy=true; $('eaSignupButton').disabled=true; $('eaExisting').disabled=true; $('authBack').disabled=true; clearNotice('authNotice');
+  try{
+    const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{exitinsight_employee_onboarding:true}}});
+    if(error)throw error;
+    if(data.session){const {error:out}=await db.auth.signOut();returnToPortal(out?'Sign-out failed. Contact the administrator.':'Email confirmation is not configured. Contact the administrator.',true);return;}
+    selectPortal('employee'); $('loginEmail').value=email;
+    showNotice('authNotice','If this email is eligible, check your inbox and Spam folder for a verification email. Confirm it, then sign in with your password to enter the HR activation code. If you already have an account, sign in instead.');
+  }catch(err){showNotice('authNotice',err.message||'Unable to register.',true);}
+  finally{eaBusy=false;$('eaSignupButton').disabled=false;$('eaExisting').disabled=false;$('authBack').disabled=false;$('eaPassword').value='';$('eaConfirm').value='';}
+});
+$('eaRedeem').addEventListener('submit',async e=>{
+  e.preventDefault(); if(eaMode!=='redeem'||!eaUser||eaBusy)return;
+  const code=$('eaCode').value.trim().toUpperCase(),user=eaUser;
+  if(!/^[0-9A-F]{32}$/.test(code)){showNotice('authNotice','Enter a valid 32-character activation code.',true);return;}
+  eaBusy=true;$('eaRedeemButton').disabled=true;$('eaExit').disabled=true;clearNotice('authNotice');
+  try{
+    const {data,error}=await db.rpc('redeem_employee_activation_code',{p_code:code});
+    if(eaUser?.id!==user.id)return;
+    if(error)throw error;
+    $('eaCode').value='';
+    const profile=await loadProfile(user);
+    if(eaUser?.id!==user.id)return;
+    if(profile.role!=='employee'||!profile.company_id||profile.company_id!==data)throw new Error('Account linked but profile could not be confirmed. Sign out and sign in again.');
+    eaReset(); showAuthenticatedApp(profile,user);
+  }catch(err){if(eaUser?.id===user.id)showNotice('authNotice',err.message||'Activation failed.',true);}
+  finally{eaBusy=false;$('eaRedeemButton').disabled=false;$('eaExit').disabled=false;$('eaCode').value='';}
+});
 function setCompanyAuthMode(mode) {
   if(selectedPortal!=="company_applicant" || !["choice","new","track"].includes(mode)) return;
   companyAuthMode=mode;
@@ -837,7 +915,9 @@ function setCompanyAuthMode(mode) {
   $("signupPassword").value=""; $("signupConfirmPassword").value="";
 }
 function backFromAuth() {
-  if(signupBusy || $("loginButton").disabled) return;
+  if(signupBusy || eaBusy || $("loginButton").disabled) return;
+  if(eaMode==='signup'){selectPortal('employee');return;}
+  if(eaMode==='redeem')return;
   if(selectedPortal==="company_applicant" && companyAuthMode!=="choice") {setCompanyAuthMode("choice");return;}
   returnToPortal();
 }
@@ -846,6 +926,7 @@ $("trackCompanyOption").addEventListener("click",()=>setCompanyAuthMode("track")
 
 function selectPortal(role) {
   if (!["employee","employer","platform_admin","company_applicant"].includes(role)) return;
+  eaReset(); $('authBack').classList.remove('hidden');
   selectedPortal = role;
   clearNotice("portalNotice");
   clearNotice("authNotice");
@@ -864,8 +945,10 @@ function selectPortal(role) {
     ? "Sign in with your employee account to continue."
     : "Sign in with your employer or HR account to continue.";
   $("loginButton").textContent = "Sign in";
+  $('employeeAuthActions').classList.toggle('hidden',role!=='employee');
 }
 function returnToPortal(message, isError=true) {
+  eaReset(); $('authBack').classList.remove('hidden');
   selectedPortal = null;
   companyAuthMode=null;
   $("newCompanyForm").reset();
@@ -1201,6 +1284,7 @@ $("loginForm").addEventListener("submit",async e=>{
     }
     const profile=await loadProfile(data.user);
     if (profile.role === "employee" && profile.company_id == null) {
+      if(portal==='employee'){eaShowRedeem(data.user);return;}
       showAuthenticatedApp({...profile,role:"company_applicant"},data.user);
       return;
     }
@@ -1246,6 +1330,9 @@ async function restoreSession() {
         return;
       }
       const profile=await loadProfile(data.session.user);
+      if(profile.role==='employee' && profile.company_id==null && data.session.user.user_metadata?.exitinsight_employee_onboarding===true && !data.session.user.user_metadata?.exitinsight_company_draft){
+        eaShowRedeem(data.session.user);return;
+      }
       showAuthenticatedApp(profile.role==="employee" && profile.company_id==null ? {...profile,role:"company_applicant"} : profile,data.session.user);
     }
   } catch(err) {await db.auth.signOut(); returnToPortal(err.message || "Could not restore session.",true);}
