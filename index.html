@@ -336,7 +336,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <form id="loginForm">
       <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="email" placeholder="you@company.com"></div>
       <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password" minlength="6" placeholder="Your password"></div>
+      <div style="text-align:right;margin-top:12px"><button type="button" id="prForgot" class="auth-back" style="display:inline-block;margin:0">Forgot password?</button></div>
       <button class="btn-primary full signin-cta" type="submit" id="loginButton">Sign in</button>
+    </form>
+    <form id="prRequest" class="hidden">
+      <div class="field"><label for="prEmail">Registered email address</label><input id="prEmail" type="email" required maxlength="254" autocomplete="email" placeholder="you@company.com"></div>
+      <button type="submit" id="prSend" class="btn-primary full signin-cta">Send reset link</button>
+      <button type="button" id="prBack" class="btn-secondary full">Back to sign in</button>
+    </form>
+    <form id="prReset" class="hidden">
+      <div class="info-box" id="prIdentity" style="margin-top:16px"></div>
+      <div id="prPasswordFields">
+        <div class="field"><label for="prPassword">New password</label><input id="prPassword" type="password" required minlength="12" maxlength="72" autocomplete="new-password"></div>
+        <div class="field"><label for="prConfirm">Confirm new password</label><input id="prConfirm" type="password" required minlength="12" maxlength="72" autocomplete="new-password"></div>
+        <button type="submit" id="prSave" class="btn-primary full signin-cta">Update password</button>
+      </div>
+      <button type="button" id="prExit" class="btn-secondary full">Cancel and return to sign in</button>
     </form>
     <div id="employeeAuthActions" class="hidden" style="margin-top:18px">
       <button type="button" class="btn-secondary" id="eaNew">New employee? Activate your account</button>
@@ -861,7 +876,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    Browser-safe publishable key only. Never put a service_role/secret key here. */
 const SUPABASE_URL = "https://lepdugsrgtucbzqoyxsw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0965ZDjxG2sJF6SUqny13Q_xUbIUT9z";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// Recovery sessions use separate, tab-scoped storage; they must not open an HR workspace.
+const prHash = new URLSearchParams(location.hash.slice(1));
+const prQuery = new URLSearchParams(location.search);
+const prLanding = prHash.get('type') === 'recovery' || prQuery.get('type') === 'recovery';
+const prCallbackError = prHash.has('error') || prHash.has('error_code') || prQuery.has('error') || prQuery.has('error_code');
+const prMarker = 'exitinsight-password-recovery';
+const prStorage = window.sessionStorage;
+const prResuming = prStorage.getItem(prMarker) === '1';
+const prOnly = prLanding || prResuming;
+if(prOnly) prStorage.setItem(prMarker,'1');
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, prOnly ? {auth:{storage:prStorage,storageKey:'exitinsight-recovery-auth',flowType:'implicit',detectSessionInUrl:true}} : {});
 const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentProfile = null;
@@ -872,6 +897,91 @@ let signupBusy = false;
 let eaUser = null;
 let eaMode = null;
 let eaBusy = false;
+let prMode = null, prBusy = false, prUserId = null, prRecoveryEvent = null, prChanged = false;
+function prClearForms(){
+  prMode=null;
+  $('prRequest').classList.add('hidden');$('prReset').classList.add('hidden');
+  $('prRequest').reset();$('prReset').reset();
+}
+function prShowRequest(){
+  if(prOnly || prBusy || eaBusy || signupBusy || $('loginButton').disabled || !selectedPortal)return;
+  const email=$('loginEmail').value.trim();
+  eaReset();prClearForms();prMode='request';clearNotice('authNotice');
+  for(const id of ['loginForm','regularAuthHelp','registrationAuthActions','newCompanyForm'])$(id).classList.add('hidden');
+  $('prRequest').classList.remove('hidden');$('prEmail').value=email;
+  $('authEyebrow').textContent='SECURE ACCOUNT RECOVERY';$('authTitle').textContent='Forgot your password?';
+  $('authSubtitle').textContent='Enter your registered email to request a password reset link.';
+  $('authBack').textContent='← Back to sign in';$('prEmail').focus();
+}
+function prBackToLogin(){
+  if(prBusy || prOnly)return;
+  const portal=selectedPortal, email=$('prEmail').value.trim();
+  prClearForms();
+  if(portal){selectPortal(portal);if(portal==='company_applicant')setCompanyAuthMode('track');$('loginEmail').value=email;}
+  else returnToPortal();
+}
+$('prForgot').addEventListener('click',prShowRequest);
+$('prBack').addEventListener('click',prBackToLogin);
+$('prRequest').addEventListener('submit',async e=>{
+  e.preventDefault();if(prMode!=='request'||prBusy||prOnly)return;
+  prBusy=true;$('prSend').disabled=true;$('prBack').disabled=true;$('authBack').disabled=true;clearNotice('authNotice');
+  try{
+    const {error}=await db.auth.resetPasswordForEmail($('prEmail').value.trim(),{redirectTo:location.origin+location.pathname});
+    if(error)throw error;
+    showNotice('authNotice','If an eligible account exists, a password reset link will be sent to your registered email. Check your Inbox and Spam folder.');
+  }catch(e){showNotice('authNotice','Unable to request a reset link right now. Please try again later or contact the administrator.',true);}
+  finally{prBusy=false;$('prSend').disabled=false;$('prBack').disabled=false;$('authBack').disabled=false;}
+});
+function prShowReset(session, message){
+  eaReset();prClearForms();prMode='reset';prUserId=session?.user?.id||null;
+  currentUser=null;currentProfile=null;currentRole=null;selectedPortal=null;
+  $('portalScreen').classList.add('hidden');$('appScreen').classList.add('hidden');$('authScreen').classList.remove('hidden');
+  for(const id of ['loginForm','newCompanyForm','registrationAuthActions','regularAuthHelp','authBack']) $(id).classList.add('hidden');
+  $('prReset').classList.remove('hidden');$('authEyebrow').textContent='SECURE ACCOUNT RECOVERY';$('authTitle').textContent='Reset your password';
+  $('authSubtitle').textContent='Choose a new password of at least 12 characters.';
+  $('prIdentity').textContent=session?.user?.email?'Resetting password for '+session.user.email:'No valid recovery session. Request a fresh reset link.';
+  $('prPasswordFields').classList.toggle('hidden',!session);$('prSave').disabled=!session;
+  $('prExit').textContent=session?'Cancel and return to sign in':'Return to sign in';
+  clearNotice('authNotice');if(message)showNotice('authNotice',message,true);
+}
+async function prStart(){
+  try{
+    if(prCallbackError)throw new Error('This reset link is invalid or expired. Request another link.');
+    const {data,error}=await db.auth.getSession();if(error)throw error;
+    const session=data.session;
+    // A new link must match its recovery session, not an unrelated cached login.
+    const token=prHash.get('access_token');
+    if(!session || (prLanding && !((prRecoveryEvent?.user?.id===session.user.id)||(token&&token===session.access_token))))throw new Error('This reset link is invalid or expired. Request another link.');
+    const verified=await db.auth.getUser();if(verified.error||verified.data.user?.id!==session.user.id)throw new Error('Your recovery session could not be verified. Request another reset link.');
+    prShowReset(session);
+  }catch(e){prShowReset(null,'This password reset link is invalid, expired or could not be verified. Please request a fresh link.');}
+}
+async function prFinish(){
+  const {error}=await db.auth.signOut({scope:prChanged?'global':'local'});
+  if(error){showNotice('authNotice',prChanged?'Password updated, but sign-out could not be completed. Please retry returning to sign in.':'Unable to close the recovery session. Please try again.',true);return false;}
+  prStorage.removeItem(prMarker);prStorage.removeItem('exitinsight-recovery-auth');
+  prStorage.setItem('exitinsight-recovery-return',prChanged?'changed':'cancelled');
+  location.replace(location.origin+location.pathname);return true;
+}
+$('prReset').addEventListener('submit',async e=>{
+  e.preventDefault();if(prMode!=='reset'||!prOnly||!prUserId||prBusy||prChanged)return;
+  const password=$('prPassword').value;
+  if(password.length<12||new TextEncoder().encode(password).length>72||password!==$('prConfirm').value){showNotice('authNotice','Use matching passwords of at least 12 characters and at most 72 UTF-8 bytes.',true);return;}
+  prBusy=true;$('prSave').disabled=true;$('prExit').disabled=true;clearNotice('authNotice');
+  try{
+    const {data,error}=await db.auth.getUser();if(error||data.user?.id!==prUserId)throw new Error('Recovery session expired. Request a fresh link.');
+    const updated=await db.auth.updateUser({password});if(updated.error)throw updated.error;
+    prChanged=true;$('prPasswordFields').classList.add('hidden');$('prExit').textContent='Return to sign in';
+    showNotice('authNotice','Password updated. Return to sign in with your new password.');
+    await prFinish();
+  }catch(e){showNotice('authNotice',e.message||'Password update failed. Please try again.',true);}
+  finally{prBusy=false;$('prSave').disabled=prChanged;$('prExit').disabled=false;$('prPassword').value='';$('prConfirm').value='';}
+});
+$('prExit').addEventListener('click',async()=>{
+  if(prBusy||!prOnly)return;prBusy=true;$('prExit').disabled=true;
+  try{await prFinish();}catch(e){showNotice('authNotice','Unable to close the recovery session. Please try again.',true);}
+  finally{prBusy=false;$('prExit').disabled=false;}
+});
 let employeeAccessEpoch = 0;
 let employeeAccessPending = null;
 const employeeInactiveMessage = 'Your employee account has been deactivated or is no longer eligible for access. Please contact your HR department.';
@@ -988,7 +1098,8 @@ function setCompanyAuthMode(mode) {
   $("signupPassword").value=""; $("signupConfirmPassword").value="";
 }
 function backFromAuth() {
-  if(signupBusy || eaBusy || $("loginButton").disabled) return;
+  if(signupBusy || eaBusy || prBusy || $("loginButton").disabled) return;
+  if(prMode==='request'){prBackToLogin();return;}
   if(eaMode==='signup'){selectPortal('employee');return;}
   if(eaMode==='redeem')return;
   if(selectedPortal==="company_applicant" && companyAuthMode!=="choice") {setCompanyAuthMode("choice");return;}
@@ -999,7 +1110,8 @@ $("trackCompanyOption").addEventListener("click",()=>setCompanyAuthMode("track")
 
 function selectPortal(role) {
   if (!["employee","employer","platform_admin","company_applicant"].includes(role)) return;
-  eaReset(); $('authBack').classList.remove('hidden');
+  if(prOnly)return;
+  prClearForms();eaReset(); $('authBack').classList.remove('hidden');
   selectedPortal = role;
   clearNotice("portalNotice");
   clearNotice("authNotice");
@@ -1022,7 +1134,7 @@ function selectPortal(role) {
 }
 function returnToPortal(message, isError=true) {
   employeeAccessEpoch++;
-  eaReset(); $('authBack').classList.remove('hidden');
+  prClearForms();eaReset(); $('authBack').classList.remove('hidden');
   selectedPortal = null;
   companyAuthMode=null;
   $("newCompanyForm").reset();
@@ -1466,10 +1578,9 @@ async function restoreSession() {
     }
   } catch(err) {await db.auth.signOut(); returnToPortal(err.message || "Could not restore session.",true);}
 }
-db.auth.onAuthStateChange(async(event,session)=>{
-  if(event==="SIGNED_OUT") {
-    returnToPortal();
-  }
+db.auth.onAuthStateChange((event,session)=>{
+  if(prOnly){if(event==='PASSWORD_RECOVERY')prRecoveryEvent=session;return;}
+  if(event==='SIGNED_OUT')returnToPortal();
 });
 async function loadMyGrievances() {
   if(!currentUser) return;
@@ -2607,7 +2718,18 @@ $('edFile').addEventListener('change',async()=>{const file=$('edFile').files[0];
 $('edTemplate').addEventListener('click',()=>{if(!edReady||!edContext())return;const url=URL.createObjectURL(new Blob(['\uFEFF'+edFields.join(',')+'\r\n'],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='employee_template.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 $('edAdd').addEventListener('click',()=>edOpen());$('edCancel').addEventListener('click',()=>{$('edForm').reset();$('edForm').classList.add('hidden');edEditing=null;});$('edChoose').addEventListener('click',()=>{if(edReady&&!edBusy&&edContext())$('edFile').click();});$('edRefresh').addEventListener('click',loadEmployeeDirectory);$('edSearch').addEventListener('input',edRender);$('edFilter').addEventListener('change',edRender);
 
-  restoreSession();
+  if(prOnly){
+    prShowReset(null);$('authSubtitle').textContent='Verifying your password reset link…';$('prExit').disabled=true;
+    void prStart().finally(()=>{$('prExit').disabled=false;});
+  }else if(prCallbackError){
+    history.replaceState(null,'',location.pathname);
+    returnToPortal('This email link is invalid or expired. Please request a fresh link.',true);
+  }else if(prStorage.getItem('exitinsight-recovery-return')){
+    const changed=prStorage.getItem('exitinsight-recovery-return')==='changed';
+    prStorage.removeItem('exitinsight-recovery-return');
+    // Require a fresh sign-in rather than restoring a previous browser login.
+    void db.auth.signOut({scope:'local'}).then(({error})=>returnToPortal(error?'Please sign in again. If the problem persists, contact the administrator.':changed?'Password updated successfully. Sign in using your new password.':'Password recovery closed. Please sign in.',!!error)).catch(()=>returnToPortal('Please sign in again.',true));
+  }else restoreSession();
 </script>
 </body>
 </html>
